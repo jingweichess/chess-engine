@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - Performance Profiler|Win32">
+      <Configuration>Release - Performance Profiler</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release - Performance Profiler|x64">
+      <Configuration>Release - Performance Profiler</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{7221B2BF-45A0-44A2-AE35-E515C5D67BBD}</ProjectGuid>
+    <RootNamespace>jingwei</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)-$(Platform)-$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)-$(Platform)-$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)-$(Platform)-$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)-$(Platform)-$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>$(ProjectName)-$(Platform)-$(Configuration)</TargetName>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|x64'">
+    <TargetName>$(ProjectName)-$(Platform)-$(Configuration)</TargetName>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/constexpr:steps41943040 %(AdditionalOptions)</AdditionalOptions>
+      <ErrorReporting>None</ErrorReporting>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <StackCommitSize>
+      </StackCommitSize>
+      <LargeAddressAware>true</LargeAddressAware>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <Profile>true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>__BMI2__;USE_M128I;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AssemblerOutput>All</AssemblerOutput>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>
+      </StructMemberAlignment>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <Optimization>MaxSpeed</Optimization>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <OmitFramePointers>
+      </OmitFramePointers>
+      <TreatWarningAsError>
+      </TreatWarningAsError>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/constexpr:steps41943040 /Qpar-report:1 %(AdditionalOptions)</AdditionalOptions>
+      <EnableFiberSafeOptimizations>false</EnableFiberSafeOptimizations>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <UseFullPaths>true</UseFullPaths>
+      <ErrorReporting>None</ErrorReporting>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <StackCommitSize>
+      </StackCommitSize>
+      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - Performance Profiler|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>USE_M128I;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AssemblerOutput>All</AssemblerOutput>
+      <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <CallingConvention>
+      </CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <StructMemberAlignment>16Bytes</StructMemberAlignment>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <Optimization>MaxSpeed</Optimization>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <OmitFramePointers>
+      </OmitFramePointers>
+      <TreatWarningAsError>
+      </TreatWarningAsError>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <ErrorReporting>None</ErrorReporting>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <LargeAddressAware>true</LargeAddressAware>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <Profile>true</Profile>
+      <StackCommitSize>
+      </StackCommitSize>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\chess\bitboards\inbetween.cpp" />
+    <ClCompile Include="..\src\chess\bitboards\infront.cpp" />
+    <ClCompile Include="..\src\chess\bitboards\magics.cpp" />
+    <ClCompile Include="..\src\chess\bitboards\passedpawn.cpp" />
+    <ClCompile Include="..\src\chess\board\board.cpp" />
+    <ClCompile Include="..\src\chess\comm\xboard.cpp" />
+    <ClCompile Include="..\src\chess\comm\xboard\xboardsearchanalyzereventhandler.cpp" />
+    <ClCompile Include="..\src\chess\endgame\endgame.cpp" />
+    <ClCompile Include="..\src\chess\eval\constructor.cpp" />
+    <ClCompile Include="..\src\chess\eval\evaluator.cpp" />
+    <ClCompile Include="..\src\chess\eval\parameters.cpp" />
+    <ClCompile Include="..\src\chess\hash\hash.cpp" />
+    <ClCompile Include="..\src\chess\hash\chesshashtable.cpp" />
+    <ClCompile Include="..\src\chess\player\player.cpp" />
+    <ClCompile Include="..\src\chess\search\chesspv.cpp" />
+    <ClCompile Include="..\src\chess\search\movehistory.cpp" />
+    <ClCompile Include="..\src\chess\search\searcher.cpp" />
+    <ClCompile Include="..\src\chess\types\square.cpp" />
+    <ClCompile Include="..\src\game\clock\clock.cpp" />
+    <ClCompile Include="..\src\game\personality\personality.cpp" />
+    <ClCompile Include="..\src\game\search\aspiration.cpp" />
+    <ClCompile Include="..\src\game\search\hashtable.cpp" />
+    <ClCompile Include="engine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\chess\bitboards\inbetween.h" />
+    <ClInclude Include="..\src\chess\bitboards\infront.h" />
+    <ClInclude Include="..\src\chess\bitboards\magics.h" />
+    <ClInclude Include="..\src\chess\bitboards\moves.h" />
+    <ClInclude Include="..\src\chess\bitboards\passedpawn.h" />
+    <ClInclude Include="..\src\chess\board\attackgenerator.h" />
+    <ClInclude Include="..\src\chess\board\board.h" />
+    <ClInclude Include="..\src\chess\board\boardmover.h" />
+    <ClInclude Include="..\src\chess\board\movegenerator.h" />
+    <ClInclude Include="..\src\chess\board\moveorderer.h" />
+    <ClInclude Include="..\src\chess\board\see.h" />
+    <ClInclude Include="..\src\chess\comm\xboard.h" />
+    <ClInclude Include="..\src\chess\comm\xboard\xboardsearchanalyzereventhandler.h" />
+    <ClInclude Include="..\src\chess\comm\xboard\xboardsearcheventhandler.h" />
+    <ClInclude Include="..\src\chess\endgame\endgame.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\kbxkx.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\kk.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\knxkx.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\kqxkx.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\krxkx.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\kxk.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\kxkx.h" />
+    <ClInclude Include="..\src\chess\endgame\eval\kxxk.h" />
+    <ClInclude Include="..\src\chess\endgame\function.h" />
+    <ClInclude Include="..\src\chess\engine\chessengine.h" />
+    <ClInclude Include="..\src\chess\eval\constructor.h" />
+    <ClInclude Include="..\src\chess\eval\evaluator.h" />
+    <ClInclude Include="..\src\chess\eval\lazy.h" />
+    <ClInclude Include="..\src\chess\eval\parameters.h" />
+    <ClInclude Include="..\src\chess\hash\hash.h" />
+    <ClInclude Include="..\src\chess\hash\chesshashtable.h" />
+    <ClInclude Include="..\src\chess\player\player.h" />
+    <ClInclude Include="..\src\chess\search\events\searcheventhandler.h" />
+    <ClInclude Include="..\src\chess\search\history.h" />
+    <ClInclude Include="..\src\chess\search\chesspv.h" />
+    <ClInclude Include="..\src\chess\search\futilty.h" />
+    <ClInclude Include="..\src\chess\search\movehistory.h" />
+    <ClInclude Include="..\src\chess\search\nullmove.h" />
+    <ClInclude Include="..\src\chess\search\perft.h" />
+    <ClInclude Include="..\src\chess\search\probcut.h" />
+    <ClInclude Include="..\src\chess\search\quiescence.h" />
+    <ClInclude Include="..\src\chess\search\razoring.h" />
+    <ClInclude Include="..\src\chess\search\reductions.h" />
+    <ClInclude Include="..\src\chess\search\searcher.h" />
+    <ClInclude Include="..\src\chess\types\attackboards.h" />
+    <ClInclude Include="..\src\chess\types\castlerights.h" />
+    <ClInclude Include="..\src\chess\types\direction.h" />
+    <ClInclude Include="..\src\chess\types\file.h" />
+    <ClInclude Include="..\src\chess\types\move.h" />
+    <ClInclude Include="..\src\chess\types\nodetype.h" />
+    <ClInclude Include="..\src\chess\types\piecetype.h" />
+    <ClInclude Include="..\src\chess\types\rank.h" />
+    <ClInclude Include="..\src\chess\types\score.h" />
+    <ClInclude Include="..\src\chess\types\searchstack.h" />
+    <ClInclude Include="..\src\chess\types\square.h" />
+    <ClInclude Include="..\src\game\board\board.h" />
+    <ClInclude Include="..\src\game\board\movegen.h" />
+    <ClInclude Include="..\src\game\clock\clock.h" />
+    <ClInclude Include="..\src\game\comm\comm.h" />
+    <ClInclude Include="..\src\game\endgame\endgame.h" />
+    <ClInclude Include="..\src\game\engine\engine.h" />
+    <ClInclude Include="..\src\game\eval\evaluator.h" />
+    <ClInclude Include="..\src\game\math\bitreset.h" />
+    <ClInclude Include="..\src\game\math\bitscan.h" />
+    <ClInclude Include="..\src\game\math\byteswap.h" />
+    <ClInclude Include="..\src\game\math\fastfloat.h" />
+    <ClInclude Include="..\src\game\math\log.h" />
+    <ClInclude Include="..\src\game\math\popcount.h" />
+    <ClInclude Include="..\src\game\math\prefetch.h" />
+    <ClInclude Include="..\src\game\math\shift.h" />
+    <ClInclude Include="..\src\game\math\sort.h" />
+    <ClInclude Include="..\src\game\math\statistics.h" />
+    <ClInclude Include="..\src\game\personality\parametermap.h" />
+    <ClInclude Include="..\src\game\personality\personality.h" />
+    <ClInclude Include="..\src\game\player\player.h" />
+    <ClInclude Include="..\src\game\search\historytable.h" />
+    <ClInclude Include="..\src\game\search\hashtable.h" />
+    <ClInclude Include="..\src\game\search\movehistory.h" />
+    <ClInclude Include="..\src\game\search\pv.h" />
+    <ClInclude Include="..\src\game\search\searcher.h" />
+    <ClInclude Include="..\src\game\types\bitboard.h" />
+    <ClInclude Include="..\src\game\types\color.h" />
+    <ClInclude Include="..\src\game\types\depth.h" />
+    <ClInclude Include="..\src\game\types\hash.h" />
+    <ClInclude Include="..\src\game\types\movelist.h" />
+    <ClInclude Include="..\src\game\types\nodecount.h" />
+    <ClInclude Include="..\src\game\types\result.h" />
+    <ClInclude Include="..\src\game\types\score.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
