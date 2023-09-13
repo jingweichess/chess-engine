@@ -70,7 +70,7 @@ public:
                 move.ordinal = ChessMoveOrdinal::UNSAFE_MOVE;
             }
             else if (capturedPiece != PieceType::NO_PIECE) {
-                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, src, dst);
+                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
 
                 if (move.seeScore > ZERO_SCORE) {
                     move.ordinal = ChessMoveOrdinal::GOOD_CAPTURE_MOVE;
@@ -92,7 +92,7 @@ public:
                 move.ordinal = ChessMoveOrdinal::KILLER2_MOVE;
             }
             else {
-                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, src, dst);
+                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
 
                 if (move.seeScore < 0) {
                     move.ordinal = ChessMoveOrdinal::UNSAFE_MOVE + static_cast<ChessMoveOrdinal>(move.seeScore);
@@ -149,8 +149,14 @@ public:
                 && (unsafeSquares & OneShiftedBy(src)) != EmptyBitboard) {
                 move.ordinal = ChessMoveOrdinal::UNSAFE_MOVE;
             }
+            else if (searchStack->killer1 == move) {
+                move.ordinal = ChessMoveOrdinal::QUIESENCE_KILLER1_MOVE;
+            }
+            else if (searchStack->killer2 == move) {
+                move.ordinal = ChessMoveOrdinal::QUIESENCE_KILLER2_MOVE;
+            }
             else {
-                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, src, dst);
+                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
 
                 if (move.seeScore < 0) {
                     move.ordinal = ChessMoveOrdinal::BAD_QUIESENCE_MOVE + static_cast<ChessMoveOrdinal>(move.seeScore);

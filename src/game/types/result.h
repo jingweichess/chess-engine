@@ -40,6 +40,8 @@ constexpr TwoPlayerGameResult operator - (TwoPlayerGameResult gr)
     default:
         assert(0);
     }
+
+    return gr;
 }
 
 struct TwoPlayerGameSetResult {

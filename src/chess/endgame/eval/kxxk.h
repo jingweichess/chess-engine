@@ -58,7 +58,34 @@ constexpr ChessEndgame::EndgameFunctionType knnk = drawEndgameFunction;
 
 constexpr bool kbpk(const ChessBoard& board, Score& score)
 {
-    //TODO: If the pawn is on an outside file that the bishop can't protect, it's a draw
+    //1) Determine strong side
+    const Color strongSide = FindStrongSide(board);
+    const bool strongSideIsWhite = strongSide == Color::WHITE;
+
+    //2) If Pawn is not on outside File, return normal score
+    const Bitboard strongPawns = strongSideIsWhite ? board.whitePieces[PieceType::PAWN] : board.blackPieces[PieceType::PAWN];
+    const Square pawnSrc = BitScanForward<Square>(strongPawns);
+    const File pawnFile = GetFile(pawnSrc);
+
+    //3) Account for light or dark squared bishop
+    const Bitboard strongBishops = strongSideIsWhite ? board.whitePieces[PieceType::BISHOP] : board.blackPieces[PieceType::BISHOP];
+    const Square bishopSrc = BitScanForward<Square>(strongBishops);
+
+    const bool isLightSquaredBishop = IsLightSquare(bishopSrc);
+
+    //4) If Pawn is on outside file, and the bishop cannot cover it, return draw.
+    if (pawnFile == File::_A
+        && !isLightSquaredBishop) {
+        score = DRAW_SCORE;
+        return true;
+    }
+    else if (pawnFile == File::_H
+        && isLightSquaredBishop) {
+        score = DRAW_SCORE;
+        return true;
+    }
+
+    //5) No special case; return normal score
     return weakKingEndgameFunction(board, score);
 }
 

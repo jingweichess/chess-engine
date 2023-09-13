@@ -34,6 +34,11 @@ struct QuadraticConstruct {
     }
 };
 
+struct QuadraticParameterConstructorSet {
+    ChessEvaluation quadraticBase[32];
+    QuadraticConstruct quadraticConstruct;
+};
+
 struct PstConstruct {
     QuadraticConstruct rank;
     QuadraticConstruct filecenter;
@@ -62,34 +67,31 @@ struct PstConstruct {
     }
 };
 
+struct PstParameterConstructorSet {
+    ChessEvaluation pstBase[Square::SQUARE_COUNT];
+    PstConstruct pstConstruct;
+    ChessEvaluation defaultEvaluation;
+};
+
 class ScoreConstructor
 {
 public:
     constexpr ScoreConstructor() = default;
     constexpr ~ScoreConstructor() = default;
 
-    constexpr bool addPst(ChessEvaluation(&destinationPst)[Square::SQUARE_COUNT], const ChessEvaluation(&sourcePst)[Square::SQUARE_COUNT]) const
+    constexpr bool construct(ChessEvaluation(&pst)[Square::SQUARE_COUNT], const PstParameterConstructorSet& pstConstructorSet) const
     {
         for (const Square src : SquareIterator()) {
-            destinationPst[src] += sourcePst[src];
+            pst[src] = pstConstructorSet.defaultEvaluation + pstConstructorSet.pstBase[src] + pstConstructorSet.pstConstruct(src);
         }
 
         return true;
     }
 
-    constexpr bool construct(const PstConstruct& pstConstruct, ChessEvaluation(&pst)[Square::SQUARE_COUNT], ChessEvaluation defaultEvaluation = { ZERO_SCORE, ZERO_SCORE }) const
-    {
-        for (const Square src : SquareIterator()) {
-            pst[src] = defaultEvaluation + pstConstruct(src);
-        }
-
-        return true;
-    }
-
-    constexpr bool construct(QuadraticConstruct quadraticConstruct, ChessEvaluation* line, std::int32_t size) const
+    constexpr bool construct(ChessEvaluation* line, const QuadraticParameterConstructorSet& quadraticConstructorSet, std::int32_t size) const
     {
         for (std::int32_t x = 0; x < size; x++) {
-            line[x] = quadraticConstruct(x);
+            line[x] = quadraticConstructorSet.quadraticBase[x] + quadraticConstructorSet.quadraticConstruct(x);
         }
 
         return true;

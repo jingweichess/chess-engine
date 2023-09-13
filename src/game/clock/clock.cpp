@@ -120,7 +120,7 @@ bool Clock::shouldContinueSearch(Depth depth, NodeCount nodeCount)
 
     if (this->clockType != ClockType::SEARCHDEPTH
         && !this->minimumDepthReached) {
-        if (depth > (Depth::ONE * 1)) {
+        if (depth > Depth::ONE) {
             this->minimumDepthReached = true;
         }
         else {
@@ -130,7 +130,7 @@ bool Clock::shouldContinueSearch(Depth depth, NodeCount nodeCount)
 
     if (this->nps != ZeroNodes) {
         //If we've received an nps command, we are going by faked search time
-        NodeCount maxNodes = this->nps * this->maxSearchTime / 1000;
+        const NodeCount maxNodes = this->nps * this->maxSearchTime / 1000;
         return nodeCount < maxNodes;
     }
 

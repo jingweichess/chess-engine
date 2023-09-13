@@ -55,10 +55,23 @@ static void xboardForce(XBoardComm* xboard, std::stringstream& cmd)
     xboard->setForce(true);
 }
 
+static void saveOutOfBookFen(const std::string& fen)
+{
+    std::ofstream outOfbookFenFile;
+
+    outOfbookFenFile.open("data/out-of-book-fens.txt", std::ofstream::out | std::ofstream::app);
+    outOfbookFenFile << fen << std::endl;
+}
+
 static void xboardGo(XBoardComm* xboard, std::stringstream& cmd)
 {
     ChessMove playerMove;
     ChessPrincipalVariation principalVariation;
+
+    if (xboard->isForced()) {
+        const ChessBoard board = xboard->getPlayerBoard();
+        saveOutOfBookFen(board.saveToFen());
+    }
 
     xboard->getPlayerMove(playerMove);
 
@@ -360,6 +373,10 @@ std::string XBoardComm::getCurrentBoardFen()
     return this->player.getCurrentBoardFen();
 }
 
+const ChessBoard XBoardComm::getPlayerBoard() const
+{
+    return this->player.getBoard();
+}
 
 Clock& XBoardComm::getPlayerClock()
 {

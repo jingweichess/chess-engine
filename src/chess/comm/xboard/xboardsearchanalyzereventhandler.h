@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <map>
 #include <random>
+#include <sstream>
 #include <vector>
 
 #ifdef _MSC_VER
@@ -14,6 +15,8 @@
 #endif
 
 #include "../../search/events/searcheventhandler.h"
+
+#include "../../board/boardmover.h"
 
 #include "../../../game/math/statistics.h"
 
@@ -95,7 +98,6 @@ protected:
 
     void save()
     {
-        std::printf("Saving position %s\n", this->searchAnalysis.board.saveToFen().c_str());
         this->searchAnalysisList.push_back(this->searchAnalysis);
     }
 
@@ -118,46 +120,64 @@ public:
             return;
         }
 
-        std::ofstream positionFile;
-
-        positionFile.open("data/search-analysis.txt", std::ofstream::out | std::ofstream::app);
-
         //epoch,random,fen,result,depth,score,nodecount,principal variation
 
         std::mt19937_64 prng(__rdtsc());
 
-        std::uint64_t random = prng();
+        const std::uint64_t random = prng();
         SearchAnalysis& searchAnalysis = this->searchAnalysisList[random % this->searchAnalysisList.size()];
+
+        const std::size_t highestDepth = searchAnalysis.analysisList.size();
+        SearchAnalysisForDepth& bestAnalysisForDepth = searchAnalysis.analysisList[highestDepth - 1];
+
+        ChessBoard& board = searchAnalysis.board;
+        ChessBoardMover boardMover;
+
+        TwoPlayerGameResult gameResult = XBoardSearchAnalyzerSearchEventHandler::result;
+        SearchAnalysisForDepth& lastAnalysis = searchAnalysis.analysisList[searchAnalysis.analysisList.size() - 1];
+
+        for (const ChessMove& move : bestAnalysisForDepth.principalVariation) {
+            boardMover.dispatchDoMove(board, move);
+
+            gameResult = -gameResult;
+            lastAnalysis.score = -lastAnalysis.score;
+        }
 
         const std::string fen = searchAnalysis.board.saveToFen();
 
-        positionFile << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->epoch << std::dec << ',';
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->epoch << std::dec << ',';
 
-        positionFile << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->random << std::dec << ',' << fen << ',';
+        ss << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->random << std::dec << ',' << fen << ',';
 
-        switch (XBoardSearchAnalyzerSearchEventHandler::result) {
+        switch (gameResult) {
         case TwoPlayerGameResult::WIN:
-            positionFile << "1.0,";
+            ss << "1.0,";
             break;
         case TwoPlayerGameResult::DRAW:
-            positionFile << "0.5,";
+            ss << "0.5,";
             break;
         case TwoPlayerGameResult::LOSS:
-            positionFile << "0.0,";
+            ss << "0.0,";
             break;
         default:
             assert(0);
         }
 
-        positionFile << searchAnalysis.analysisList.size() << ',';
+        ss << searchAnalysis.analysisList.size() << ',';
 
-        const SearchAnalysisForDepth& lastAnalysis = searchAnalysis.analysisList[searchAnalysis.analysisList.size() - 1];
-        positionFile << lastAnalysis.score << ',' << lastAnalysis.nodeCount << ',';
+        ss << lastAnalysis.score << ',' << lastAnalysis.nodeCount << ',';
 
         const ChessPrincipalVariation& principalVariation = lastAnalysis.principalVariation;
-        principalVariation.printToFile(positionFile);
+        principalVariation.printToStringStream(ss);
 
-        positionFile << std::endl;
+        ss << std::endl;
+
+        std::ofstream positionFile;
+
+        positionFile.open("data/search-analysis.txt", std::ofstream::out | std::ofstream::app);
+
+        positionFile << ss.str() << std::flush;
     }
 
     void onLineCompleted(const ChessPrincipalVariation& principalVariation, std::time_t time, NodeCount nodeCount, Score score, Depth depth)
@@ -186,7 +206,7 @@ public:
 
         Statistics<Score> statistics;
 
-        if (board.getPieceCount() > 9
+        if (board.getPhase() > 9
             && this->shouldSave(statistics)) {
             this->save();
         }

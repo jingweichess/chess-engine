@@ -83,7 +83,7 @@ public:
 
     Score iterativeDeepeningLoop(BoardType& board, PrincipalVariationType& principalVariation)
     {
-        const std::int32_t pieceCount = PopCount(board.allPieces);
+        const std::int32_t pieceCount = board.getPieceCount();
         
         const Score initialDelta = AspirationWindowInitialValue(pieceCount);
         const Score deltaExpansion = AspirationWindowDelta(pieceCount);

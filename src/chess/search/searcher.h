@@ -22,20 +22,21 @@
 
 constexpr bool enableAllSearchFeatures = true;
 
-constexpr bool enableHistoryTable = enableAllSearchFeatures && true;
+constexpr bool enableAspirationWindow = enableAllSearchFeatures && false;
+
 constexpr bool enableExtensions = enableAllSearchFeatures && true;
 constexpr bool enableFutilityPruning = enableAllSearchFeatures && true;
-constexpr bool enableNullMove = enableAllSearchFeatures && true;
-constexpr bool enableReductions = enableAllSearchFeatures && true;
-constexpr bool enableSearchHashtable = enableAllSearchFeatures && true;
-
+constexpr bool enableHistoryTable = enableAllSearchFeatures && true;
+constexpr bool enableInternalIterativeDeepening = enableAllSearchFeatures && true;
 constexpr bool enableKillerMoves = enableAllSearchFeatures && true;
 constexpr bool enableMateDistancePruning = enableAllSearchFeatures && true;
-
+constexpr bool enableMoveExtensions = enableAllSearchFeatures && true;
+constexpr bool enableNullMove = enableAllSearchFeatures && true;
+constexpr bool enableQuiescenceSearchHashtable = enableAllSearchFeatures && true;
 constexpr bool enableQuiescenceStaticExchangeEvaluation = enableAllSearchFeatures && true;
-
-constexpr bool enableInternalIterativeDeepening = enableAllSearchFeatures && false;
-constexpr bool enableRazoring = enableAllSearchFeatures && false;
+constexpr bool enableRazoring = enableAllSearchFeatures && true;
+constexpr bool enableReductions = enableAllSearchFeatures && true;
+constexpr bool enableSearchHashtable = enableAllSearchFeatures && true;
 
 constexpr bool enableQuiescenceEarlyExit = enableAllSearchFeatures && false;
 
@@ -48,7 +49,8 @@ constexpr bool enableQuiescenceEarlyExit = enableAllSearchFeatures && false;
 
 #include "../eval/evaluator.h"
 
-#include "../hash/chesshashtable.h"
+//#include "../hash/chesshashtable.h"
+#include "../../game/search/hashtable.h"
 
 #include "../../game/types/depth.h"
 
@@ -80,7 +82,7 @@ protected:
 
     const ChessBoardMover boardMover;
 
-    ChessHashtable hashtable;
+    Hashtable hashtable;
 
     ChessMoveHistory moveHistory;
     MoveList<ChessMove> rootMoveList;
@@ -93,10 +95,11 @@ protected:
     SearchEventHandlerList searchEventHandlerList;
 
     ChessHistoryTable historyTable;
+    Depth rootSearchDepth;
 
     bool abortedSearch = false;
 
-    bool checkHashtable(const ChessBoard& board, HashtableEntryInfo& hashtableEntryInfo) const;
+    bool checkHashtable(const ChessBoard& board, HashtableEntry& hashtableEntry) const;
 
     template <NodeType nodeType>
     Score quiescenceSearch(ChessBoard& board, ChessSearchStack* searchStack, Score alpha, Score beta, Depth maxDepth, Depth currentDepth);

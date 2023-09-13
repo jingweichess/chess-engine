@@ -43,7 +43,7 @@ ChessPlayer::ChessPlayer()
 
     this->parameterMap = chessEngineParameterMap;
 
-    InitializeParameters();
+    //InitializeParameters();
 }
 
 void ChessPlayer::applyPersonality(bool strip)

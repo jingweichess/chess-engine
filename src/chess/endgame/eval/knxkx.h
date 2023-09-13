@@ -20,9 +20,14 @@
 
 #include "../function.h"
 
+#include "kxkx.h"
+
 constexpr ChessEndgame::EndgameFunctionType knpkp = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType knpkn = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType knpkb = weakKingDrawishEndgameFunction;
+
+constexpr ChessEndgame::EndgameFunctionType knkpp = knkp;
+constexpr ChessEndgame::EndgameFunctionType knkppp = knkp;
 
 constexpr ChessEndgame::EndgameFunctionType knnkp = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType knnkn = drawEndgameFunction;

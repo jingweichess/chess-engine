@@ -104,6 +104,11 @@ public:
 
     Score evaluateCurrentPosition();
 
+    const ChessBoard getBoard() const
+    {
+        return this->boardList[this->currentBoard - 1];
+    }
+
     Clock& getClock()
     {
         return this->clock;
@@ -175,10 +180,19 @@ public:
         this->searcher.resetMoveHistory();
     }
 
-    void setBoard(BoardType& board)
+    void setBoard(const BoardType& board)
     {
         this->boardList[0] = board;
         this->currentBoard = 0;
+
+        this->applyPersonality();
+
+        this->boardList[0].materialEvaluation = this->boardList[0].calculateMaterialEvaluation();
+        this->boardList[0].pstEvaluation = this->boardList[0].calculatePstEvaluation();
+
+        this->stripPersonality();
+
+        this->searcher.resetMoveHistory();
     }
 
     void setClock(Clock& clock)

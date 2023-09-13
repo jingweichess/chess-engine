@@ -146,7 +146,7 @@ constexpr bool weakKingDrawishEndgameFunction(const ChessBoard& board, Score& sc
     const Score pst = strongSide == Color::WHITE ? board.pstEvaluation.eg : -board.pstEvaluation.eg;
 
     //4) Put it all together for the strong side
-    std::int32_t kingDistance = constexpr_sqrt(file * file + rank * rank);
+    const std::int32_t kingDistance = constexpr_sqrt(file * file + rank * rank);
     score = DRAW_SCORE + KingProximity[kingDistance] + pst;
 
     //5) Ensure score is returned for side to move

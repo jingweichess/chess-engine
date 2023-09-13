@@ -57,6 +57,8 @@ public:
 	Clock& getPlayerClock();
 	void getPlayerMove(ChessMove& playerMove);
 
+    const ChessBoard getPlayerBoard() const;
+
     Color getSideToMove() const;
 
 	bool isForced() const;

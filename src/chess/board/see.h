@@ -31,18 +31,26 @@
 #include "../bitboards/inbetween.h"
 #include "../bitboards/moves.h"
 
+constexpr std::array<Score, PieceType::PIECETYPE_COUNT> SeeMaterialValues = {
+    ZERO_SCORE, PAWN_SCORE, KNIGHT_SCORE, BISHOP_SCORE, ROOK_SCORE, QUEEN_SCORE, WIN_SCORE
+};
+
 class StaticExchangeEvaluator
 {
 public:
     constexpr StaticExchangeEvaluator() = default;
     constexpr ~StaticExchangeEvaluator() = default;
 
+    constexpr Score staticExchangeEvaluation(const ChessBoard& board, const ChessMove& move) const {
+        if (move.seeScore != INVALID_SCORE) {
+            return move.seeScore;
+        }
+
+        return this->staticExchangeEvaluation(board, move.src, move.dst);
+    }
+
     constexpr Score staticExchangeEvaluation(const ChessBoard& board, Square src, Square dst) const
     {
-        constexpr std::array<Score, PieceType::PIECETYPE_COUNT> SeeMaterialValues = {
-            ZERO_SCORE, PAWN_SCORE, KNIGHT_SCORE, BISHOP_SCORE, ROOK_SCORE, QUEEN_SCORE, WIN_SCORE
-        };
-
         bool whiteToMove = board.sideToMove == Color::WHITE;
 
         const PieceType movingPiece = board.pieces[src];

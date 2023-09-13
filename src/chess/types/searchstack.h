@@ -49,4 +49,5 @@ struct ChessSearchStack {
     Bitboard passedPawns;
     NodeCount moveCount;
     Score staticEvaluation;
+    Depth distanceFromPv;
 };

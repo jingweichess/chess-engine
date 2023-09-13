@@ -199,6 +199,9 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "KRB5/8/8/8/8/8/8/6rk w - - 0 1", krbkr },
     { "krb5/8/8/8/8/8/8/6RK w - - 0 1", krbkr },
 
+    { "KRRB4/8/8/8/8/8/8/5rrk w - - 0 1", krrbkrr },
+    { "krrb4/8/8/8/8/8/8/5RRK w - - 0 1", krrbkrr },
+
     { "KRR5/8/8/8/8/8/8/6pk w - - 0 1", krrkp },
     { "krr5/8/8/8/8/8/8/6PK w - - 0 1", krrkp },
     { "KRR5/8/8/8/8/8/8/6nk w - - 0 1", krrkn },
@@ -221,6 +224,12 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "KQP5/8/8/8/8/8/8/6qk w - - 0 1", kqpkq },
     { "kqp5/8/8/8/8/8/8/6QK w - - 0 1", kqpkq },
 
+    { "KQP5/8/8/8/8/8/8/5pqk w - - 0 1", kqpkqp },
+    { "kqp5/8/8/8/8/8/8/5PQK w - - 0 1", kqpkqp },
+
+    { "KQPP4/8/8/8/8/8/8/6qk w - - 0 1", kqppkq },
+    { "kqpp4/8/8/8/8/8/8/6QK w - - 0 1", kqppkq },
+
     { "KQN5/8/8/8/8/8/8/6pk w - - 0 1", kqnkp },
     { "kqn5/8/8/8/8/8/8/6PK w - - 0 1", kqnkp },
     { "KQN5/8/8/8/8/8/8/6nk w - - 0 1", kqnkn },
@@ -242,6 +251,9 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "kqb5/8/8/8/8/8/8/6RK w - - 0 1", kqbkr },
     { "KQB5/8/8/8/8/8/8/6qk w - - 0 1", kqbkq },
     { "kqb5/8/8/8/8/8/8/6QK w - - 0 1", kqbkq },
+
+    { "KQB5/8/8/8/8/8/8/5pqk w - - 0 1", kqbkqp },
+    { "kqb5/8/8/8/8/8/8/5PQK w - - 0 1", kqbkqp },
 
     { "KQR5/8/8/8/8/8/8/6pk w - - 0 1", kqrkp },
     { "kqr5/8/8/8/8/8/8/6PK w - - 0 1", kqrkp },
@@ -303,6 +315,8 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "krpp4/8/8/8/8/8/8/5RPK w - - 0 1", krppkrp },
     { "KRPP4/8/8/8/8/8/8/4rppk w - - 0 1", krppkrpp },
     { "krpp4/8/8/8/8/8/8/4RPPK w - - 0 1", krppkrpp },
+    { "KRPPP3/8/8/8/8/8/8/4rppk w - - 0 1", krpppkrpp },
+    { "krppp3/8/8/8/8/8/8/4RPPK w - - 0 1", krpppkrpp },
 };
 
 void InitializeEndgame(ChessEndgame& endgame)

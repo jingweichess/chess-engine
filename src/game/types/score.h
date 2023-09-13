@@ -26,15 +26,15 @@
 
 using Score = std::int32_t;
 
-constexpr Score DRAW_SCORE = 0;
+constexpr Score ZERO_SCORE = 0;
+constexpr Score DRAW_SCORE = ZERO_SCORE;
 constexpr Score NO_SCORE = 32002;
 constexpr Score UNIT_SCORE = 256;
 constexpr Score WIN_SCORE = 32000;
 constexpr Score INFINITE_SCORE = WIN_SCORE + 1;
-constexpr Score ZERO_SCORE = 0;
 constexpr Score INVALID_SCORE = -32768;
 
-constexpr Score BASICALLY_WINNING_SCORE = UNIT_SCORE * 25;
+constexpr Score BASICALLY_WINNING_SCORE = UNIT_SCORE * 50;
 
 constexpr Score LostInDepth(Depth depth)
 {
@@ -54,6 +54,11 @@ constexpr Score WinInDepth(Depth depth)
 constexpr Score WinInMaxDepth()
 {
     return WinInDepth(Depth::MAX);
+}
+
+constexpr bool IsLossScore(Score score)
+{
+    return score < (-WIN_SCORE + Depth::MAX);
 }
 
 constexpr bool IsMateScore(Score score)

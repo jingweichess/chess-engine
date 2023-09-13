@@ -38,6 +38,16 @@ public:
     constexpr ChessBoardMover() = default;
     constexpr ~ChessBoardMover() = default;
 
+    constexpr void assertBoard(const ChessBoard& board) const
+    {
+        assert(board.materialEvaluation == board.calculateMaterialEvaluation());
+        assert(board.pstEvaluation == board.calculatePstEvaluation());
+
+        assert(board.hashValue == board.calculateHash());
+        assert(board.materialHashValue == board.calculateMaterialHash());
+        assert(board.pawnHashValue == board.calculatePawnHash());
+    }
+
     template <bool performPreCalculations = true>
     constexpr void dispatchDoMove(ChessBoard& board, const ChessMove& move) const
     {
@@ -374,12 +384,7 @@ public:
         //9) Set all pieces bitboard
         board.allPieces = board.whitePieces[PieceType::ALL] | board.blackPieces[PieceType::ALL];
 
-        assert(board.materialEvaluation == board.calculateMaterialEvaluation());
-        assert(board.pstEvaluation == board.calculatePstEvaluation());
-
-        assert(board.hashValue == board.calculateHash());
-        assert(board.materialHashValue == board.calculateMaterialHash());
-        assert(board.pawnHashValue == board.calculatePawnHash());
+        this->assertBoard(board);
 
         board.nullMove = false;
     }
@@ -395,12 +400,7 @@ public:
             board.enPassant = Square::NO_SQUARE;
         }
 
-        assert(board.materialEvaluation == board.calculateMaterialEvaluation());
-        assert(board.pstEvaluation == board.calculatePstEvaluation());
-
-        assert(board.hashValue == board.calculateHash());
-        assert(board.materialHashValue == board.calculateMaterialHash());
-        assert(board.pawnHashValue == board.calculatePawnHash());
+        this->assertBoard(board);
 
         board.nullMove = true;
 

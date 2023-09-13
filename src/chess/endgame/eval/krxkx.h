@@ -35,6 +35,8 @@ constexpr ChessEndgame::EndgameFunctionType krbkn = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krbkb = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krbkr = weakKingDrawishEndgameFunction;
 
+constexpr ChessEndgame::EndgameFunctionType krrbkrr = weakKingDrawishEndgameFunction;
+
 constexpr ChessEndgame::EndgameFunctionType krrkp = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krrkn = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krrkb = weakKingEndgameFunction;
@@ -42,6 +44,7 @@ constexpr ChessEndgame::EndgameFunctionType krrkr = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krrkq = weakKingDrawishEndgameFunction;
 
 constexpr ChessEndgame::EndgameFunctionType krpkrp = weakKingDrawishEndgameFunction;
-constexpr ChessEndgame::EndgameFunctionType krppkr = weakKingDrawishEndgameFunction;
+constexpr ChessEndgame::EndgameFunctionType krppkr = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krppkrp = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krppkrpp = weakKingDrawishEndgameFunction;
+constexpr ChessEndgame::EndgameFunctionType krpppkrpp = weakKingDrawishEndgameFunction;

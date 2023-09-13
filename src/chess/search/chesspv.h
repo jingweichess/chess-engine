@@ -19,6 +19,7 @@
 #pragma once
 
 #include <fstream>
+#include <sstream>
 
 #include "../../game/search/pv.h"
 
@@ -51,7 +52,29 @@ public:
 
             file << ' ';
         }
+    }
 
+    void printToStringStream(std::stringstream& ss) const
+    {
+        for (const MoveType& move : this->moveList) {
+
+            const Square src = move.src;
+            const Square dst = move.dst;
+
+            const std::string moveAsString = SquareToString(src) + SquareToString(dst);
+
+            ss << moveAsString;
+
+            const PieceType promotionPiece = move.promotionPiece;
+
+            if (promotionPiece != PieceType::NO_PIECE) {
+                const char* print = PiecePrint.c_str();
+
+                ss << print[promotionPiece];
+            }
+
+            ss << ' ';
+        }
     }
 
 	void printMoveToConsoleImplementation(const ChessMove& move) const;
