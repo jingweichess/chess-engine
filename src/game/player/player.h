@@ -31,7 +31,7 @@
 #include "../../chess/board/boardmover.h"
 #include "../../chess/search/chesspv.h"
 
-template <class T, class Searcher, class GameResult>
+template <class T, class Searcher, class GameResult = TwoPlayerGameResult>
 class Player
 {
 public:
@@ -43,6 +43,6 @@ public:
 
 protected:
 public:
-    constexpr Player() = default;
+    Player() = default;
     constexpr ~Player() = default;
 };

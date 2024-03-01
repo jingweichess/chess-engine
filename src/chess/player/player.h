@@ -28,19 +28,17 @@
 #include "../../game/personality/parametermap.h"
 #include "../../game/personality/personality.h"
 
+#include "../../game/player/player.h"
+
+#include "../../game/search/events/searcheventhandler.h"
+
 #include "../search/movehistory.h"
 #include "../search/searcher.h"
 
 #include "../types/move.h"
 
-class ChessPlayer// : public Player<ChessPlayer, ChessSearcher>
+class ChessPlayer : public Player<ChessPlayer, ChessSearcher>
 {
-public:
-    using BoardType = typename ChessSearcher::BoardType;
-
-    using MoveGeneratorType = typename ChessSearcher::MoveGeneratorType;
-    using MoveType = typename ChessSearcher::MoveType;
-
 protected:
     ChessEvaluator evaluator;
 
@@ -61,10 +59,13 @@ protected:
     ChessBoardMover boardMover;
 
 public:
+    using EventHandler = ChessSearcher::EventHandler;
+    using EventHandlerSharedPtr = ChessSearcher::EventHandlerSharedPtr;
+
 	ChessPlayer();
 	~ChessPlayer() = default;
 
-    void addSearchEventHandler(SearchEventHandlerSharedPtr& searchEventHandler)
+    void addSearchEventHandler(EventHandlerSharedPtr& searchEventHandler)
     {
         this->searcher.addSearchEventHandler(searchEventHandler);
     }
@@ -78,7 +79,7 @@ public:
     {
         BoardType nextBoard = this->boardList[this->currentBoard];
 
-        if (nextBoard.sideToMove == Color::WHITE) {
+        if (nextBoard.isWhiteToMove()) {
             this->boardMover.doMove<true>(nextBoard, move);
         }
         else {
@@ -106,7 +107,7 @@ public:
 
     const ChessBoard getBoard() const
     {
-        return this->boardList[this->currentBoard - 1];
+        return this->boardList[this->currentBoard];
     }
 
     Clock& getClock()
@@ -158,11 +159,10 @@ public:
 
     void resetSpecificPosition(const std::string& fen)
     {
-        this->currentBoard = 0;
-
         BoardType board;
         board.resetSpecificPosition(fen);
 
+        this->currentBoard = 0;
         this->boardList[0] = board;
 
         this->searcher.resetMoveHistory();
@@ -170,11 +170,11 @@ public:
 
     void resetStartingPosition()
     {
-        this->currentBoard = 0;
 
         BoardType board;
         board.resetStartingPosition();
 
+        this->currentBoard = 0;
         this->boardList[0] = board;
 
         this->searcher.resetMoveHistory();
@@ -182,8 +182,8 @@ public:
 
     void setBoard(const BoardType& board)
     {
-        this->boardList[0] = board;
         this->currentBoard = 0;
+        this->boardList[0] = board;
 
         this->applyPersonality();
 

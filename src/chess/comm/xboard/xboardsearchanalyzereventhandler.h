@@ -1,3 +1,21 @@
+/*
+    Jing Wei, the rebirth of the chess engine I started in 2010
+    Copyright(C) 2019-2023 Chris Florin
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 
 #include <chrono>
@@ -14,11 +32,13 @@
 # include <x86intrin.h>
 #endif
 
-#include "../../search/events/searcheventhandler.h"
+#include "../../../game/search/events/searcheventhandler.h"
 
 #include "../../board/boardmover.h"
 
 #include "../../../game/math/statistics.h"
+
+#include "../../search/chesspv.h"
 
 struct SearchAnalysisForDepth
 {
@@ -33,7 +53,7 @@ struct SearchAnalysis
     std::vector<SearchAnalysisForDepth> analysisList;
 };
 
-class XBoardSearchAnalyzerSearchEventHandler : public SearchEventHandler
+class XBoardSearchAnalyzerSearchEventHandler : public SearchEventHandler<ChessBoard, ChessPrincipalVariation>
 {
 protected:
     SearchAnalysis searchAnalysis;
@@ -60,6 +80,12 @@ protected:
             || lastScore < (-UNIT_SCORE * 15)) {
             return false;
         }
+
+        //Don't save searches that are too quick
+        //const NodeCount nodeCount = this->searchAnalysis.analysisList[searchDepth - 1].nodeCount;
+        //if (nodeCount < 100000) {
+        //    return false;
+        //}
 
         //Return volatile searches with many root moves in pv.
         if (this->moveCounts.size() >= 4) {
@@ -123,61 +149,60 @@ public:
         //epoch,random,fen,result,depth,score,nodecount,principal variation
 
         std::mt19937_64 prng(__rdtsc());
-
         const std::uint64_t random = prng();
         SearchAnalysis& searchAnalysis = this->searchAnalysisList[random % this->searchAnalysisList.size()];
 
-        const std::size_t highestDepth = searchAnalysis.analysisList.size();
-        SearchAnalysisForDepth& bestAnalysisForDepth = searchAnalysis.analysisList[highestDepth - 1];
-
-        ChessBoard& board = searchAnalysis.board;
-        ChessBoardMover boardMover;
-
-        TwoPlayerGameResult gameResult = XBoardSearchAnalyzerSearchEventHandler::result;
-        SearchAnalysisForDepth& lastAnalysis = searchAnalysis.analysisList[searchAnalysis.analysisList.size() - 1];
-
-        for (const ChessMove& move : bestAnalysisForDepth.principalVariation) {
-            boardMover.dispatchDoMove(board, move);
-
-            gameResult = -gameResult;
-            lastAnalysis.score = -lastAnalysis.score;
-        }
-
-        const std::string fen = searchAnalysis.board.saveToFen();
-
         std::stringstream ss;
-        ss << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->epoch << std::dec << ',';
 
-        ss << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->random << std::dec << ',' << fen << ',';
+        //for (SearchAnalysis& searchAnalysis : this->searchAnalysisList) {
+            std::size_t highestDepth = searchAnalysis.analysisList.size();
+            SearchAnalysisForDepth& bestAnalysisForDepth = searchAnalysis.analysisList[highestDepth - 1];
 
-        switch (gameResult) {
-        case TwoPlayerGameResult::WIN:
-            ss << "1.0,";
-            break;
-        case TwoPlayerGameResult::DRAW:
-            ss << "0.5,";
-            break;
-        case TwoPlayerGameResult::LOSS:
-            ss << "0.0,";
-            break;
-        default:
-            assert(0);
-        }
+            ChessBoard& board = searchAnalysis.board;
 
-        ss << searchAnalysis.analysisList.size() << ',';
+            ChessBoardMover boardMover;
 
-        ss << lastAnalysis.score << ',' << lastAnalysis.nodeCount << ',';
+            TwoPlayerGameResult gameResult = XBoardSearchAnalyzerSearchEventHandler::result;
+            SearchAnalysisForDepth& lastAnalysis = searchAnalysis.analysisList[searchAnalysis.analysisList.size() - 1];
 
-        const ChessPrincipalVariation& principalVariation = lastAnalysis.principalVariation;
-        principalVariation.printToStringStream(ss);
+            for (ChessMove& move : bestAnalysisForDepth.principalVariation) {
+                boardMover.dispatchDoMove(board, move);
 
-        ss << std::endl;
+                gameResult = -gameResult;
+                lastAnalysis.score = -lastAnalysis.score;
+            }
+
+            ss << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->epoch << std::dec << ',';
+
+            const std::string fen = board.saveToFen();
+            ss << "0x" << std::hex << std::setw(16) << std::setfill('0') << this->random << std::dec << ',' << fen << ',';
+
+            switch (gameResult) {
+            case TwoPlayerGameResult::WIN:
+                ss << "1.0,";
+                break;
+            case TwoPlayerGameResult::DRAW:
+                ss << "0.5,";
+                break;
+            case TwoPlayerGameResult::LOSS:
+                ss << "0.0,";
+                break;
+            default:
+                assert(0);
+            }
+
+            ss << searchAnalysis.analysisList.size() << ',';
+            ss << lastAnalysis.score << ',' << lastAnalysis.nodeCount << ',';
+
+            const ChessPrincipalVariation& principalVariation = lastAnalysis.principalVariation;
+            principalVariation.printToStringStream(ss);
+
+            ss << std::endl;
+        //}
 
         std::ofstream positionFile;
-
-        positionFile.open("data/search-analysis.txt", std::ofstream::out | std::ofstream::app);
-
-        positionFile << ss.str() << std::flush;
+        positionFile.open("data/positions.txt", std::ofstream::out | std::ofstream::app);
+        positionFile << ss.str();
     }
 
     void onLineCompleted(const ChessPrincipalVariation& principalVariation, std::time_t time, NodeCount nodeCount, Score score, Depth depth)

@@ -22,21 +22,25 @@
 
 constexpr bool enableAllSearchFeatures = true;
 
-constexpr bool enableAspirationWindow = enableAllSearchFeatures && false;
+constexpr bool enableAspirationWindow = enableAllSearchFeatures && true;
 
-constexpr bool enableExtensions = enableAllSearchFeatures && true;
 constexpr bool enableFutilityPruning = enableAllSearchFeatures && true;
+constexpr bool enableReverseFutilityPruning = enableAllSearchFeatures && true;
 constexpr bool enableHistoryTable = enableAllSearchFeatures && true;
 constexpr bool enableInternalIterativeDeepening = enableAllSearchFeatures && true;
 constexpr bool enableKillerMoves = enableAllSearchFeatures && true;
+constexpr bool enableMateAtAGlance = enableAllSearchFeatures && false;
 constexpr bool enableMateDistancePruning = enableAllSearchFeatures && true;
 constexpr bool enableMoveExtensions = enableAllSearchFeatures && true;
 constexpr bool enableNullMove = enableAllSearchFeatures && true;
-constexpr bool enableQuiescenceSearchHashtable = enableAllSearchFeatures && true;
+constexpr bool enablePositionExtensions = enableAllSearchFeatures && true;
 constexpr bool enableQuiescenceStaticExchangeEvaluation = enableAllSearchFeatures && true;
 constexpr bool enableRazoring = enableAllSearchFeatures && true;
 constexpr bool enableReductions = enableAllSearchFeatures && true;
+constexpr bool enableProbcut = enableAllSearchFeatures && true;
+
 constexpr bool enableSearchHashtable = enableAllSearchFeatures && true;
+constexpr bool enableQuiescenceSearchHashtable = enableAllSearchFeatures && enableSearchHashtable && true;
 
 constexpr bool enableQuiescenceEarlyExit = enableAllSearchFeatures && false;
 
@@ -64,9 +68,32 @@ constexpr bool enableQuiescenceEarlyExit = enableAllSearchFeatures && false;
 
 #include "chesspv.h"
 
-#include "events/searcheventhandler.h"
+#include "../../game/search/events/searcheventhandler.h"
+
+//#include "../../game/search/pvs.h"
 
 constexpr std::uint32_t SearchStackSize = Depth::MAX + 2;
+
+constexpr std::uint32_t HASH_MEGABYTES = 1;
+constexpr std::uint32_t HASH_SIZE = HASH_MEGABYTES * 65536;
+
+//class ChessPrincipalVariationSearcher : public PrincipalVariationSearcher<ChessPrincipalVariationSearcher, ChessEvaluator, ChessMoveGenerator, ChessPrincipalVariation, ChessSearchStack, ChessBoardMover, ChessMoveOrderer, ChessHistoryTable, ChessStaticExchangeEvaluator>
+//{
+//public:
+//    using BoardType = typename ChessEvaluator::BoardType;
+//    using EvaluationType = typename ChessEvaluator::EvaluationType;
+//    using MoveGeneratorType = ChessMoveGenerator;
+//    using MoveType = typename BoardType::MoveType;
+//    using PrincipalVariationType = ChessPrincipalVariation;
+//
+//    ChessPrincipalVariationSearcher() = default;
+//    ~ChessPrincipalVariationSearcher() = default;
+//
+//    constexpr void initializeSearchImplementation(const BoardType& board) const
+//    {
+//
+//    }
+//};
 
 class ChessSearcher
 {
@@ -78,7 +105,7 @@ protected:
     ChessAttackGenerator attackGenerator;
     ChessMoveGenerator moveGenerator;
     ChessMoveOrderer moveOrderer;
-    const StaticExchangeEvaluator staticExchangeEvaluator;
+    const ChessStaticExchangeEvaluator staticExchangeEvaluator;
 
     const ChessBoardMover boardMover;
 
@@ -92,7 +119,7 @@ protected:
 
     std::array<ChessSearchStack, SearchStackSize> searchStack;
 
-    SearchEventHandlerList searchEventHandlerList;
+    SearchEventHandlerList<ChessBoard, ChessPrincipalVariation> searchEventHandlerList;
 
     ChessHistoryTable historyTable;
     Depth rootSearchDepth;
@@ -122,10 +149,18 @@ public:
     using MoveType = typename BoardType::MoveType;
     using PrincipalVariationType = ChessPrincipalVariation;
 
+    using EventHandler = SearchEventHandler<BoardType, PrincipalVariationType>;
+    using EventHandlerSharedPtr = SearchEventHandlerSharedPtr<BoardType, PrincipalVariationType>;
+
     ChessSearcher();
     ~ChessSearcher() = default;
 
-    void addSearchEventHandler(SearchEventHandlerSharedPtr& searchEventHandler)
+    constexpr void initializeSearchImplementation(const BoardType& board) const
+    {
+
+    }
+
+    void addSearchEventHandler(SearchEventHandlerSharedPtr<BoardType, PrincipalVariationType>& searchEventHandler)
     {
         this->searchEventHandlerList.push_back(searchEventHandler);
     }

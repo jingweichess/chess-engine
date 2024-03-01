@@ -20,42 +20,6 @@
 
 #include "../../game/search/movehistory.h"
 
-#include "../../game/types/hash.h"
-
 #include "../board/board.h"
 
-#include "../types/move.h"
-#include "../types/piecetype.h"
-
-struct ChessMoveHistoryStruct {
-    Hash hashValue;
-    PieceType capturedPiece;
-    PieceType movedPiece;
-};
-
-class ChessMoveHistory : public MoveHistory<ChessMoveHistory, ChessBoard, ChessMoveHistoryStruct>
-{
-public:
-    ChessMoveHistory() = default;
-    ~ChessMoveHistory() = default;
-
-    bool afterDuplicateHashCheckImplementation([[maybe_unused]] Hash hashValue, const MoveHistoryStructType& chessMoveHistoryStruct) const
-    {
-        if (chessMoveHistoryStruct.movedPiece == PieceType::PAWN) {
-            return true;
-        }
-
-        if (chessMoveHistoryStruct.capturedPiece != PieceType::NO_PIECE) {
-            return true;
-        }
-
-        return false;
-    }
-
-    bool beforeDuplicateHashCheckImplementation([[maybe_unused]] Hash hashValue, [[maybe_unused]] const MoveHistoryStructType& chessMoveHistoryStruct) const
-    {
-        return false;
-    }
-
-    void getNextMoveHistoryEntry(MoveHistoryStructType& moveHistoryStruct, const BoardType& board, const MoveType& move) const;
-};
+using ChessMoveHistory = MoveHistory<ChessBoard, ChessBoard::MoveType>;

@@ -1,3 +1,21 @@
+/*
+    Jing Wei, the rebirth of the chess engine I started in 2010
+    Copyright(C) 2019-2023 Chris Florin
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #pragma once
 
 #include "../board/board.h"
@@ -52,12 +70,12 @@ public:
 
     constexpr NodeCount perft(const ChessBoard& board, Depth maxDepth, bool split = false) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.isWhiteToMove();
 
         if (maxDepth == Depth::ONE) {
             ChessMoveList& moveList = chessMoveListArray[Depth::ZERO];
 
-            if (whiteToMove) {
+            if (isWhiteToMove) {
                 this->moveGenerator.generateAllMoves<true>(board, moveList);
             }
             else {
@@ -75,7 +93,7 @@ public:
             return moveList.size();
         }
 
-        if (whiteToMove) {
+        if (isWhiteToMove) {
             if (split) {
                 return this->perft<true, true>(board, maxDepth - Depth::ONE);
             }
@@ -93,19 +111,19 @@ public:
         }
     }
 
-    template <bool whiteToMove, bool split = false>
+    template <bool isWhiteToMove, bool split = false>
     constexpr NodeCount perft(const ChessBoard& board, Depth depthLeft) const
     {
         ChessMoveList& moveList = chessMoveListArray[depthLeft];
-        this->moveGenerator.generateAllMoves<whiteToMove>(board, moveList);
+        this->moveGenerator.generateAllMoves<isWhiteToMove>(board, moveList);
 
         NodeCount result = ZeroNodes;
 
-        for (const ChessMove& move : moveList) {
+        for (ChessMove& move : moveList) {
             ChessBoard& currentBoard = chessBoardArray[depthLeft];
 
             currentBoard = board;
-            this->chessBoardMover.doMove<whiteToMove>(currentBoard, move);
+            this->chessBoardMover.doMove<isWhiteToMove>(currentBoard, move);
 
             if (split) {
                 //PrintMoveToConsole(move);
@@ -117,10 +135,10 @@ public:
             if (depthLeft == Depth::ONE) {
                 //If we're at the end of depthLeft, avoid a function call to perft again.
                 ChessMoveList& moveList = chessMoveListArray[Depth::ZERO];
-                nodeCount = this->moveGenerator.generateAllMoves<!whiteToMove, false, true>(currentBoard, moveList);
+                nodeCount = this->moveGenerator.generateAllMoves<!isWhiteToMove, false, true>(currentBoard, moveList);
             }
             else {
-                nodeCount = this->perft<!whiteToMove, false>(currentBoard, depthLeft - Depth::ONE);
+                nodeCount = this->perft<!isWhiteToMove, false>(currentBoard, depthLeft - Depth::ONE);
             }
 
             if (split) {

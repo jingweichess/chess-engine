@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <array>
 #include <bit>
 #include <iostream>
 #include <type_traits>
@@ -33,6 +34,7 @@
 #include "../../game/math/shift.h"
 
 using Bitboard = std::uint64_t;
+using BitboardPair = std::array<Bitboard, 2>;
 
 constexpr Bitboard EmptyBitboard = 0x0;
 constexpr Bitboard FullBitboard = 0xffffffffffffffff;
@@ -179,7 +181,7 @@ static void PrintBitboard(Bitboard bitboard)
     for (std::uint32_t i = 0; i < 64; i++) {
         const bool isBitSet = (OneShiftedBy(i) & bitboard) != EmptyBitboard;
 
-        std::cout << isBitSet ? "1 " : "0 ";
+        std::cout << isBitSet ? " 1" : " 0";
 
         if (i % 8 == 7) {
             std::cout << std::endl;

@@ -56,4 +56,3 @@ static std::uint64_t SwapBytes(std::uint64_t b)
 }
 
 #endif
-

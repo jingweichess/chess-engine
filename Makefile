@@ -12,7 +12,7 @@ CHESS_HASH = "src/chess/hash/hash.cpp" "src/chess/hash/chesshashtable.cpp"
 
 CHESS_PLAYER = "src/chess/player/player.cpp"
 
-CHESS_SEARCH = "src/chess/search/chesspv.cpp" "src/chess/search/movehistory.cpp" "src/chess/search/searcher.cpp"
+CHESS_SEARCH = "src/chess/search/chesspv.cpp" "src/chess/search/searcher.cpp"
 
 CHESS_TYPES = "src/chess/types/square.cpp"
 
@@ -36,17 +36,30 @@ compile:
 
 install:
 
-	wget https://github.com/cutechess/cutechess/releases/download/1.2.0/cutechess_20200809+1.2.0+1.2.0-1_amd64.deb -O /tmp/cutechess-cli.deb
+	wget https://github.com/cutechess/cutechess/releases/download/v1.3.1/cutechess_20230730+1.3.1-1_amd64.deb -O /tmp/cutechess-cli.deb
 	sudo dpkg -i /tmp/cutechess-cli.deb
 
 sprt: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=10 nodes=100000 dir="./bin" timemargin=100000 book="bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 12 -sprt elo0=0.5 elo1=1.0 alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=10 nodes=100000 dir="./bin" timemargin=100000 book="bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 12 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
 
 sprt-fast: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=10 nodes=2048 dir="./bin" timemargin=100000 book="bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 24 -sprt elo0=0.5 elo1=1.0 alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1000
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=10 nodes=2048 dir="./bin" timemargin=100000 book="bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 24 -sprt elo0=0 elo1=5 alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1000
 
 sprt-long: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:5+0 dir="./bin" timemargin=100000 book="./bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 6 -sprt elo0=0.5 elo1=1.0 alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1 -pgnout "./bin/data/test.pgn"
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:5 dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt elo0=0 elo1=3 alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+
+test: compile
+
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:5 dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+
+test-data-gen: compile
+
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:1 dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+
+update-old: compile
+
+	rm ./bin/jing-wei-old
+	cp ./bin/jing-wei ./bin/jing-wei-old

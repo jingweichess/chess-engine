@@ -35,17 +35,16 @@ class ChessMoveOrderer
 {
 protected:
     const ChessAttackGenerator attackGenerator;
-    const StaticExchangeEvaluator staticExchangeEvaluator;
+    const ChessStaticExchangeEvaluator staticExchangeEvaluator;
 public:
     constexpr ChessMoveOrderer() = default;
     constexpr ~ChessMoveOrderer() = default;
 
-    template <NodeType nodeType>
-    constexpr void reorderMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack, const ChessHistoryTable& historyTable) const
+    void reorderMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack, const ChessHistoryTable& historyTable) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.isWhiteToMove();
 
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
         const Bitboard unsafeSquares = this->attackGenerator.unsafeSquares(board.sideToMove, otherPieces);
 
@@ -61,8 +60,7 @@ public:
 
             move.seeScore = INVALID_SCORE;
 
-            if (nodeType == NodeType::PV
-                && searchStack->pvMove == move) {
+            if (searchStack->pvMove == move) {
                 move.ordinal = ChessMoveOrdinal::PV_MOVE;
             }
             else if (movingPiece != PieceType::PAWN
@@ -97,7 +95,7 @@ public:
                 if (move.seeScore < 0) {
                     move.ordinal = ChessMoveOrdinal::UNSAFE_MOVE + static_cast<ChessMoveOrdinal>(move.seeScore);
                 }
-                else if (enableHistoryTable) {
+                else {
                     const std::uint32_t historyScore = historyTable.get(movingPiece, dst);
 
                     if (historyScore > 0) {
@@ -106,9 +104,9 @@ public:
                     else {
                         move.ordinal = ChessMoveOrdinal::UNCLASSIFIED_MOVE;
                     }
-                }
-                else {
-                    move.ordinal = ChessMoveOrdinal::UNCLASSIFIED_MOVE;
+                //}
+                //else {
+                //    move.ordinal = ChessMoveOrdinal::UNCLASSIFIED_MOVE;
                 }
             }
         }
@@ -116,12 +114,11 @@ public:
         std::stable_sort(moveList.begin(), moveList.end(), std::greater<ChessMove>());
     }
 
-    template <NodeType nodeType>
-    constexpr void reorderQuiescenceMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack) const
+    void reorderQuiescenceMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.isWhiteToMove();
 
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
         const Bitboard unsafeSquares = this->attackGenerator.unsafeSquares(board.sideToMove, otherPieces);
 
@@ -140,8 +137,7 @@ public:
 
             move.seeScore = INVALID_SCORE;
 
-            if (nodeType == NodeType::PV
-                && searchStack->pvMove == move) {
+            if (searchStack->pvMove == move) {
                 move.ordinal = ChessMoveOrdinal::PV_MOVE;
             }
             else if (movingPiece != PieceType::PAWN

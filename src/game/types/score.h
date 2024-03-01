@@ -35,6 +35,7 @@ constexpr Score INFINITE_SCORE = WIN_SCORE + 1;
 constexpr Score INVALID_SCORE = -32768;
 
 constexpr Score BASICALLY_WINNING_SCORE = UNIT_SCORE * 50;
+constexpr Score TABLEBASE_SCORE = UNIT_SCORE * 90;
 
 constexpr Score LostInDepth(Depth depth)
 {
@@ -56,20 +57,24 @@ constexpr Score WinInMaxDepth()
     return WinInDepth(Depth::MAX);
 }
 
+constexpr bool IsDrawScore(Score score)
+{
+    return score == DRAW_SCORE;
+}
+
 constexpr bool IsLossScore(Score score)
 {
     return score < (-WIN_SCORE + Depth::MAX);
 }
 
-constexpr bool IsMateScore(Score score)
+constexpr bool IsWinScore(Score score)
 {
-    return (score < (-WIN_SCORE + Depth::MAX)) ||
-        (score > (WIN_SCORE - Depth::MAX));
+    return score > (WIN_SCORE - Depth::MAX);
 }
 
-constexpr bool IsDrawScore(Score score)
+constexpr bool IsMateScore(Score score)
 {
-    return score == DRAW_SCORE;
+    return IsLossScore(score) || IsWinScore(score);
 }
 
 constexpr Depth DistanceToWin(Score score)
@@ -267,34 +272,34 @@ union Evaluation {
         }
     }
 
-    constexpr bool operator != (Evaluation e2)
-    {
-        if (std::is_constant_evaluated()) {
-            return (this->mg != e2.mg) || (this->eg != e2.eg);
-        }
-        else {
-//#if defined(USE_M128I)
-//        __m128i result = _mm_cmpeq_epi32(this->vector, e2.vector);
-//        std::uint64_t spread[2];
-//
-//        _mm_store_si128((__m128i*)spread, result);
-//
-//        return spread != 0x0;
-//#else
-            return (this->mg != e2.mg) || (this->eg != e2.eg);
-//#endif
-        }
-//#if defined(USE_M128I)
-//        __m128i result = _mm_cmpeq_epi32(this->vector, e2.vector);
-//        std::uint64_t spread[2];
-//
-//        _mm_store_si128((__m128i*)spread, result);
-//
-//        return spread != 0x0;
-//#else
-        return (this->mg != e2.mg) || (this->eg != e2.eg);
-//#endif
-    }
+//    constexpr bool operator != (Evaluation e2)
+//    {
+//        if (std::is_constant_evaluated()) {
+//            return (this->mg != e2.mg) || (this->eg != e2.eg);
+//        }
+//        else {
+////#if defined(USE_M128I)
+////        __m128i result = _mm_cmpeq_epi32(this->vector, e2.vector);
+////        std::uint64_t spread[2];
+////
+////        _mm_store_si128((__m128i*)spread, result);
+////
+////        return spread != 0x0;
+////#else
+//            return (this->mg != e2.mg) || (this->eg != e2.eg);
+////#endif
+//        }
+////#if defined(USE_M128I)
+////        __m128i result = _mm_cmpeq_epi32(this->vector, e2.vector);
+////        std::uint64_t spread[2];
+////
+////        _mm_store_si128((__m128i*)spread, result);
+////
+////        return spread != 0x0;
+////#else
+//        return (this->mg != e2.mg) || (this->eg != e2.eg);
+////#endif
+//    }
 };
 
 constexpr Evaluation operator * (std::int32_t i, const Evaluation e)

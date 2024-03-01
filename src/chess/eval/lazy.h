@@ -24,7 +24,7 @@
 
 extern ChessEvaluation LazyEvaluationThreshold;
 
-static Score LazyThreshold(std::uint32_t phase)
+constexpr Score LazyThreshold(std::uint32_t phase)
 {
     return LazyEvaluationThreshold(phase);
 }

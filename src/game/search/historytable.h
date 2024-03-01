@@ -41,7 +41,20 @@ public:
 
         this->scores[x][y] = history;
 
+        if (history > 100000) {
+            //this->cap();
+        }
+
         return history;
+    }
+
+    constexpr void cap()
+    {
+        for (std::uint32_t i = 0; i < width; i++) {
+            for (std::uint32_t j = 0; j < height; j++) {
+                this->scores[i][j] = this->scores[i][j] / 2;
+            }
+        }
     }
 
     constexpr std::uint32_t get(std::uint32_t x, std::uint32_t y) const

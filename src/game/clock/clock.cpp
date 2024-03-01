@@ -16,6 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
+
 #include "clock.h"
 
 void Clock::decrementMovesLeft()
@@ -56,7 +58,7 @@ bool Clock::handleSearchLevel(NodeCount nodeCount)
         millisecondsPerMove = this->engineTimeLeft / this->movesLeft + this->Level.increment;
     }
 
-    return this->getElapsedTime(nodeCount) < millisecondsPerMove;
+    return this->getElapsedTime(nodeCount) < std::max(static_cast<std::int32_t>(millisecondsPerMove) - 20, 1);
 }
 
 void Clock::setClockDepth(Depth depth)

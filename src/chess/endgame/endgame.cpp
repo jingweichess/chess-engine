@@ -53,6 +53,9 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "KQ6/8/8/8/8/8/8/7k w - - 0 1", kqk },
     { "kq6/8/8/8/8/8/8/7K w - - 0 1", kqk },
 
+    { "KPP5/8/8/8/8/8/8/7k w - - 0 1", kppk },
+    { "kpp5/8/8/8/8/8/8/7K w - - 0 1", kppk },
+
     { "KN6/8/8/8/8/8/8/6pk w - - 0 1", knkp },
     { "kn6/8/8/8/8/8/8/6PK w - - 0 1", knkp },
     { "KN6/8/8/8/8/8/8/6nk w - - 0 1", knkn },
@@ -125,6 +128,9 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "kqr5/8/8/8/8/8/8/7K w - - 0 1", kqrk },
     { "KQQ5/8/8/8/8/8/8/7k w - - 0 1", kqqk },
     { "kqq5/8/8/8/8/8/8/7K w - - 0 1", kqqk },
+
+    { "KPPP4/8/8/8/8/8/8/7k w - - 0 1", kpppk },
+    { "kppp4/8/8/8/8/8/8/7K w - - 0 1", kpppk },
 
     { "KNP5/8/8/8/8/8/8/6pk w - - 0 1", knpkp },
     { "knp5/8/8/8/8/8/8/6PK w - - 0 1", knpkp },
@@ -298,6 +304,8 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
 
     { "KBP5/8/8/8/8/8/8/5bpk w - - 0 1", kbpkbp },
     { "kbp5/8/8/8/8/8/8/5BPK w - - 0 1", kbpkbp },
+    { "KBPP4/8/8/8/8/8/8/6bk w - - 0 1", kbppkb },
+    { "kbpp4/8/8/8/8/8/8/6BK w - - 0 1", kbppkb },
     { "KBPP4/8/8/8/8/8/8/5bpk w - - 0 1", kbppkbp },
     { "kbpp4/8/8/8/8/8/8/5BPK w - - 0 1", kbppkbp },
     { "KBPP4/8/8/8/8/8/8/4bppk w - - 0 1", kbppkbpp },
@@ -311,6 +319,8 @@ static std::map<std::string, ChessEndgame::EndgameFunctionType> chessEndgameMap 
     { "krp5/8/8/8/8/8/8/5PRK w - - 0 1", krpkrp },
     { "KRPP4/8/8/8/8/8/8/6rk w - - 0 1", krppkr },
     { "krpp4/8/8/8/8/8/8/6RK w - - 0 1", krppkr },
+    { "KRPPP3/8/8/8/8/8/8/6rk w - - 0 1", krpppkr },
+    { "krppp3/8/8/8/8/8/8/6RK w - - 0 1", krpppkr },
     { "KRPP4/8/8/8/8/8/8/5rpk w - - 0 1", krppkrp },
     { "krpp4/8/8/8/8/8/8/5RPK w - - 0 1", krppkrp },
     { "KRPP4/8/8/8/8/8/8/4rppk w - - 0 1", krppkrpp },

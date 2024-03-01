@@ -1,4 +1,4 @@
-FROM gcc:12.1
+FROM gcc:13.2
 
 WORKDIR /var/app
 

@@ -82,6 +82,13 @@ void Personality::loadPersonalityFile(const std::string& personalityFileName)
     personalityFile.close();
 }
 
+void Personality::prettyPrint() const
+{
+    for (const auto [key, val] : this->parameterList) {
+        std::printf("%s %d\n", key.c_str(), val);
+    }
+}
+
 void Personality::setOrdinal(std::int32_t ordinal)
 {
     this->ordinal = ordinal;

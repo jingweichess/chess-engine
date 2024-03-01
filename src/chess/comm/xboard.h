@@ -44,7 +44,7 @@ private:
     XBoardSearchAnalyzerSearchEventHandler searchAnalyzerEventHandler;
 public:
 	XBoardComm();
-	~XBoardComm() = default;
+    ~XBoardComm() {}
 
     void addSearchAnalyzer();
 

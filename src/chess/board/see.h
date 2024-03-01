@@ -35,11 +35,11 @@ constexpr std::array<Score, PieceType::PIECETYPE_COUNT> SeeMaterialValues = {
     ZERO_SCORE, PAWN_SCORE, KNIGHT_SCORE, BISHOP_SCORE, ROOK_SCORE, QUEEN_SCORE, WIN_SCORE
 };
 
-class StaticExchangeEvaluator
+class ChessStaticExchangeEvaluator
 {
 public:
-    constexpr StaticExchangeEvaluator() = default;
-    constexpr ~StaticExchangeEvaluator() = default;
+    constexpr ChessStaticExchangeEvaluator() = default;
+    constexpr ~ChessStaticExchangeEvaluator() = default;
 
     constexpr Score staticExchangeEvaluation(const ChessBoard& board, const ChessMove& move) const {
         if (move.seeScore != INVALID_SCORE) {
@@ -51,7 +51,7 @@ public:
 
     constexpr Score staticExchangeEvaluation(const ChessBoard& board, Square src, Square dst) const
     {
-        bool whiteToMove = board.sideToMove == Color::WHITE;
+        bool isWhiteToMove = board.isWhiteToMove();
 
         const PieceType movingPiece = board.pieces[src];
         const PieceType capturedPiece = dst == board.enPassant ? PieceType::PAWN : board.pieces[dst];
@@ -79,10 +79,10 @@ public:
         }
 
         //3) Set Side To Move Attackers
-        const Bitboard* piecesToMove = whiteToMove ? board.whitePieces : board.blackPieces;
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard* piecesToMove = isWhiteToMove ? board.whitePieces : board.blackPieces;
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
-        whiteToMove = !whiteToMove;
+        isWhiteToMove = !isWhiteToMove;
         std::swap(piecesToMove, otherPieces);
 
         //4) If the other side has no pieces to recapture, return the value of the captured piece
@@ -105,7 +105,7 @@ public:
 
         do {
             //7) Find the lowest value attacker for the current side to move
-            PieceType currentPieceType = bestKnown[whiteToMove];
+            PieceType currentPieceType = bestKnown[isWhiteToMove];
 
             attackersFound = false;
             Bitboard attackingPieces = EmptyBitboard;
@@ -125,34 +125,36 @@ public:
                 break;
             }
 
-            bestKnown[whiteToMove] = currentPieceType;
+            bestKnown[isWhiteToMove] = currentPieceType;
 
             //Scan through attackingPieces for one which is a valid attack to the square
             bool specificAttackerFound = false;
             for (const Square attackSrc : SquareBitboardIterator(attackingPieces)) {
-                if ((InBetween(attackSrc, dst) & allPieces) == EmptyBitboard) {
-                    specificAttackerFound = true;
-
-                    //This is a valid attacker.  Do the gain and remove from attacker list and all pieces
-                    allAttackers ^= OneShiftedBy(attackSrc);
-                    allPieces ^= OneShiftedBy(attackSrc);
-
-                    gain[depth] = SeeMaterialValues[lastMovedPiece] - gain[depth - 1];
-                    depth++;
-
-                    lastMovedPiece = currentPieceType;
-
-                    bestKnown[whiteToMove] = PieceType::PAWN;
-
-                    whiteToMove = !whiteToMove;
-                    std::swap(piecesToMove, otherPieces);
-
-                    break;
+                if ((InBetween(attackSrc, dst) & allPieces) != EmptyBitboard) {
+                    continue;
                 }
+
+                specificAttackerFound = true;
+
+                //This is a valid attacker.  Do the gain and remove from attacker list and all pieces
+                allAttackers ^= OneShiftedBy(attackSrc);
+                allPieces ^= OneShiftedBy(attackSrc);
+
+                gain[depth] = SeeMaterialValues[lastMovedPiece] - gain[depth - 1];
+                depth++;
+
+                lastMovedPiece = currentPieceType;
+
+                bestKnown[isWhiteToMove] = PieceType::PAWN;
+
+                isWhiteToMove = !isWhiteToMove;
+                std::swap(piecesToMove, otherPieces);
+
+                break;
             }
 
             if (!specificAttackerFound) {
-                bestKnown[whiteToMove]++;
+                bestKnown[isWhiteToMove]++;
             }
 
             sideToMoveAttackers = allAttackers & piecesToMove[PieceType::ALL];

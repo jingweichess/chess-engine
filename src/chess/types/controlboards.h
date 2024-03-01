@@ -16,11 +16,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "movehistory.h"
+#pragma once
 
-void ChessMoveHistory::getNextMoveHistoryEntry(MoveHistoryStructType& moveHistoryStruct, const BoardType& board, const MoveType& move) const
-{
-	moveHistoryStruct.hashValue = board.hashValue;
-	moveHistoryStruct.capturedPiece = move.capturedPiece;
-	moveHistoryStruct.movedPiece = move.movedPiece;
-}
+#include <array>
+
+#include "bitboard.h"
+#include "piecetype.h"
+
+using ControlBoards = std::array<BitboardPair, PieceType::PIECETYPE_COUNT>;
