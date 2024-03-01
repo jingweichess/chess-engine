@@ -31,27 +31,51 @@
 
 constexpr std::array<Score, Square::SQUARE_COUNT> DarkSquaredBishopMate =
 {
-	3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
-	4000, 3500, 4000, 4500, 5000, 5500, 6000, 6500,
-	4500, 4000, 3500, 4000, 4500, 5000, 5500, 6000,
-	5000, 4500, 4000, 3500, 4000, 4500, 5000, 5500,
-	5500, 5000, 4500, 4000, 3500, 4000, 4500, 5000,
-	6000, 5500, 5000, 4500, 4000, 3500, 4000, 4500,
-	6500, 6000, 5500, 5000, 4500, 4000, 3500, 4000,
-	7000, 6500, 6000, 5500, 5000, 4500, 4000, 3500
+	350, 400, 450, 500, 550, 600, 650, 700,
+	400, 350, 400, 450, 500, 550, 600, 650,
+	450, 400, 350, 400, 450, 500, 550, 600,
+	500, 450, 400, 350, 400, 450, 500, 550,
+	550, 500, 450, 400, 350, 400, 450, 500,
+	600, 550, 500, 450, 400, 350, 400, 450,
+	650, 600, 550, 500, 450, 400, 350, 400,
+	700, 650, 600, 550, 500, 450, 400, 350
 };
 
 constexpr std::array<Score, Square::SQUARE_COUNT> LightSquaredBishopMate =
 {
-	7000, 6500, 6000, 5500, 5000, 4500, 4000, 3500,
-	6500, 6000, 5500, 5000, 4500, 4000, 3500, 4000,
-	6000, 5500, 5000, 4500, 4000, 3500, 4000, 4500,
-	5500, 5000, 4500, 4000, 3500, 4000, 4500, 5000,
-	5000, 4500, 4000, 3500, 4000, 4500, 5000, 5500,
-	4500, 4000, 3500, 4000, 4500, 5000, 5500, 6000,
-	4000, 3500, 4000, 4500, 5000, 5500, 6000, 6500,
-	3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000
+	700, 650, 600, 550, 500, 450, 400, 350,
+	650, 600, 550, 500, 450, 400, 350, 400,
+	600, 550, 500, 450, 400, 350, 400, 450,
+	550, 500, 450, 400, 350, 400, 450, 500,
+	500, 450, 400, 350, 400, 450, 500, 550,
+	450, 400, 350, 400, 450, 500, 550, 600,
+	400, 350, 400, 450, 500, 550, 600, 650,
+	350, 400, 450, 500, 550, 600, 650, 700
 };
+
+constexpr bool kppk(const ChessBoard& board, Score& score)
+{
+    constexpr Bitboard RookFileBitboards = FileBitboard[File::_A] | FileBitboard[File::_H];
+
+    //1) Determine strong side
+    const Color strongSide = FindStrongSide(board);
+    const bool strongSideIsWhite = strongSide == Color::WHITE;
+
+    //2) If there is a pawn that isn't on a rook file, this is a win
+    const Bitboard strongPawns = strongSideIsWhite ? board.whitePieces[PieceType::PAWN] : board.blackPieces[PieceType::PAWN];
+
+    if ((strongPawns & RookFileBitboards) == strongPawns) {
+        const bool result = drawEndgameFunction(board, score);
+
+        score += board.pstEvaluation(board.getPhase());
+
+        return result;
+    }
+
+    return weakKingEndgameFunction(board, score);
+}
+
+constexpr ChessEndgame::EndgameFunctionType kpppk = kppk;
 
 constexpr ChessEndgame::EndgameFunctionType knpk = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType knnk = drawEndgameFunction;
@@ -67,29 +91,39 @@ constexpr bool kbpk(const ChessBoard& board, Score& score)
     const Square pawnSrc = BitScanForward<Square>(strongPawns);
     const File pawnFile = GetFile(pawnSrc);
 
-    //3) Account for light or dark squared bishop
+    //3) If there's more than one pawn and they're on different files, this is a win.
+    if (std::popcount(strongPawns) > 1) {
+        const Bitboard fileBitboard = FileBitboard[pawnFile];
+
+        if ((strongPawns & fileBitboard) != strongPawns) {
+            //No special case; return normal score
+            return weakKingEndgameFunction(board, score);
+        }
+    }
+
+    //4) Account for light or dark squared bishop
     const Bitboard strongBishops = strongSideIsWhite ? board.whitePieces[PieceType::BISHOP] : board.blackPieces[PieceType::BISHOP];
     const Square bishopSrc = BitScanForward<Square>(strongBishops);
 
-    const bool isLightSquaredBishop = IsLightSquare(bishopSrc);
+    const bool isLightColoredBishop = IsLightSquare(bishopSrc);
 
-    //4) If Pawn is on outside file, and the bishop cannot cover it, return draw.
+    //5) If Pawn is on outside file, and the bishop cannot cover it, return draw.
     if (pawnFile == File::_A
-        && !isLightSquaredBishop) {
+        && (strongSideIsWhite ? !isLightColoredBishop : isLightColoredBishop)) {
         score = DRAW_SCORE;
         return true;
     }
     else if (pawnFile == File::_H
-        && isLightSquaredBishop) {
+        && (strongSideIsWhite ? isLightColoredBishop : !isLightColoredBishop)) {
         score = DRAW_SCORE;
         return true;
     }
 
-    //5) No special case; return normal score
+    //6) No special case; return normal score
     return weakKingEndgameFunction(board, score);
 }
 
-constexpr ChessEndgame::EndgameFunctionType kbppk = weakKingEndgameFunction;
+constexpr ChessEndgame::EndgameFunctionType kbppk = kbpk;
 
 constexpr bool kbnk(const ChessBoard& board, Score& score)
 {
@@ -115,7 +149,7 @@ constexpr bool kbnk(const ChessBoard& board, Score& score)
 
 	//5) Put it all together for the strong side
 	const std::int32_t kingDistance = constexpr_sqrt(file * file + rank * rank);
-	score = BishopMate[weakKingPosition] + KingProximity[kingDistance];
+	score = BASICALLY_WINNING_SCORE + BishopMate[weakKingPosition] + KingProximity[kingDistance];
 
 	//6) Ensure score is returned for side to move
 	if (board.sideToMove != strongSide) {

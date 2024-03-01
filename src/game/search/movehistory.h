@@ -22,46 +22,44 @@
 
 #include "../types/hash.h"
 
-template <class T, class Board, class MoveHistoryStruct>
+template <class Board, class Move>
 class MoveHistory
 {
-protected:
-    std::vector<MoveHistoryStruct> moveHistoryList;
-public:
+public: 
     using BoardType = Board;
-    using MoveHistoryStructType = MoveHistoryStruct;
     using MoveType = typename BoardType::MoveType;
 
-    using size_type = typename std::vector<MoveHistoryStruct>::size_type;
+protected:
+    struct MoveHistoryStruct {
+        Hash hashValue;
+        MoveType move;
+        bool irreversible;
+    };
 
-    MoveHistory() = default;
-    ~MoveHistory() = default;
+public:
+    using MoveHistoryStructType = MoveHistoryStruct;
 
-    void addMoveToHistory(BoardType& board, MoveType& move)
-    {
-        MoveHistoryStructType moveHistoryStruct;
+protected:
+    std::vector<MoveHistoryStructType> moveHistoryList;
+    using size_type = typename std::vector<MoveHistoryStructType>::size_type;
 
-        static_cast<T*>(this)->getNextMoveHistoryEntry(moveHistoryStruct, board, move);
+public:
 
-        this->moveHistoryList.push_back(moveHistoryStruct);
-    }
+    constexpr MoveHistory() = default;
+    constexpr ~MoveHistory() = default;
 
-    std::uint32_t checkForDuplicateHash(Hash hashValue) const
+    constexpr std::uint32_t checkForDuplicateHash(Hash hashValue) const
     {
         std::uint32_t result = 0;
 
         for (auto it = this->moveHistoryList.rbegin(); it != this->moveHistoryList.rend(); ++it) {
             const MoveHistoryStructType& moveHistoryStruct = (*it);
 
-            if (static_cast<const T*>(this)->beforeDuplicateHashCheckImplementation(hashValue, moveHistoryStruct)) {
-                break;
-            }
-
             if (moveHistoryStruct.hashValue == hashValue) {
                 result++;
             }
 
-            if (static_cast<const T*>(this)->afterDuplicateHashCheckImplementation(hashValue, moveHistoryStruct)) {
+            if (moveHistoryStruct.irreversible) {
                 break;
             }
         }
@@ -69,17 +67,28 @@ public:
         return result;
     }
 
-    void resetHistory()
+    constexpr void clear()
     {
         this->moveHistoryList.clear();
     }
 
-    void removeSingleMove()
+    constexpr void pop_back()
     {
         this->moveHistoryList.pop_back();
     }
 
-    void reserve(const size_type _Newcapacity)
+    constexpr void push_back(const BoardType& board, const MoveType& move, bool irreversible = false)
+    {
+        MoveHistoryStructType moveHistoryStruct{
+            board.hashValue,
+            move,
+            irreversible
+        };
+
+        this->moveHistoryList.push_back(moveHistoryStruct);
+    }
+
+    constexpr void reserve(const size_type _Newcapacity)
     {
         this->moveHistoryList.reserve(_Newcapacity);
     }

@@ -52,6 +52,7 @@ public:
     void setParameter(const std::string& name, Score score);
 
     void loadPersonalityFile(const std::string& personalityFileName);
+    void prettyPrint() const;
 };
 
 using PersonalityList = std::vector<Personality>;

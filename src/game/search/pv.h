@@ -35,8 +35,10 @@ class PrincipalVariation
 {
 public:
     using MoveType = Move;
+
 protected:
     MoveList<MoveType> moveList;
+
 public:
     using const_iterator = typename MoveList<MoveType>::const_iterator;
     using iterator = typename MoveList<MoveType>::iterator;

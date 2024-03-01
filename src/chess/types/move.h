@@ -48,20 +48,13 @@ enum ChessMoveOrdinal {
     BAD_QUIESENCE_MOVE =    -90000000
 };
 
-constexpr ChessMoveOrdinal NoChessMoveOrdinal = ChessMoveOrdinal::NO_CHESS_MOVE_ORDINAL;
-
-constexpr ChessMoveOrdinal operator + (ChessMoveOrdinal cmo1, ChessMoveOrdinal cmo2)
-{
-    return ChessMoveOrdinal(int(cmo1) + int(cmo2));
-}
-
 struct ChessMove {
     Square src;
     Square dst;
 	PieceType promotionPiece = PieceType::NO_PIECE;
 
     Score seeScore = INVALID_SCORE;
-    ChessMoveOrdinal ordinal = ChessMoveOrdinal::NO_CHESS_MOVE_ORDINAL;
+    Score ordinal = NO_SCORE;
 
     PieceType capturedPiece = PieceType::NO_PIECE;
     PieceType movedPiece = PieceType::NO_PIECE;
@@ -70,7 +63,7 @@ struct ChessMove {
 using ChessMoveList = MoveList<ChessMove>;
 using ChessMoveIterator = ChessMoveList::iterator;
 
-constexpr ChessMove NullMove { Square::NO_SQUARE, Square::NO_SQUARE };
+constexpr ChessMove NullMove { Square::A8, Square::A8 };
 
 constexpr bool operator == (const ChessMove& m1, const ChessMove& m2)
 {

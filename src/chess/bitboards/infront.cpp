@@ -16,32 +16,32 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <array>
-#include <cstdint>
-
-#include "../../game/types/bitboard.h"
-
-#include "../types/direction.h"
-#include "../types/square.h"
-
-#include "../../game/math/shift.h"
-
-std::array<Bitboard, Square::SQUARE_COUNT> SquaresInFrontList
-{ []() constexpr {
-    std::array<Bitboard, Square::SQUARE_COUNT> result{};
-
-    for (Square src = Square::FIRST_SQUARE; src < Square::SQUARE_COUNT; src++) {
-        std::int32_t j = 1;
-
-        while (IsOnBoard(src, Direction::UP * j, Direction::NO_DIRECTION)) {
-            Square dst = src + Direction::UP * j;
-
-            //No need to check if dst is on the board
-            result[src] |= OneShiftedBy(dst);
-
-            j++;
-        }
-    }
-
-    return result;
-}() };
+//#include <array>
+//#include <cstdint>
+//
+//#include "../../game/types/bitboard.h"
+//
+//#include "../types/direction.h"
+//#include "../types/square.h"
+//
+//#include "../../game/math/shift.h"
+//
+//std::array<Bitboard, Square::SQUARE_COUNT> SquaresInFrontList
+//{ []() constexpr {
+//    std::array<Bitboard, Square::SQUARE_COUNT> result{};
+//
+//    for (Square src = Square::FIRST_SQUARE; src < Square::SQUARE_COUNT; src++) {
+//        std::int32_t j = 1;
+//
+//        while (IsOnBoard(src, Direction::UP * j, Direction::NO_DIRECTION)) {
+//            Square dst = src + Direction::UP * j;
+//
+//            //No need to check if dst is on the board
+//            result[src] |= OneShiftedBy(dst);
+//
+//            j++;
+//        }
+//    }
+//
+//    return result;
+//}() };

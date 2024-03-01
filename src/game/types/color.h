@@ -32,7 +32,7 @@ constexpr Color& operator ++ (Color& c, int)
     return c = Color(int(c) + 1);
 }
 
-constexpr Color operator ~ (Color& c)
+constexpr Color operator ~ (Color c)
 {
     if (c == Color::WHITE) {
         return Color::BLACK;

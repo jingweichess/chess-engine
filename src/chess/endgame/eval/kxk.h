@@ -27,28 +27,3 @@ constexpr ChessEndgame::EndgameFunctionType kbk = drawEndgameFunction;
 
 constexpr ChessEndgame::EndgameFunctionType krk = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType kqk = weakKingEndgameFunction;
-
-//extern const KqkTablebase kqkTablebase;
-
-//constexpr bool kqk(const ChessBoard& board, Score& score)
-//{
-//    TablebaseResult tablebaseResult = kqkTablebase.probe(board);
-//
-//    if (tablebaseResult == TablebaseResult::DEFAULT
-//        || tablebaseResult == TablebaseResult::DTC_ZERO) {
-//        return DRAW_SCORE;
-//    }
-//
-//    //1) Determine strong side
-//    const Color strongSide = FindStrongSide(board);
-//
-//    const Depth distanceToMate = static_cast<Depth>(tablebaseResult - TablebaseResult::DTM_ZERO);
-//    score = WinInDepth(distanceToMate);
-//
-//    //6) Ensure score is returned for side to move
-//    if (board.sideToMove != strongSide) {
-//        score = -score;
-//    }
-//
-//    return true;
-//}

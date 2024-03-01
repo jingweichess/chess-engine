@@ -104,9 +104,13 @@ protected:
         return MobilityParameters[pieceType][mobility];
     }
 
-    constexpr ChessEvaluation evaluatePawnAttacks(const BoardType& board, const Bitboard* colorPieces, const Bitboard* otherPieces, Color color) const
+    constexpr ChessEvaluation evaluatePawnAttacks(const BoardType& board, Color color) const
     {
         EvaluationType result = { ZERO_SCORE, ZERO_SCORE };
+
+        const bool colorIsWhite = color == Color::WHITE;
+        const Bitboard* colorPieces = colorIsWhite ? board.whitePieces : board.blackPieces;
+        const Bitboard* otherPieces = colorIsWhite ? board.blackPieces : board.whitePieces;
 
         const Bitboard pawnAttacks = this->attackGenerator.unsafeSquares(~color, colorPieces);
         const Bitboard allPawnAttacks = pawnAttacks & otherPieces[PieceType::ALL] & ~otherPieces[PieceType::PAWN];

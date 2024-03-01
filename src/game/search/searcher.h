@@ -83,10 +83,10 @@ public:
 
     Score iterativeDeepeningLoop(BoardType& board, PrincipalVariationType& principalVariation)
     {
-        const std::int32_t pieceCount = board.getPieceCount();
+        const std::int32_t phase = board.getPhase();
         
-        const Score initialDelta = AspirationWindowInitialValue(pieceCount);
-        const Score deltaExpansion = AspirationWindowDelta(pieceCount);
+        const Score initialDelta = AspirationWindowInitialValue(phase);
+        const Score deltaExpansion = AspirationWindowDelta(phase);
 
         this->initializeSearch(board);
 
@@ -121,7 +121,7 @@ public:
                 }
             }
 
-            Score score = this->rootSearch(board, principalVariation, searchDepth, alpha, beta);
+            Score score = this->rootSearch(board, principalVariation, searchDepth, , beta);
             foundMateSolution = IsMateScore(score);
 
             while (enableAspirationWindow

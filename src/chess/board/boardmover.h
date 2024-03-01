@@ -49,11 +49,11 @@ public:
     }
 
     template <bool performPreCalculations = true>
-    constexpr void dispatchDoMove(ChessBoard& board, const ChessMove& move) const
+    constexpr void dispatchDoMove(ChessBoard& board, ChessMove& move) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.sideToMove == Color::WHITE;
 
-        if (whiteToMove) {
+        if (isWhiteToMove) {
             this->doMove<true, performPreCalculations>(board, move);
         }
         else {
@@ -61,19 +61,19 @@ public:
         }
     }
 
-    template <bool whiteToMove, bool performPreCalculations = true>
-    constexpr void doMove(ChessBoard& board, const ChessMove& move) const
+    template <bool isWhiteToMove, bool performPreCalculations = true>
+    constexpr void doMove(ChessBoard& board, ChessMove& move) const
     {
-        constexpr Color colorToMove = whiteToMove ? Color::WHITE : Color::BLACK;
-        constexpr Color otherColor = whiteToMove ? Color::BLACK : Color::WHITE;
+        constexpr Color colorToMove = isWhiteToMove ? Color::WHITE : Color::BLACK;
+        constexpr Color otherColor = isWhiteToMove ? Color::BLACK : Color::WHITE;
 
-        const std::int32_t multiplier = whiteToMove ? 1 : -1;
+        const std::int32_t multiplier = isWhiteToMove ? 1 : -1;
 
         const Square& src = move.src;
         const Square& dst = move.dst;
 
-        Bitboard* piecesToMove = whiteToMove ? board.whitePieces : board.blackPieces;
-        Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        Bitboard* piecesToMove = isWhiteToMove ? board.whitePieces : board.blackPieces;
+        Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
         //1) If this is en passant, move the captured pawn back one piece
         const Square oldEnPassant = board.enPassant;
@@ -84,7 +84,7 @@ public:
         if (dst == board.enPassant
             && movingPiece == PAWN) {
             //This direction is the direction the captured pawn is to the destination en passant square
-            constexpr Direction dir = whiteToMove ? Direction::DOWN : Direction::UP;
+            constexpr Direction dir = isWhiteToMove ? Direction::DOWN : Direction::UP;
 
             otherPieces[PieceType::PAWN] = (otherPieces[PieceType::PAWN] ^ OneShiftedBy(dst + dir)) | OneShiftedBy(dst);
             otherPieces[PieceType::ALL] = (otherPieces[PieceType::ALL] ^ OneShiftedBy(dst + dir)) | OneShiftedBy(dst);
@@ -99,7 +99,7 @@ public:
                 board.pawnHashValue ^= PieceHash(otherColor, PieceType::PAWN, dst);
                 board.pawnHashValue ^= PieceHash(otherColor, PieceType::PAWN, dst + dir);
 
-                if (whiteToMove) {
+                if (isWhiteToMove) {
                     board.pstEvaluation += multiplier * PstParameters[PieceType::PAWN][FlipSquareOnHorizontalLine(dst + dir)];
                     board.pstEvaluation -= multiplier * PstParameters[PieceType::PAWN][FlipSquareOnHorizontalLine(dst)];
                 }
@@ -112,6 +112,7 @@ public:
 
         //2) If this is a capture move, save the captured piece
         const PieceType capturedPiece = board.pieces[dst];
+        move.capturedPiece = capturedPiece;
 
         assert(capturedPiece != PieceType::KING);
 
@@ -120,7 +121,7 @@ public:
         board.pieces[src] = PieceType::NO_PIECE;
 
         if (performPreCalculations) {
-            if (whiteToMove) {
+            if (isWhiteToMove) {
                 board.pstEvaluation += multiplier * PstParameters[movingPiece][dst];
                 board.pstEvaluation -= multiplier * PstParameters[movingPiece][src];
             }
@@ -145,8 +146,8 @@ public:
         switch (movingPiece) {
         case PieceType::PAWN:
         {
-            constexpr Direction dir = whiteToMove ? Direction::UP : Direction::DOWN;
-            constexpr Direction twoDir = whiteToMove ? Direction::TWO_UP : Direction::TWO_DOWN;
+            constexpr Direction dir = isWhiteToMove ? Direction::UP : Direction::DOWN;
+            constexpr Direction twoDir = isWhiteToMove ? Direction::TWO_UP : Direction::TWO_DOWN;
 
             const Bitboard enPassantPieces = EnPassant[src] & otherPieces[PieceType::PAWN];
             if ((src + twoDir) == dst
@@ -164,7 +165,7 @@ public:
         case PieceType::BISHOP:
             break;
         case PieceType::ROOK:
-            if constexpr (whiteToMove) {
+            if constexpr (isWhiteToMove) {
                 if (src == Square::A1) {
                     board.castleRights = (board.castleRights | CastleRights::WHITE_OOO) ^ CastleRights::WHITE_OOO;
                 }
@@ -184,7 +185,7 @@ public:
         case PieceType::QUEEN:
             break;
         case PieceType::KING:
-            if constexpr (whiteToMove) {
+            if constexpr (isWhiteToMove) {
                 board.castleRights &= CastleRights::BLACK_ALL;
 
                 //4b) If this is a castle, move the associated rook and destroy castle rights for that side.
@@ -271,7 +272,7 @@ public:
                 std::uint32_t pieceTypeCount = std::popcount(otherPieces[capturedPiece]);
                 board.materialHashValue ^= PieceHash(otherColor, capturedPiece, static_cast<Square>(pieceTypeCount)) ^ PieceHash(otherColor, capturedPiece, static_cast<Square>(pieceTypeCount - 1));
 
-                if (whiteToMove) {
+                if (isWhiteToMove) {
                     board.pstEvaluation += multiplier * PstParameters[capturedPiece][FlipSquareOnHorizontalLine(dst)];
                 }
                 else {
@@ -291,7 +292,7 @@ public:
                 }
                 break;
             case PieceType::ROOK:
-                if constexpr (whiteToMove) {
+                if constexpr (isWhiteToMove) {
                     if (dst == Square::A8) {
                         board.castleRights = (board.castleRights | CastleRights::BLACK_OOO) ^ CastleRights::BLACK_OOO;
                     }
@@ -327,7 +328,7 @@ public:
                 pieceTypeCount = std::popcount(piecesToMove[PieceType::PAWN]);
                 board.materialHashValue ^= PieceHash(colorToMove, PieceType::PAWN, static_cast<Square>(pieceTypeCount)) ^ PieceHash(colorToMove, PieceType::PAWN, static_cast<Square>(pieceTypeCount - 1));
 
-                if (whiteToMove) {
+                if (isWhiteToMove) {
                     board.pstEvaluation += multiplier * PstParameters[promotionPiece][dst];
                     board.pstEvaluation -= multiplier * PstParameters[PieceType::PAWN][dst];
                 }
@@ -392,7 +393,7 @@ public:
     bool doNullMove(ChessBoard& board) const
     {
         board.hashValue ^= WhiteToMoveHash;
-        board.sideToMove = board.sideToMove == Color::WHITE ? Color::BLACK : Color::WHITE;
+        board.sideToMove = ~board.sideToMove;
 
         if (board.enPassant != Square::NO_SQUARE) {
             board.hashValue ^= EnPassantHash(board.enPassant);

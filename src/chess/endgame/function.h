@@ -37,14 +37,14 @@ constexpr std::uint32_t constexpr_sqrt(std::uint32_t n, std::uint32_t i = 1) {
 
 constexpr std::array<Score, Square::SQUARE_COUNT> GeneralMate =
 {
-    4000, 3500, 3000, 2500, 2500, 3000, 3500, 4000,
-    3500, 3000, 2500, 2000, 2000, 2500, 3000, 3500,
-    3000, 2500, 2000, 1500, 1500, 2000, 2500, 3000,
-    2500, 2000, 1500, 1000, 1000, 1500, 2000, 2500,
-    2500, 2000, 1500, 1000, 1000, 1500, 2000, 2500,
-    3000, 2500, 2000, 1500, 1500, 2000, 2500, 3000,
-    3500, 3000, 2500, 2000, 2000, 2500, 3000, 3500,
-    4000, 3500, 3000, 2500, 2500, 3000, 3500, 4000
+    800, 700, 600, 500, 500, 600, 700, 800,
+    700, 600, 500, 400, 400, 500, 600, 700,
+    600, 500, 400, 300, 300, 400, 500, 600,
+    500, 400, 300, 200, 200, 300, 400, 500,
+    500, 400, 300, 200, 200, 300, 400, 500,
+    600, 500, 400, 300, 300, 400, 500, 600,
+    700, 600, 500, 400, 400, 500, 600, 700,
+    800, 700, 600, 500, 500, 600, 700, 800
 };
 
 constexpr std::array<Score, 11> KingProximity = { 0, 0, 90, 80, 70, 60, 50, 40, 30, 20, 10 };
@@ -63,10 +63,7 @@ constexpr Color FindStrongSide(const ChessBoard& board)
     //There's no need to calculate the actual material value based on the phase calculated score
     const Score materialScore = board.materialEvaluation.eg;
 
-    if (materialScore == DRAW_SCORE) {
-        return board.sideToMove;
-    }
-
+    //Default "strong" side is WHITE if material is even
     return materialScore >= DRAW_SCORE ? Color::WHITE : Color::BLACK;
 }
 
@@ -79,9 +76,10 @@ constexpr bool pushPawnEndgameFunction(const ChessBoard& board, Score& score)
 {
     //1) Determine strong side
     const Color strongSide = FindStrongSide(board);
+    const bool strongSideIsWhite = strongSide == Color::WHITE;
 
     //2) Account for other pieces being placed optimally
-    const Bitboard pawns = strongSide == Color::WHITE ? board.whitePieces[PieceType::PAWN] : board.blackPieces[PieceType::PAWN];
+    const Bitboard pawns = strongSideIsWhite ? board.whitePieces[PieceType::PAWN] : board.blackPieces[PieceType::PAWN];
     Square src = BitScanForward<Square>(pawns);
 
     if (strongSide == Color::BLACK) {
@@ -89,7 +87,7 @@ constexpr bool pushPawnEndgameFunction(const ChessBoard& board, Score& score)
     }
 
     //psts are relative to white.  If strong side is Black, we have to negate.
-    const Score pst = strongSide == Color::WHITE ? PstParameters[PieceType::PAWN][src].eg : -PstParameters[PieceType::PAWN][src].eg;
+    const Score pst = strongSideIsWhite ? PstParameters[PieceType::PAWN][src].eg : -PstParameters[PieceType::PAWN][src].eg;
 
     //3) Put it all together for the strong side
     score = BASICALLY_WINNING_SCORE + pst;
@@ -107,9 +105,10 @@ constexpr bool weakKingEndgameFunction(const ChessBoard& board, Score& score)
 {
     //1) Determine strong side
     const Color strongSide = FindStrongSide(board);
+    const bool strongSideIsWhite = strongSide == Color::WHITE;
 
     //2) Return value based on weak king's position
-    const Square weakKingPosition = strongSide == Color::WHITE ? board.blackKingPosition() : board.whiteKingPosition();
+    const Square weakKingPosition = strongSideIsWhite ? board.blackKingPosition() : board.whiteKingPosition();
 
     //3) Calculate king proximity.  The strong king being close to the weak king makes
     //  it easier to force it around
@@ -118,7 +117,7 @@ constexpr bool weakKingEndgameFunction(const ChessBoard& board, Score& score)
 
     //4) Account for other pieces being placed optimally
     //psts are relative to white.  If strong side is Black, we have to negate.
-    const Score pst = strongSide == Color::WHITE ? board.pstEvaluation.eg : -board.pstEvaluation.eg;
+    const Score pst = strongSideIsWhite ? board.pstEvaluation.eg : -board.pstEvaluation.eg;
 
     //5) Put it all together for the strong side
     const std::int32_t kingDistance = static_cast<std::int32_t>(std::sqrt(file * file + rank * rank));
@@ -136,6 +135,7 @@ constexpr bool weakKingDrawishEndgameFunction(const ChessBoard& board, Score& sc
 {
     //1) Determine strong side
     const Color strongSide = FindStrongSide(board);
+    const bool strongSideIsWhite = strongSide == Color::WHITE;
 
     //2) Calculate king proximity.  The strong king being close to the weak king makes
     //  it easier to force it around
@@ -143,7 +143,7 @@ constexpr bool weakKingDrawishEndgameFunction(const ChessBoard& board, Score& sc
     const Rank rank = GetRank(board.whiteKingPosition()) - GetRank(board.blackKingPosition());
 
     //3) Account for other pieces being placed optimally
-    const Score pst = strongSide == Color::WHITE ? board.pstEvaluation.eg : -board.pstEvaluation.eg;
+    const Score pst = strongSideIsWhite ? board.pstEvaluation.eg : -board.pstEvaluation.eg;
 
     //4) Put it all together for the strong side
     const std::int32_t kingDistance = constexpr_sqrt(file * file + rank * rank);

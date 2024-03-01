@@ -40,13 +40,15 @@
 
 class ChessMoveGenerator
 {
+public:
+    using AttackGeneratorType = ChessAttackGenerator;
 protected:
-    const ChessAttackGenerator attackGenerator;
+    const AttackGeneratorType attackGenerator;
 
-    template <bool whiteToMove, bool checkBackRank, bool countOnly = false>
+    template <bool isWhiteToMove, bool checkBackRank, bool countOnly = false>
     constexpr NodeCount insertPawnMoves(const ChessBoard& board, ChessMoveList& moveList, Square src, Square dst) const
     {
-        constexpr Rank backRank = whiteToMove ? Rank::_8 : Rank::_1;
+        constexpr Rank backRank = isWhiteToMove ? Rank::_8 : Rank::_1;
 
         NodeCount result = ZeroNodes;
 
@@ -77,9 +79,9 @@ public:
 
     constexpr NodeCount DispatchGenerateAllCaptures(const ChessBoard& board, ChessMoveList& moveList) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.isWhiteToMove();
 
-        if (whiteToMove) {
+        if (isWhiteToMove) {
             return this->generateAllCaptures<true>(board, moveList);
         }
         else {
@@ -89,9 +91,9 @@ public:
 
     constexpr NodeCount DispatchGenerateAllMoves(const ChessBoard& board, ChessMoveList& moveList) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.isWhiteToMove();
 
-        if (whiteToMove) {
+        if (isWhiteToMove) {
             return this->generateAllMoves<true>(board, moveList);
         }
         else {
@@ -99,31 +101,31 @@ public:
         }
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr NodeCount generateAllCaptures(const ChessBoard& board, ChessMoveList& moveList) const
     {
         AttackBoards attackBoards;
-        this->attackGenerator.buildAttackBoards<whiteToMove>(board, attackBoards);
+        this->attackGenerator.buildAttackBoards<isWhiteToMove>(board, attackBoards);
 
-        return this->generateAllCaptures<whiteToMove>(board, moveList, attackBoards);
+        return this->generateAllCaptures<isWhiteToMove>(board, moveList, attackBoards);
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr NodeCount generateAllCaptures(const ChessBoard& board, ChessMoveList& moveList, const AttackBoards& attackBoards) const
     {
-        return this->generateAllMoves<whiteToMove, true>(board, moveList, attackBoards);
+        return this->generateAllMoves<isWhiteToMove, true>(board, moveList, attackBoards);
     }
 
-    template <bool whiteToMove, bool capturesOnly = false, bool countOnly = false>
+    template <bool isWhiteToMove, bool capturesOnly = false, bool countOnly = false>
     constexpr NodeCount generateAllMoves(const ChessBoard& board, ChessMoveList& moveList) const
     {
         AttackBoards attackBoards;
-        this->attackGenerator.buildAttackBoards<whiteToMove>(board, attackBoards);
+        this->attackGenerator.buildAttackBoards<isWhiteToMove>(board, attackBoards);
 
-        return this->generateAllMoves<whiteToMove, capturesOnly, countOnly>(board, moveList, attackBoards);
+        return this->generateAllMoves<isWhiteToMove, capturesOnly, countOnly>(board, moveList, attackBoards);
     }
 
-    template <bool whiteToMove, bool capturesOnly = false, bool countOnly = false>
+    template <bool isWhiteToMove, bool capturesOnly = false, bool countOnly = false>
     constexpr NodeCount generateAllMoves(const ChessBoard& board, ChessMoveList& moveList, const AttackBoards& attackBoards) const
     {
         moveList.clear();
@@ -131,40 +133,40 @@ public:
 
         //1) If the side to move is in check, there's an optimized algorithm for generating just evasions
         if (this->attackGenerator.isInCheck(attackBoards)) {
-            return this->generateCheckEvasions<whiteToMove>(board, attackBoards, moveList);
+            return this->generateCheckEvasions<isWhiteToMove>(board, attackBoards, moveList);
         }
 
-        const Bitboard* piecesToMove = whiteToMove ? board.whitePieces : board.blackPieces;
+        const Bitboard* piecesToMove = isWhiteToMove ? board.whitePieces : board.blackPieces;
 
         if (piecesToMove[PieceType::PAWN] != EmptyBitboard) {
-            result += this->generateMovesForPawns<whiteToMove, capturesOnly, countOnly>(board, attackBoards, moveList);
+            result += this->generateMovesForPawns<isWhiteToMove, capturesOnly, countOnly>(board, attackBoards, moveList);
         }
 
         if (piecesToMove[PieceType::KNIGHT] != EmptyBitboard) {
-            result += this->generateMovesForPieceType<whiteToMove, PieceType::KNIGHT, capturesOnly, countOnly>(board, attackBoards, moveList);
+            result += this->generateMovesForPieceType<isWhiteToMove, PieceType::KNIGHT, capturesOnly, countOnly>(board, attackBoards, moveList);
         }
 
         if (piecesToMove[PieceType::BISHOP] != EmptyBitboard) {
-            result += this->generateMovesForPieceType<whiteToMove, PieceType::BISHOP, capturesOnly, countOnly>(board, attackBoards, moveList);
+            result += this->generateMovesForPieceType<isWhiteToMove, PieceType::BISHOP, capturesOnly, countOnly>(board, attackBoards, moveList);
         }
 
         if (piecesToMove[PieceType::ROOK] != EmptyBitboard) {
-            result += this->generateMovesForPieceType<whiteToMove, PieceType::ROOK, capturesOnly, countOnly>(board, attackBoards, moveList);
+            result += this->generateMovesForPieceType<isWhiteToMove, PieceType::ROOK, capturesOnly, countOnly>(board, attackBoards, moveList);
         }
 
         if (piecesToMove[PieceType::QUEEN] != EmptyBitboard) {
-            result += this->generateMovesForPieceType<whiteToMove, PieceType::QUEEN, capturesOnly, countOnly>(board, attackBoards, moveList);
+            result += this->generateMovesForPieceType<isWhiteToMove, PieceType::QUEEN, capturesOnly, countOnly>(board, attackBoards, moveList);
         }
 
-        result += this->generateMovesForKing<whiteToMove, capturesOnly, false, countOnly>(board, moveList);
+        result += this->generateMovesForKing<isWhiteToMove, capturesOnly, false, countOnly>(board, moveList);
 
         return result;
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr NodeCount generateAttacksOnSquares(const ChessBoard& board, ChessMoveList& moveList, Bitboard dstSquares, Bitboard excludeSrcSquares) const
     {
-        const Bitboard* piecesToMove = whiteToMove ? board.whitePieces : board.blackPieces;
+        const Bitboard* piecesToMove = isWhiteToMove ? board.whitePieces : board.blackPieces;
 
         //REMEMBER: Here, we're scanning backwards for moves!  We're scanning from the destination to the source rather than
         //	from the source to the destination
@@ -174,7 +176,7 @@ public:
 
                 switch (piece) {
                 case PAWN:
-                    srcSquares = whiteToMove ? BlackPawnCaptures[dst] : WhitePawnCaptures[dst];
+                    srcSquares = isWhiteToMove ? BlackPawnCaptures[dst] : WhitePawnCaptures[dst];
                     break;
                 case PieceType::KNIGHT:
                     srcSquares = PieceMoves[piece][dst];
@@ -200,7 +202,7 @@ public:
 
                 for (const Square src : SquareBitboardIterator(srcSquares)) {
                     if (piece == PieceType::PAWN) {
-                        this->insertPawnMoves<whiteToMove, true>(board, moveList, src, dst);
+                        this->insertPawnMoves<isWhiteToMove, true>(board, moveList, src, dst);
                     }
                     else {
                         moveList.push_back({ src, dst });
@@ -212,11 +214,11 @@ public:
         return moveList.size();
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr NodeCount generateMovesToSquares(const ChessBoard& board, ChessMoveList& moveList, Bitboard dstSquares, Bitboard excludeSrcSquares) const
     {
-        const Bitboard* piecesToMove = whiteToMove ? board.whitePieces : board.blackPieces;
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard* piecesToMove = isWhiteToMove ? board.whitePieces : board.blackPieces;
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
         //REMEMBER: Here, we're scanning backwards for moves!  We're scanning from the destination to the source rather than
         //	from the source to the destination
@@ -227,14 +229,14 @@ public:
                 switch (piece) {
                 case PieceType::PAWN:
                 {
-                    const Bitboard pawnCaptures = whiteToMove ? BlackPawnCaptures[dst] : WhitePawnCaptures[dst];
-                    const Direction dir = whiteToMove ? Direction::DOWN : Direction::UP;
-                    const Direction dir2 = whiteToMove ? Direction::TWO_DOWN : Direction::TWO_UP;
+                    const Bitboard pawnCaptures = isWhiteToMove ? BlackPawnCaptures[dst] : WhitePawnCaptures[dst];
+                    const Direction dir = isWhiteToMove ? Direction::DOWN : Direction::UP;
+                    const Direction dir2 = isWhiteToMove ? Direction::TWO_DOWN : Direction::TWO_UP;
 
                     //Since we're in reverse, we want the black pawn captures from the destination square to the white pawns
                     srcSquares = (otherPieces[PieceType::ALL] & OneShiftedBy(dst)) & (pawnCaptures & piecesToMove[PieceType::PAWN]);
 
-                    if (whiteToMove) {
+                    if (isWhiteToMove) {
                         //We cannot, however, generate pawn moves in the same manner.
                         if (GetRank(dst) == Rank::_4) {
                             srcSquares |= OneShiftedBy(dst + dir) | OneShiftedBy(dst + dir2);
@@ -286,7 +288,7 @@ public:
                     //If there's actually one of our pieces at the source, and nothing in between, allow the move
                     if (piece == PAWN) {
                         if ((InBetween(src, dst) & board.allPieces) == EmptyBitboard) {
-                            this->insertPawnMoves<whiteToMove, true>(board, moveList, src, dst);
+                            this->insertPawnMoves<isWhiteToMove, true>(board, moveList, src, dst);
                         }
                     }
                     else {
@@ -299,16 +301,16 @@ public:
         return moveList.size();
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr NodeCount generateCheckEvasions(const ChessBoard& board, const AttackBoards& attackBoards, ChessMoveList& moveList) const
     {
-        const Bitboard kingPieces = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+        const Bitboard kingPieces = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
         const Square kingPosition = BitScanForward<Square>(kingPieces);
 
-        const Bitboard* piecesToMove = whiteToMove ? board.whitePieces : board.blackPieces;
+        const Bitboard* piecesToMove = isWhiteToMove ? board.whitePieces : board.blackPieces;
 
         //1) Add all king moves which evade check.
-        this->generateMovesForKing<whiteToMove, false, true>(board, moveList);
+        this->generateMovesForKing<isWhiteToMove, false, true>(board, moveList);
 
         //2) Find which pieces are attacking the king.  If two pieces are checking the king, return the current list since
         //	only moves which move the king himself are able to evade two checking pieces.
@@ -323,12 +325,12 @@ public:
         //Generate the pawn attacks which capture the en_passant pawn
         //The pawn cannot be captured unless
         if (board.enPassant != Square::NO_SQUARE) {
-            const Direction dir = whiteToMove ? Direction::DOWN : Direction::UP;
+            const Direction dir = isWhiteToMove ? Direction::DOWN : Direction::UP;
 
             //Ensure the pawn being captured is actually the piece doing the checking
             if ((OneShiftedBy(board.enPassant + dir) & attackBoards.checkingPieces) != EmptyBitboard) {
                 //The positions from which pawns can capture onto the en passant square
-                const Bitboard pawnCaptures = whiteToMove ? BlackPawnCaptures[board.enPassant] : WhitePawnCaptures[board.enPassant];
+                const Bitboard pawnCaptures = isWhiteToMove ? BlackPawnCaptures[board.enPassant] : WhitePawnCaptures[board.enPassant];
                 //Ensure the moving pawns are not pinned
                 const Bitboard srcPawns = pawnCaptures & piecesToMove[PieceType::PAWN] & ~attackBoards.pinnedPieces;
 
@@ -340,11 +342,11 @@ public:
 
         //If the checking piece is a pawn or a knight, or the checking piece was next to the king, then it cannot be blocked.
         //	Return only moves which can attack the piece.
-        const Bitboard& ourKing = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+        const Bitboard& ourKing = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
 
         if (board.pieces[checkingPosition] <= KNIGHT
             || (PieceMoves[PieceType::KING][kingPosition] & attackBoards.checkingPieces) != EmptyBitboard) {
-            this->generateAttacksOnSquares<whiteToMove>(board, moveList, attackBoards.checkingPieces, ourKing | attackBoards.pinnedPieces);
+            this->generateAttacksOnSquares<isWhiteToMove>(board, moveList, attackBoards.checkingPieces, ourKing | attackBoards.pinnedPieces);
 
             return moveList.size();
         }
@@ -355,34 +357,28 @@ public:
         }
 
         //4) Generate all moves which either attack the checking piece, or block it
-        this->generateAttacksOnSquares<whiteToMove>(board, moveList, attackBoards.checkingPieces, ourKing | attackBoards.pinnedPieces);
+        this->generateAttacksOnSquares<isWhiteToMove>(board, moveList, attackBoards.checkingPieces, ourKing | attackBoards.pinnedPieces);
 
         //A piece that is already pinned cannot block another piece by moving, so exclude them
         const Bitboard inBetweenSquares = InBetween(kingPosition, checkingPosition);
-        this->generateMovesToSquares<whiteToMove>(board, moveList, inBetweenSquares, ourKing | attackBoards.pinnedPieces);
+        this->generateMovesToSquares<isWhiteToMove>(board, moveList, inBetweenSquares, ourKing | attackBoards.pinnedPieces);
 
         return moveList.size();
     }
 
-    template <bool whiteToMove, bool capturesOnly = false, bool isInCheck = false, bool countOnly = false>
+    template <bool isWhiteToMove, bool capturesOnly = false, bool isInCheck = false, bool countOnly = false>
     constexpr NodeCount generateMovesForKing(const ChessBoard& board, ChessMoveList& moveList, Bitboard dstSquares = FullBitboard) const
     {
-        const Bitboard piecesToMove = whiteToMove ? board.whitePieces[PieceType::ALL] : board.blackPieces[PieceType::ALL];
-        const Bitboard otherPieces = whiteToMove ? board.blackPieces[PieceType::ALL] : board.whitePieces[PieceType::ALL];
+        const Bitboard piecesToMove = isWhiteToMove ? board.whitePieces[PieceType::ALL] : board.blackPieces[PieceType::ALL];
+        const Bitboard otherPieces = isWhiteToMove ? board.blackPieces[PieceType::ALL] : board.whitePieces[PieceType::ALL];
 
-        const Bitboard kingPieces = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+        const Bitboard kingPieces = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
         const Square kingPosition = BitScanForward<Square>(kingPieces);
 
         Bitboard dstMoves = PieceMoves[PieceType::KING][kingPosition];
 
-        if (capturesOnly) {
-            //Only generate captures of other pieces
-            dstMoves &= otherPieces;
-        }
-        else {
-            //Ensure we can't capture our own pieces
-            dstMoves &= ~piecesToMove;
-        }
+        //Only generate captures of other pieces and we can't capture our own pieces
+        dstMoves &= capturesOnly ? otherPieces : ~piecesToMove;
 
         //Only generate moves to the destination squares
         dstMoves &= dstSquares;
@@ -390,7 +386,7 @@ public:
         NodeCount result = ZeroNodes;
 
         for (const Square dst : SquareBitboardIterator(dstMoves)) {
-            if (!this->attackGenerator.isSquareAttacked<whiteToMove>(board, dst, kingPieces)) {
+            if (!this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, dst, kingPieces)) {
                 if (!countOnly) {
                     moveList.push_back({ kingPosition, dst });
                 }
@@ -401,14 +397,14 @@ public:
 
         //Special castle processing here
         if (!isInCheck
-            && kingPosition == (whiteToMove ? Square::E1 : Square::E8)) {
-            if (whiteToMove) {
+            && kingPosition == (isWhiteToMove ? Square::E1 : Square::E8)) {
+            if (isWhiteToMove) {
                 //Check castling rights and open availability
                 if ((board.castleRights & CastleRights::WHITE_OOO) != CastleRights::CASTLE_NONE) {
                     //If all of the needed spaces are empty, and we're not moving THROUGH check...
                     if ((board.allPieces & 0x0e00000000000000ull) == EmptyBitboard
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::D1)
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::C1)) {
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::D1)
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::C1)) {
                         //We will test to see if we're put INTO check later...
                         if (!countOnly) {
                             moveList.push_back({ kingPosition, Square::C1 });
@@ -419,8 +415,8 @@ public:
                 }
                 if ((board.castleRights & CastleRights::WHITE_OO) != CastleRights::CASTLE_NONE) {
                     if ((board.allPieces & 0x6000000000000000ull) == EmptyBitboard
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::F1)
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::G1)) {
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::F1)
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::G1)) {
                         if (!countOnly) {
                             moveList.push_back({ kingPosition, Square::G1 });
                         }
@@ -433,8 +429,8 @@ public:
                 //Check castling rights and open availability
                 if ((board.castleRights & CastleRights::BLACK_OOO) != CastleRights::CASTLE_NONE) {
                     if ((board.allPieces & 0x000000000000000eull) == EmptyBitboard
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::D8)
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::C8)) {
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::D8)
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::C8)) {
                         if (!countOnly) {
                             moveList.push_back({ kingPosition, Square::C8 });
                         }
@@ -444,8 +440,8 @@ public:
                 }
                 if ((board.castleRights & CastleRights::BLACK_OO) != CastleRights::CASTLE_NONE) {
                     if ((board.allPieces & 0x0000000000000060ull) == EmptyBitboard
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::F8)
-                        && !this->attackGenerator.isSquareAttacked<whiteToMove>(board, Square::G8)) {
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::F8)
+                        && !this->attackGenerator.isSquareAttacked<isWhiteToMove>(board, Square::G8)) {
                         if (!countOnly) {
                             moveList.push_back({ kingPosition, Square::G8 });
                         }
@@ -459,24 +455,24 @@ public:
         return result;
     }
 
-    template <bool whiteToMove, bool capturesOnly = false, bool countOnly = false>
+    template <bool isWhiteToMove, bool capturesOnly = false, bool countOnly = false>
     constexpr NodeCount generateMovesForPawns(const ChessBoard& board, const AttackBoards& attackBoards, ChessMoveList& moveList) const
     {
-        constexpr Rank backRank = whiteToMove ? Rank::_8 : Rank::_1;
-        constexpr Rank thirdRank = whiteToMove ? Rank::_3 : Rank::_6;
+        constexpr Rank backRank = isWhiteToMove ? Rank::_8 : Rank::_1;
+        constexpr Rank thirdRank = isWhiteToMove ? Rank::_3 : Rank::_6;
 
-        const Bitboard pawnsToMove = whiteToMove ? board.whitePieces[PieceType::PAWN] : board.blackPieces[PieceType::PAWN];
+        const Bitboard pawnsToMove = isWhiteToMove ? board.whitePieces[PieceType::PAWN] : board.blackPieces[PieceType::PAWN];
 
-        const Bitboard otherPieces = (whiteToMove ? board.blackPieces : board.whitePieces)[PieceType::ALL];
+        const Bitboard otherPieces = (isWhiteToMove ? board.blackPieces : board.whitePieces)[PieceType::ALL];
 
-        const Bitboard* pawnCaptures = whiteToMove ? WhitePawnCaptures : BlackPawnCaptures;
+        const Bitboard* pawnCaptures = isWhiteToMove ? WhitePawnCaptures : BlackPawnCaptures;
 
-        const Bitboard kingPieces = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+        const Bitboard kingPieces = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
         const Square kingPosition = BitScanForward<Square>(kingPieces);
 
         //1) Get Pawn Captures
-        const Bitboard captures = this->attackGenerator.pawnAttacks<whiteToMove>(pawnsToMove, otherPieces);
-        const Bitboard attackers = this->attackGenerator.pawnDefenders<whiteToMove>(captures, pawnsToMove);
+        const Bitboard captures = this->attackGenerator.pawnAttacks<isWhiteToMove>(pawnsToMove, otherPieces);
+        const Bitboard attackers = this->attackGenerator.pawnDefenders<isWhiteToMove>(captures, pawnsToMove);
 
         NodeCount result = ZeroNodes;
 
@@ -497,13 +493,13 @@ public:
             }
 
             for (const Square dst : SquareBitboardIterator(dstMoves)) {
-                result += this->insertPawnMoves<whiteToMove, true, countOnly>(board, moveList, src, dst);
+                result += this->insertPawnMoves<isWhiteToMove, true, countOnly>(board, moveList, src, dst);
             }
         }
 
         //Special en passant processing here
         if (board.enPassant != Square::NO_SQUARE) {
-            const Bitboard* backwardsPawnCaptures = whiteToMove ? BlackPawnCaptures : WhitePawnCaptures;
+            const Bitboard* backwardsPawnCaptures = isWhiteToMove ? BlackPawnCaptures : WhitePawnCaptures;
             const Bitboard enPassantPawns = backwardsPawnCaptures[board.enPassant] & pawnsToMove;
 
             for (const Square src : SquareBitboardIterator(enPassantPawns)) {
@@ -515,7 +511,7 @@ public:
                         const Bitboard inBetween = InBetween(blockedPieceSrc, kingPosition);
                         if ((inBetween & OneShiftedBy(src)) != EmptyBitboard
                             && (inBetween & OneShiftedBy(board.enPassant)) != EmptyBitboard) {
-                            result += this->insertPawnMoves<whiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
+                            result += this->insertPawnMoves<isWhiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
                             break;
                         }
                     }
@@ -523,22 +519,22 @@ public:
                     continue;
                 }
 
-                constexpr Rank exceptionalKingRank = whiteToMove ? Rank::_5 : Rank::_4;
+                constexpr Rank exceptionalKingRank = isWhiteToMove ? Rank::_5 : Rank::_4;
                 constexpr Bitboard exceptionalKingRankBitboard = RankBitboard[exceptionalKingRank];
 
                 //If the king to move is not on the same Rank as the src pawn, the pawn can safely take the en passant.
                 if ((kingPieces & exceptionalKingRankBitboard) == EmptyBitboard) {
-                    result += this->insertPawnMoves<whiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
+                    result += this->insertPawnMoves<isWhiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
                     continue;
                 }
 
                 //If the king to move is on the same Rank as the src pawn, but there aren't any enemy kings or rooks,
                 //  then we can safely take the en passant.
-                const Bitboard* other = whiteToMove ? board.blackPieces : board.whitePieces;
+                const Bitboard* other = isWhiteToMove ? board.blackPieces : board.whitePieces;
                 Bitboard otherRooksAndQueens = (other[PieceType::ROOK] | other[PieceType::QUEEN]) & exceptionalKingRankBitboard;
 
                 if (otherRooksAndQueens == EmptyBitboard) {
-                    result += this->insertPawnMoves<whiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
+                    result += this->insertPawnMoves<isWhiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
                     continue;
                 }
 
@@ -571,7 +567,7 @@ public:
 
                 //If all rooks and queens in question are of either a or b condition, then this move is valid.
                 if (otherRooksAndQueens == EmptyBitboard) {
-                    result += this->insertPawnMoves<whiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
+                    result += this->insertPawnMoves<isWhiteToMove, false, countOnly>(board, moveList, src, board.enPassant);
                 }
             }
         }
@@ -582,7 +578,7 @@ public:
         }
 
         //2) Get Pawn Pushes
-        const Direction pushDirection = whiteToMove ? Direction::UP : Direction::DOWN;
+        const Direction pushDirection = isWhiteToMove ? Direction::UP : Direction::DOWN;
 
         const Bitboard pawnPushes = (pawnsToMove + pushDirection) & ~board.allPieces;
         const Bitboard pushers = pawnPushes - pushDirection;
@@ -602,7 +598,7 @@ public:
             }
 
             if (dstMoves != EmptyBitboard) {
-                result += this->insertPawnMoves<whiteToMove, true, countOnly>(board, moveList, src, src + pushDirection);
+                result += this->insertPawnMoves<isWhiteToMove, true, countOnly>(board, moveList, src, src + pushDirection);
             }
         }
 
@@ -625,20 +621,20 @@ public:
             }
 
             if (dstMoves != EmptyBitboard) {
-                result += this->insertPawnMoves<whiteToMove, false, countOnly>(board, moveList, src - pushDirection, src + pushDirection);
+                result += this->insertPawnMoves<isWhiteToMove, false, countOnly>(board, moveList, src - pushDirection, src + pushDirection);
             }
         }
 
         return result;
     }
 
-    template <bool whiteToMove, PieceType pieceType, bool capturesOnly = false, bool countOnly = false>
+    template <bool isWhiteToMove, PieceType pieceType, bool capturesOnly = false, bool countOnly = false>
     constexpr NodeCount generateMovesForPieceType(const ChessBoard& board, const AttackBoards& attackBoards, ChessMoveList& moveList) const
     {
-        const Bitboard piecesToMove = whiteToMove ? board.whitePieces[PieceType::ALL] : board.blackPieces[PieceType::ALL];
-        const Bitboard otherPieces = whiteToMove ? board.blackPieces[PieceType::ALL] : board.whitePieces[PieceType::ALL];
+        const Bitboard piecesToMove = isWhiteToMove ? board.whitePieces[PieceType::ALL] : board.blackPieces[PieceType::ALL];
+        const Bitboard otherPieces = isWhiteToMove ? board.blackPieces[PieceType::ALL] : board.whitePieces[PieceType::ALL];
 
-        const Bitboard srcPieces = whiteToMove ? board.whitePieces[pieceType] : board.blackPieces[pieceType];
+        const Bitboard srcPieces = isWhiteToMove ? board.whitePieces[pieceType] : board.blackPieces[pieceType];
 
         NodeCount result = ZeroNodes;
 
@@ -662,14 +658,8 @@ public:
                 assert(0);
             }
 
-            if (capturesOnly) {
-                //Only generate captures of other pieces
-                dstMoves &= otherPieces;
-            }
-            else {
-                //Ensure we can't capture our own pieces
-                dstMoves &= ~piecesToMove;
-            }
+            //Only generate captures of other pieces and we can't capture our own pieces
+            dstMoves &= capturesOnly ? otherPieces : ~piecesToMove;
 
             //If this piece is pinned, it's destination moves can only be other squares in between attackers (in this case, blocked pieces)
             if (attackBoards.pinnedPieces != EmptyBitboard
@@ -679,7 +669,7 @@ public:
                     continue;
                 }
 
-                const Bitboard kingPieces = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+                const Bitboard kingPieces = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
                 const Square kingPosition = BitScanForward<Square>(kingPieces);
 
                 for (const Square blockedPieceSrc : SquareBitboardIterator(attackBoards.blockedPieces)) {

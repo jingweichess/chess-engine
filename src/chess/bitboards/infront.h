@@ -18,11 +18,34 @@
 
 #pragma once
 
+#include <array>
+#include <cstdint>
+
+#include "../../game/math/shift.h"
+
 #include "../../game/types/bitboard.h"
 
+#include "../types/direction.h"
 #include "../types/square.h"
 
-extern std::array<Bitboard, Square::SQUARE_COUNT> SquaresInFrontList;
+constexpr std::array<Bitboard, Square::SQUARE_COUNT> SquaresInFrontList
+{ []() constexpr {
+    std::array<Bitboard, Square::SQUARE_COUNT> result{};
+
+    for (Square src = Square::FIRST_SQUARE; src < Square::SQUARE_COUNT; src++) {
+        std::int32_t j = 1;
+
+        while (IsOnBoard(src, Direction::UP * j, Direction::NO_DIRECTION)) {
+            const Square dst = src + Direction::UP * j;
+
+            result[src] |= OneShiftedBy(dst);
+
+            j++;
+        }
+    }
+
+    return result;
+}() };
 
 constexpr Bitboard SquaresInFront(Square src)
 {

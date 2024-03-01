@@ -23,12 +23,13 @@ constexpr bool knkp(const ChessBoard& board, Score& score)
 {
     //1) Determine strong side
     const Color strongSide = FindStrongSide(board);
+    const bool strongSideIsWhite = strongSide == Color::WHITE;
 
     //2) Get pst values for KN and KP
     const Score pst = board.pstEvaluation.eg;
 
     //psts are relative to white.  If strong side is Black, we have to negate.
-    score = strongSide == Color::WHITE ? pst : -pst;
+    score = strongSideIsWhite ? pst : -pst;
 
     //3) If we're returning the strong side can win, bias toward "weak" side
     if (score > DRAW_SCORE) {

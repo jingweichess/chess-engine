@@ -37,10 +37,10 @@ constexpr Depth NullMoveMargin(Depth depthLeft, std::uint32_t phase)
 
 constexpr Depth NullMoveReduction(Depth depthLeft, std::uint32_t phase)
 {
-    return static_cast<Depth>(NullMoveReductions(depthLeft)(phase) / 256);
+    return static_cast<Depth>(NullMoveReductions(depthLeft)(phase) / PAWN_SCORE);
 }
 
 constexpr Depth NullMoveVerificationReduction(Depth depthLeft, std::uint32_t phase)
 {
-    return static_cast<Depth>(NullMoveVerificationReductions(depthLeft)(phase) / 256);
+    return static_cast<Depth>(NullMoveVerificationReductions(depthLeft)(phase) / PAWN_SCORE);
 }

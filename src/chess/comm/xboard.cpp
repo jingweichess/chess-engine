@@ -17,7 +17,6 @@
 */
 
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -30,6 +29,8 @@
 
 #include "../../game/types/depth.h"
 #include "../../game/types/nodecount.h"
+
+#include "xboard/xboardsearcheventhandler.h"
 
 struct XBoardCommand {
     std::string command;
@@ -310,6 +311,7 @@ static void xboardXboard(XBoardComm* xboard, std::stringstream& cmd)
 static const struct XBoardCommand XBoardCommandList[] =
 {
     { "eval", xboardEval},
+    { "exit", xboardQuit },
     { "fen", xboardFen },
     { "force", xboardForce },
     { "go", xboardGo },
@@ -339,8 +341,8 @@ static const struct XBoardCommand XBoardCommandList[] =
 
 XBoardComm::XBoardComm()
 {
-    XboardSearchEventHandler eventHandler;
-    SearchEventHandlerSharedPtr searchEventHandler = std::make_shared<XboardSearchEventHandler>(eventHandler);
+    XBoardSearchEventHandler eventHandler;
+    ChessPlayer::EventHandlerSharedPtr searchEventHandler = std::make_shared<XBoardSearchEventHandler>(eventHandler);
 
     this->player.addSearchEventHandler(searchEventHandler);
 
@@ -350,7 +352,7 @@ XBoardComm::XBoardComm()
 void XBoardComm::addSearchAnalyzer()
 {
     if (!this->hasAddedSearchAnalyzer) {
-        SearchEventHandlerSharedPtr searchEventHandler = std::make_shared<XBoardSearchAnalyzerSearchEventHandler>(this->searchAnalyzerEventHandler);
+        ChessPlayer::EventHandlerSharedPtr searchEventHandler = std::make_shared<XBoardSearchAnalyzerSearchEventHandler>(this->searchAnalyzerEventHandler);
 
         this->player.addSearchEventHandler(searchEventHandler);
 

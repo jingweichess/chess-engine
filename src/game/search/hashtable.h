@@ -100,6 +100,11 @@ struct HashtableEntry {
 #endif
     };
 
+    constexpr std::uint8_t getCustom() const
+    {
+        return this->search.custom;
+    }
+
     constexpr Depth getDepthLeft() const
     {
         return static_cast<Depth>(this->search.depthLeft);

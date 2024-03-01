@@ -20,6 +20,8 @@
 
 #include "../function.h"
 
+#include "kxxk.h"
+
 constexpr ChessEndgame::EndgameFunctionType kbkpp = kbkp;
 constexpr ChessEndgame::EndgameFunctionType kbkppp = kbkp;
 
@@ -39,6 +41,7 @@ constexpr ChessEndgame::EndgameFunctionType kbbkb = weakKingDrawishEndgameFuncti
 constexpr ChessEndgame::EndgameFunctionType kbbkr = weakKingDrawishEndgameFunction;
 
 //TODO: kbppkb
+constexpr ChessEndgame::EndgameFunctionType kbppkb = kbpk;
 
 constexpr ChessEndgame::EndgameFunctionType kbpkbp = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType kbppkbp = weakKingDrawishEndgameFunction;

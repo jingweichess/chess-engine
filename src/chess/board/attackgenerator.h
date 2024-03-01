@@ -36,13 +36,13 @@ public:
     constexpr ChessAttackGenerator() = default;
     constexpr ~ChessAttackGenerator() = default;
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr void buildAttackBoards(const ChessBoard& board, AttackBoards& attackBoards) const
     {
-        const Bitboard piecesToMove = whiteToMove ? board.whitePieces[PieceType::ALL] : board.blackPieces[PieceType::ALL];
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard piecesToMove = isWhiteToMove ? board.whitePieces[PieceType::ALL] : board.blackPieces[PieceType::ALL];
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
-        const Bitboard kingPieces = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+        const Bitboard kingPieces = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
         const Square kingPosition = BitScanForward<Square>(kingPieces);
 
         attackBoards.pinnedPieces = EmptyBitboard;
@@ -50,7 +50,7 @@ public:
         attackBoards.inBetweenSquares = EmptyBitboard;
 
         //1) Check to see if a pawn or knight is doing attacking.  If so, enter them in the attack bitboard.
-        const Bitboard pawnAttacks = (whiteToMove ? WhitePawnCaptures[kingPosition] : BlackPawnCaptures[kingPosition]) & otherPieces[PieceType::PAWN];
+        const Bitboard pawnAttacks = (isWhiteToMove ? WhitePawnCaptures[kingPosition] : BlackPawnCaptures[kingPosition]) & otherPieces[PieceType::PAWN];
         const Bitboard knightAttacks = PieceMoves[PieceType::KNIGHT][kingPosition] & otherPieces[PieceType::KNIGHT];
 
         attackBoards.checkingPieces = pawnAttacks | knightAttacks;
@@ -90,12 +90,12 @@ public:
         }
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr Bitboard getAttackingPieces(const ChessBoard& board, Square dst, bool earlyExit, Bitboard attackThrough = EmptyBitboard) const
     {
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
-        const Bitboard attackingPawns = (whiteToMove ? WhitePawnCaptures[dst] : BlackPawnCaptures[dst]) & otherPieces[PieceType::PAWN];
+        const Bitboard attackingPawns = (isWhiteToMove ? WhitePawnCaptures[dst] : BlackPawnCaptures[dst]) & otherPieces[PieceType::PAWN];
         const Bitboard attackingKnights = PieceMoves[PieceType::KNIGHT][dst] & otherPieces[PieceType::KNIGHT];
         const Bitboard attackingKings = PieceMoves[PieceType::KING][dst] & otherPieces[PieceType::KING];
 
@@ -140,9 +140,9 @@ public:
 
     constexpr bool dispatchIsInCheck(const ChessBoard& board, bool otherSide = false) const
     {
-        const bool whiteToMove = board.sideToMove == Color::WHITE;
+        const bool isWhiteToMove = board.isWhiteToMove();
 
-        if (whiteToMove) {
+        if (isWhiteToMove) {
             return this->isInCheck<true>(board, otherSide);
         }
         else {
@@ -150,16 +150,16 @@ public:
         }
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr bool isInCheck(const ChessBoard& board, bool otherSide = false) const
     {
-        const Bitboard kingPieces = whiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
+        const Bitboard kingPieces = isWhiteToMove ? board.whitePieces[PieceType::KING] : board.blackPieces[PieceType::KING];
         const Square kingPosition = BitScanForward<Square>(kingPieces);
 
-        const Bitboard* otherPieces = whiteToMove ? board.blackPieces : board.whitePieces;
+        const Bitboard* otherPieces = isWhiteToMove ? board.blackPieces : board.whitePieces;
 
         //This may be confusing at first.  These captures are compared against the opposite side pawns to see if they can "capture" the king
-        const Bitboard ourPawnAttacks = whiteToMove ? WhitePawnCaptures[kingPosition] : BlackPawnCaptures[kingPosition];
+        const Bitboard ourPawnAttacks = isWhiteToMove ? WhitePawnCaptures[kingPosition] : BlackPawnCaptures[kingPosition];
 
         //Do an easy check to see if a knight is giving check
         if ((PieceMoves[PieceType::KNIGHT][kingPosition] & otherPieces[PieceType::KNIGHT]) != EmptyBitboard) {
@@ -189,17 +189,17 @@ public:
         return false;
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr bool isSquareAttacked(const ChessBoard& board, Square dst, Bitboard attackThrough = EmptyBitboard) const
     {
-        return this->getAttackingPieces<whiteToMove>(board, dst, true, attackThrough) != EmptyBitboard;
+        return this->getAttackingPieces<isWhiteToMove>(board, dst, true, attackThrough) != EmptyBitboard;
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr Bitboard pawnAttacks(Bitboard pawns, Bitboard otherPieces) const
     {
-        const Direction left = whiteToMove ? Direction::UP_LEFT : Direction::DOWN_LEFT;
-        const Direction right = whiteToMove ? Direction::UP_RIGHT : Direction::DOWN_RIGHT;
+        const Direction left = isWhiteToMove ? Direction::UP_LEFT : Direction::DOWN_LEFT;
+        const Direction right = isWhiteToMove ? Direction::UP_RIGHT : Direction::DOWN_RIGHT;
 
         const Bitboard attacks = ((pawns & ~FileBitboard[File::_A]) + left)
             | ((pawns & ~FileBitboard[File::_H]) + right);
@@ -207,11 +207,11 @@ public:
         return attacks & otherPieces;
     }
 
-    template <bool whiteToMove>
+    template <bool isWhiteToMove>
     constexpr Bitboard pawnDefenders(Bitboard pawns, Bitboard pieces) const
     {
-        const Direction left = whiteToMove ? Direction::DOWN_LEFT : Direction::UP_LEFT;
-        const Direction right = whiteToMove ? Direction::DOWN_RIGHT : Direction::UP_RIGHT;
+        const Direction left = isWhiteToMove ? Direction::DOWN_LEFT : Direction::UP_LEFT;
+        const Direction right = isWhiteToMove ? Direction::DOWN_RIGHT : Direction::UP_RIGHT;
 
         const Bitboard attacks = ((pawns & ~FileBitboard[File::_A]) + left)
             | ((pawns & ~FileBitboard[File::_H]) + right);

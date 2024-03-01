@@ -46,8 +46,11 @@ struct ChessSearchStack {
     ChessMove killer1;
     ChessMove killer2;
     ChessMove currentMove;
+    ChessMove excludedMove;
     Bitboard passedPawns;
     NodeCount moveCount;
     Score staticEvaluation;
     Depth distanceFromPv;
+    Depth hashDepth;
+    bool hashFound, hasMateThreat;
 };

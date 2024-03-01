@@ -305,7 +305,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\chess\bitboards\inbetween.cpp" />
-    <ClCompile Include="..\src\chess\bitboards\infront.cpp" />
     <ClCompile Include="..\src\chess\bitboards\magics.cpp" />
     <ClCompile Include="..\src\chess\bitboards\passedpawn.cpp" />
     <ClCompile Include="..\src\chess\board\board.cpp" />
@@ -319,7 +318,6 @@
     <ClCompile Include="..\src\chess\hash\chesshashtable.cpp" />
     <ClCompile Include="..\src\chess\player\player.cpp" />
     <ClCompile Include="..\src\chess\search\chesspv.cpp" />
-    <ClCompile Include="..\src\chess\search\movehistory.cpp" />
     <ClCompile Include="..\src\chess\search\searcher.cpp" />
     <ClCompile Include="..\src\chess\types\square.cpp" />
     <ClCompile Include="..\src\game\clock\clock.cpp" />
@@ -375,6 +373,7 @@
     <ClInclude Include="..\src\chess\search\searcher.h" />
     <ClInclude Include="..\src\chess\types\attackboards.h" />
     <ClInclude Include="..\src\chess\types\castlerights.h" />
+    <ClInclude Include="..\src\chess\types\controlboards.h" />
     <ClInclude Include="..\src\chess\types\direction.h" />
     <ClInclude Include="..\src\chess\types\file.h" />
     <ClInclude Include="..\src\chess\types\move.h" />
@@ -404,10 +403,12 @@
     <ClInclude Include="..\src\game\personality\parametermap.h" />
     <ClInclude Include="..\src\game\personality\personality.h" />
     <ClInclude Include="..\src\game\player\player.h" />
+    <ClInclude Include="..\src\game\search\events\searcheventhandler.h" />
     <ClInclude Include="..\src\game\search\historytable.h" />
     <ClInclude Include="..\src\game\search\hashtable.h" />
     <ClInclude Include="..\src\game\search\movehistory.h" />
     <ClInclude Include="..\src\game\search\pv.h" />
+    <ClInclude Include="..\src\game\search\pvs.h" />
     <ClInclude Include="..\src\game\search\searcher.h" />
     <ClInclude Include="..\src\game\types\bitboard.h" />
     <ClInclude Include="..\src\game\types\color.h" />

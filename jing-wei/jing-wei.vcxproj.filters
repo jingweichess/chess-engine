@@ -136,6 +136,9 @@
     <Filter Include="Source Files\chess\board\xboard">
       <UniqueIdentifier>{e19d5d47-d554-4525-b5f6-1874f1d9e486}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\game\search\events">
+      <UniqueIdentifier>{a81b9697-bde4-4a3c-ba90-0f1717614428}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine.cpp">
@@ -162,9 +165,6 @@
     <ClCompile Include="..\src\chess\search\chesspv.cpp">
       <Filter>Source Files\chess\search</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\chess\search\movehistory.cpp">
-      <Filter>Source Files\chess\search</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\chess\types\square.cpp">
       <Filter>Source Files\chess\types</Filter>
     </ClCompile>
@@ -187,9 +187,6 @@
       <Filter>Source Files\chess\bitboards</Filter>
     </ClCompile>
     <ClCompile Include="..\src\chess\bitboards\passedpawn.cpp">
-      <Filter>Source Files\chess\bitboards</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\chess\bitboards\infront.cpp">
       <Filter>Source Files\chess\bitboards</Filter>
     </ClCompile>
     <ClCompile Include="..\src\chess\bitboards\magics.cpp">
@@ -472,6 +469,15 @@
     </ClInclude>
     <ClInclude Include="..\src\game\math\statistics.h">
       <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\chess\types\controlboards.h">
+      <Filter>Header Files\chess\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\search\pvs.h">
+      <Filter>Header Files\game\search</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\game\search\events\searcheventhandler.h">
+      <Filter>Header Files\game\search\events</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

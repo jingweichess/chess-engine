@@ -129,8 +129,8 @@ public:
 
         result ^= CastleRightsHash(this->castleRights);
 
-        const bool whiteToMove = this->sideToMove == Color::WHITE;
-        result ^= whiteToMove ? WhiteToMoveHash : EmptyHash;
+        const bool isWhiteToMove = this->isWhiteToMove();
+        result ^= isWhiteToMove ? WhiteToMoveHash : EmptyHash;
 
         if (this->enPassant != Square::NO_SQUARE) {
             result ^= EnPassantHash(this->enPassant);
@@ -245,7 +245,21 @@ public:
         return this->nullMove;
     }
 
+    constexpr bool hasNonPawnMaterial() const
+    {
+        const bool colorIsWhite = this->sideToMove == Color::WHITE;
+        const Bitboard* piecesToMove = colorIsWhite ? this->whitePieces : this->blackPieces;
+
+        const Bitboard pawnsAndKing = piecesToMove[PieceType::PAWN] | piecesToMove[PieceType::KING];
+        return pawnsAndKing != piecesToMove[PieceType::ALL];
+    }
+
     void initFromFen(const std::string& fen);
+
+    constexpr bool isWhiteToMove() const
+    {
+        return this->sideToMove == Color::WHITE;
+    }
 
     void resetSpecificPositionImplementation(const std::string& fen);
     void resetStartingPositionImplementation();
@@ -266,6 +280,11 @@ public:
     {
         const Bitboard kingPieces = this->blackPieces[PieceType::KING];
         return BitScanForward<Square>(kingPieces);
+    }
+
+    constexpr Square otherKingPosition(Color color) const
+    {
+        return (color == Color::WHITE) ? this->blackKingPosition() : this->whiteKingPosition();
     }
 
     constexpr Square whiteKingPosition() const

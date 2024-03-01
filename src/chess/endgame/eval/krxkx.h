@@ -44,7 +44,17 @@ constexpr ChessEndgame::EndgameFunctionType krrkr = weakKingEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krrkq = weakKingDrawishEndgameFunction;
 
 constexpr ChessEndgame::EndgameFunctionType krpkrp = weakKingDrawishEndgameFunction;
-constexpr ChessEndgame::EndgameFunctionType krppkr = weakKingEndgameFunction;
+
+constexpr bool krppkr(const ChessBoard& board, Score& score)
+{
+    return weakKingEndgameFunction(board, score);
+}
+
+constexpr bool krpppkr(const ChessBoard& board, Score& score)
+{
+    return weakKingEndgameFunction(board, score);
+}
+
 constexpr ChessEndgame::EndgameFunctionType krppkrp = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krppkrpp = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType krpppkrpp = weakKingDrawishEndgameFunction;
