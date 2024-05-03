@@ -1,6 +1,6 @@
 /*
     Jing Wei, the rebirth of the chess engine I started in 2010
-    Copyright(C) 2019-2023 Chris Florin
+    Copyright(C) 2019-2024 Chris Florin
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 {
     ChessEngine engine;
 
-    std::cout << "Jing Wei Copyright(C) 2019-2023 Chris Florin" << std::endl;
+    std::cout << "Jing Wei Copyright(C) 2019-2024 Chris Florin" << std::endl;
     std::cout << "This program comes with ABSOLUTELY NO WARRANTY." << std::endl;
     std::cout << "This is free software, and you are welcome to redistribute it" << std::endl;
     std::cout << "under certain conditions" << std::endl;

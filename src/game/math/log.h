@@ -1,6 +1,6 @@
 /*
     Jing Wei, the rebirth of the chess engine I started in 2010
-    Copyright(C) 2019-2023 Chris Florin
+    Copyright(C) 2019-2024 Chris Florin
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ constexpr float logArray[256] = {
     3.178054f, 3.218876f, 3.258097f, 3.295837f, 3.332205f, 3.367296f, 3.401197f, 3.433987f,
     3.465736f, 3.496508f, 3.526361f, 3.555348f, 3.583519f, 3.610918f, 3.637586f, 3.663562f,
     3.688879f, 3.713572f, 3.737670f, 3.761200f, 3.784190f, 3.806662f, 3.828641f, 3.850148f,
-    3.871201f, 3.891820f, 3.912023f, 3.931826f, 3.951244f, 3.970292f, 3.988984f, 4.007333f,
+    3.871201f, 3.891820f, 3.912024f, 3.931826f, 3.951244f, 3.970292f, 3.988984f, 4.007333f,
     4.025352f, 4.043051f, 4.060443f, 4.077537f, 4.094345f, 4.110874f, 4.127134f, 4.143135f,
     4.158883f, 4.174387f, 4.189655f, 4.204693f, 4.219508f, 4.234107f, 4.248495f, 4.262680f,
     4.276666f, 4.290459f, 4.304065f, 4.317488f, 4.330733f, 4.343805f, 4.356709f, 4.369448f,
