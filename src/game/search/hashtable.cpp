@@ -103,6 +103,23 @@ void Hashtable::insert(Hash hashValue, Score score, Depth currentDepth, Depth de
     }
 }
 
+void Hashtable::insert(Hash hashValue, Score mateScore)
+{
+    const std::uint32_t position = hashValue & (this->hashEntryCount - 1);
+    HashtableEntry* oldHashtableEntry = this->hashEntryList + position;
+
+    HashtableEntry hashtableEntry;
+
+    hashtableEntry.mate.hashValue = hashValue;
+    hashtableEntry.mate.score = mateScore;
+
+#if defined(USE_M128I)
+    (*oldHashtableEntry).vector = hashtableEntry.vector;
+#else
+    *oldHashtableEntry = hashtableEntry;
+#endif
+}
+
 void Hashtable::reset()
 {
     HashtableEntry hashtableEntry;

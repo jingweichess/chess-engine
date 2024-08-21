@@ -30,7 +30,7 @@ struct QuadraticConstruct {
 
     constexpr ChessEvaluation operator() (const std::int32_t x) const
     {
-        return (x * x) * this->quadratic / 32 + x * this->slope / 8 + this->yintercept;
+        return (x * x) * this->quadratic / 16 + x * this->slope / 8 + this->yintercept;
     }
 };
 

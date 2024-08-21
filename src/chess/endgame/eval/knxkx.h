@@ -31,5 +31,5 @@ constexpr ChessEndgame::EndgameFunctionType knkppp = knkp;
 
 constexpr ChessEndgame::EndgameFunctionType knnkp = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType knnkn = drawEndgameFunction;
-constexpr ChessEndgame::EndgameFunctionType knnkb = drawEndgameFunction;
+constexpr ChessEndgame::EndgameFunctionType knnkb = weakKingDrawishEndgameFunction;
 constexpr ChessEndgame::EndgameFunctionType knnkr = weakKingDrawishEndgameFunction;

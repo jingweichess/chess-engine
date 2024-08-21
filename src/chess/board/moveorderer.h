@@ -40,7 +40,7 @@ public:
     constexpr ChessMoveOrderer() = default;
     constexpr ~ChessMoveOrderer() = default;
 
-    void reorderMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack, const ChessHistoryTable& historyTable) const
+    void reorderMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack, const ChessHistoryTable& historyTable, const ChessHistoryTable& mateHistoryTable) const
     {
         const bool isWhiteToMove = board.isWhiteToMove();
 
@@ -81,7 +81,7 @@ public:
                 }
             }
             else if (promotionPiece != PieceType::NO_PIECE) {
-                move.ordinal = ChessMoveOrdinal::PROMOTION_MOVE;
+                move.ordinal = promotionPiece == PieceType::QUEEN ? ChessMoveOrdinal::QUEEN_PROMOTION_MOVE : ChessMoveOrdinal::OTHER_PROMOTION_MOVE;
             }
             else if (searchStack->killer1 == move) {
                 move.ordinal = ChessMoveOrdinal::KILLER1_MOVE;
@@ -89,24 +89,34 @@ public:
             else if (searchStack->killer2 == move) {
                 move.ordinal = ChessMoveOrdinal::KILLER2_MOVE;
             }
+            else if (searchStack->mateKiller1 == move) {
+                move.ordinal = ChessMoveOrdinal::MATE_KILLER1_MOVE;
+            }
+            else if (searchStack->mateKiller2 == move) {
+                move.ordinal = ChessMoveOrdinal::MATE_KILLER2_MOVE;
+            }
             else {
                 move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
 
                 if (move.seeScore < 0) {
                     move.ordinal = ChessMoveOrdinal::UNSAFE_MOVE + static_cast<ChessMoveOrdinal>(move.seeScore);
+                    continue;
+                }
+
+                const std::uint32_t mateHistoryScore = mateHistoryTable.get(movingPiece, dst);
+
+                if (mateHistoryScore > 0) {
+                    move.ordinal = ChessMoveOrdinal::MATE_HISTORY_MOVE + ChessMoveOrdinal(mateHistoryScore);
+                    continue;
+                }
+
+                const std::uint32_t historyScore = historyTable.get(movingPiece, dst);
+
+                if (historyScore > 0) {
+                    move.ordinal = ChessMoveOrdinal::HISTORY_MOVE + ChessMoveOrdinal(historyScore);
                 }
                 else {
-                    const std::uint32_t historyScore = historyTable.get(movingPiece, dst);
-
-                    if (historyScore > 0) {
-                        move.ordinal = ChessMoveOrdinal::HISTORY_MOVE + ChessMoveOrdinal(historyScore);
-                    }
-                    else {
-                        move.ordinal = ChessMoveOrdinal::UNCLASSIFIED_MOVE;
-                    }
-                //}
-                //else {
-                //    move.ordinal = ChessMoveOrdinal::UNCLASSIFIED_MOVE;
+                    move.ordinal = ChessMoveOrdinal::UNCLASSIFIED_MOVE;
                 }
             }
         }

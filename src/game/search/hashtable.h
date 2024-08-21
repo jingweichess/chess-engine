@@ -95,6 +95,11 @@ struct HashtableEntry {
             NodeCount nodeCount;
         } perft;
 
+        struct {
+            Hash hashValue;
+            Score score;
+        } mate;
+
 #if defined(USE_M128I)
         __m128i vector;
 #endif
@@ -108,6 +113,11 @@ struct HashtableEntry {
     constexpr Depth getDepthLeft() const
     {
         return static_cast<Depth>(this->search.depthLeft);
+    }
+
+    constexpr Score getMateScore() const
+    {
+        return this->mate.score;
     }
 
     constexpr Score getScore(Depth currentDepth) const
@@ -139,6 +149,7 @@ public:
     void initialize(std::uint32_t entryCount);
 
     void insert(Hash hashValue, Score score, Depth currentDepth, Depth depthLeft, HashtableEntryType hashtableEntryType, std::uint8_t custom = 0);
+    void insert(Hash hashValue, Score mateScore);
 
     void prefetch(Hash hashValue) const
     {

@@ -72,6 +72,7 @@ constexpr bool nullEndgameFunction(const ChessBoard& board, const Score& score)
     return false;
 }
 
+template <Score baseScore = BASICALLY_WINNING_SCORE>
 constexpr bool pushPawnEndgameFunction(const ChessBoard& board, Score& score)
 {
     //1) Determine strong side
@@ -90,7 +91,7 @@ constexpr bool pushPawnEndgameFunction(const ChessBoard& board, Score& score)
     const Score pst = strongSideIsWhite ? PstParameters[PieceType::PAWN][src].eg : -PstParameters[PieceType::PAWN][src].eg;
 
     //3) Put it all together for the strong side
-    score = BASICALLY_WINNING_SCORE + pst;
+    score = baseScore + pst;
 
     //4) Ensure score is returned for side to move
     if (board.sideToMove != strongSide) {
@@ -120,7 +121,7 @@ constexpr bool weakKingEndgameFunction(const ChessBoard& board, Score& score)
     const Score pst = strongSideIsWhite ? board.pstEvaluation.eg : -board.pstEvaluation.eg;
 
     //5) Put it all together for the strong side
-    const std::int32_t kingDistance = static_cast<std::int32_t>(std::sqrt(file * file + rank * rank));
+    const std::int32_t kingDistance = constexpr_sqrt(file * file + rank * rank);
     score = baseScore + GeneralMate[weakKingPosition] + KingProximity[kingDistance] + pst;
 
     //6) Ensure score is returned for side to move

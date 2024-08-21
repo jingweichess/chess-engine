@@ -174,7 +174,7 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
 
     for (PieceType pieceType = PieceType::PAWN; pieceType <= PieceType::QUEEN; pieceType++) {
         if (pieceType != PieceType::PAWN) {
-            for (Color color = Color::WHITE; color < Color::COLOR_COUNT; color++) {
+            for (const Color color : { Color::WHITE, Color::BLACK }) {
                 const bool isSideToMove = color == board.sideToMove;
 
                 const bool colorIsWhite = color == Color::WHITE;
@@ -189,11 +189,11 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
 
                 const Bitboard srcPieces = colorPieces[pieceType];
 
-                //const bool hasPiecePair = std::popcount(srcPieces) > 1;
+                const bool hasPiecePair = std::popcount(srcPieces) > 1;
 
-                //if (hasPiecePair) {
-                //    evaluation += multiplier * PiecePairs[pieceType];
-                //}
+                if (hasPiecePair) {
+                    evaluation += multiplier * PiecePairs[pieceType];
+                }
 
                 for (const Square src : SquareBitboardIterator(srcPieces)) {
                     Bitboard mobilityDstSquares = EmptyBitboard;
@@ -216,19 +216,19 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
                     //    }
                     //}
 
-                    //switch (pieceType) {
-                    //case PieceType::KNIGHT:
-                    //case PieceType::BISHOP:
-                    //    break;
-                    //case PieceType::ROOK:
-                    //    //evaluation += multiplier * this->evaluateRook(colorPieces, mobilityDstSquares, board.allPieces, passedPawns[color], src, hasPiecePair);
-                    //    break;
-                    //case PieceType::QUEEN:
-                    //    //evaluation += multiplier * this->evaluateQueen(mobilityDstSquares, board.allPieces, passedPawns[color], src);
-                    //    break;
-                    //default:
-                    //    assert(0);
-                    //}
+                    switch (pieceType) {
+                    case PieceType::KNIGHT:
+                    case PieceType::BISHOP:
+                        break;
+                    case PieceType::ROOK:
+                        evaluation += multiplier * this->evaluateRook(colorPieces, mobilityDstSquares, board.allPieces, passedPawns[color], src, hasPiecePair);
+                        break;
+                    case PieceType::QUEEN:
+                        //evaluation += multiplier * this->evaluateQueen(mobilityDstSquares, board.allPieces, passedPawns[color], src);
+                        break;
+                    default:
+                        assert(0);
+                    }
                 }
             }
         }
@@ -279,34 +279,34 @@ ChessEvaluation ChessEvaluator::evaluateTropism(PieceType pieceType, Square src,
     return TropismParameters[pieceType][tropism];
 }
 
-//ChessEvaluation ChessEvaluator::evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const
-//{
-//    EvaluationType result = { ZERO_SCORE, ZERO_SCORE };
-//
-//    if (hasPiecePair) {
-//        const Bitboard sideToMoveRooks = colorPieces[PieceType::ROOK];
-//
-//        if ((sideToMoveRooks & mobilityDstSquares) == EmptyBitboard) {
-//            result += DoubledRooks;
-//        }
-//    }
-//
-//    const File file = GetFile(src);
-//    const Bitboard piecesInSameFile = allPieces & FileBitboard[file];
-//
-//    if (piecesInSameFile == OneShiftedBy(src)) {
-//        result += EmptyFileRook;
-//    }
-//    else if ((piecesInSameFile & passedPawns) != EmptyBitboard) {
-//        const Bitboard possiblePassedPawns = mobilityDstSquares & passedPawns & piecesInSameFile;
-//
-//        for (const Square dst : SquareBitboardIterator(possiblePassedPawns)) {
-//            result += RookBehindPassedPawnPst[dst];
-//        }
-//    }
-//
-//    return result;
-//}
+ChessEvaluation ChessEvaluator::evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const
+{
+    EvaluationType result = { ZERO_SCORE, ZERO_SCORE };
+
+    if (hasPiecePair) {
+        const Bitboard sideToMoveRooks = colorPieces[PieceType::ROOK];
+
+        if ((sideToMoveRooks & mobilityDstSquares) != EmptyBitboard) {
+            result += DoubledRooks;
+        }
+    }
+
+    const File file = GetFile(src);
+    const Bitboard piecesInSameFile = allPieces & FileBitboard[file];
+
+    if (piecesInSameFile == OneShiftedBy(src)) {
+        result += EmptyFileRook;
+    }
+    //else if ((piecesInSameFile & passedPawns) != EmptyBitboard) {
+    //    const Bitboard possiblePassedPawns = mobilityDstSquares & passedPawns & piecesInSameFile;
+
+    //    for (const Square dst : SquareBitboardIterator(possiblePassedPawns)) {
+    //        result += RookBehindPassedPawnPst[dst];
+    //    }
+    //}
+
+    return result;
+}
 
 //ChessEvaluation ChessEvaluator::evaluateQueen(Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src) const
 //{

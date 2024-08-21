@@ -26,7 +26,6 @@
 
 #include "../endgame/endgame.h"
 
-
 #include "../../game/eval/evaluator.h"
 
 #include "../../game/math/byteswap.h"
@@ -71,6 +70,8 @@ protected:
 
         for (const Square dst : SquareBitboardIterator(attackSquares)) {
             const PieceType attackedPiece = board.pieces[dst];
+
+            assert(attackedPiece != PieceType::KING);
 
             result += AttackParameters[srcPiece][attackedPiece];
         }
@@ -174,9 +175,8 @@ protected:
                 }
 
                 //2) Check for phalanxed pawn
-                File file = GetFile(src);
-                if (true
-                    && file != File::_H
+                const File file = GetFile(src);
+                if (file != File::_H
                     && (OneShiftedBy(src + Direction::RIGHT) & colorPawns) != EmptyBitboard) {
                     result += multiplier * PawnPhalanxPstParameters[evaluatedSrc];
                 }
@@ -237,7 +237,7 @@ protected:
         return result;
     }
 
-    //EvaluationType evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const;
+    EvaluationType evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const;
     //EvaluationType evaluateQueen(Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src) const;
 public:
 	ChessEvaluator();

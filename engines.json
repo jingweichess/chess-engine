@@ -1,0 +1,10 @@
+[
+    {
+        "command": "./bin/engines/stockfish-ubuntu-x86-64-avx2",
+        "name": "stockfish",
+        "options": [
+        ],
+        "protocol": "uci",
+        "workingDirectory": "./"
+    }
+]

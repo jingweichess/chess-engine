@@ -27,7 +27,10 @@
 
 #include "../eval/constructor.h"
 
-using ChessHistoryTable = HistoryTable<PieceType::PIECETYPE_COUNT, Square::SQUARE_COUNT>;
+using PieceTypeSquareHistoryTable = HistoryTable<PieceType::PIECETYPE_COUNT, Square::SQUARE_COUNT>;
+using SquareSquareHistoryTable = HistoryTable<Square::SQUARE_COUNT, Square::SQUARE_COUNT>;
+
+using ChessHistoryTable = PieceTypeSquareHistoryTable;
 
 extern QuadraticConstruct HistoryDeltaByDepthLeft;
 

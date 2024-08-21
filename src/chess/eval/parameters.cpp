@@ -31,10 +31,8 @@
 
 #include "parameters.h"
 
-ChessEvaluation PiecePairs[PieceType::PIECETYPE_COUNT];
-
 QuadraticConstruct FutilityPruningMargin = {
-    {  -2,  15 },
+    {  -1,  7 },
     {  91,  80 },
     {  69,  97 }
 };
@@ -52,7 +50,7 @@ QuadraticConstruct LateMoveReductionsDepthLeft = {
 };
 
 QuadraticConstruct LateMoveReductionsSearchedMoves = {
-    { 136,  42 },
+    {  78,  21 },
     { 244,  44 },
     {  37, 130 }
 };
@@ -80,13 +78,13 @@ QuadraticConstruct NullMoveVerificationReductions = {
 };
 
 QuadraticConstruct PruningMarginDepthLeft = {
-    {  100, 98 },
+    {   50,  49 },
     { -145, -18 },
     {  129, 151 }
 };
 
 QuadraticConstruct PruningMarginSearchedMoves = {
-    {  -57,  -69 },
+    {  -28,  -34 },
     {   54, -137 },
     {  143,   63 }
 };
@@ -116,7 +114,7 @@ QuadraticConstruct ProbCutReductions = {
 };
 
 QuadraticConstruct RazoringMargin = {
-    { -135, 107 },
+    {  -67,  53 },
     {   43, 134 },
     { 1050, 901 }
 };
@@ -131,6 +129,17 @@ ChessEvaluation MaterialParameters[PieceType::PIECETYPE_COUNT] = {
     {  2589,  2919 },
 };
 
+ChessEvaluation PiecePairs[PieceType::PIECETYPE_COUNT] = {
+    {}, {},
+    { 0, 1 },
+    { 44, 88 },
+    { 0, 0 },
+    { 0, 0 },
+};
+
+ChessEvaluation DoubledRooks = { -20, 47 };
+ChessEvaluation EmptyFileRook = { 0, 0 };
+
 ChessEvaluation PstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
 
 //Attack Parameters aren't "built" so they're hard coded here
@@ -139,7 +148,7 @@ ChessEvaluation AttackParameters[PieceType::PIECETYPE_COUNT][PieceType::PIECETYP
     { {}, {},             {  126,  206 }, {   84,  264 }, {  168,  173 }, {  102,  137 }, },    //PAWN
     { {}, {  -30,   56 }, {},             {   57,  102 }, {  159,  163 }, {   77,  163 }, },    //KNIGHT
     { {}, {   -7,   56 }, {   57,  113 }, {},             {  142,  153 }, {  132,  138 }, },    //BISHOP
-    { {}, {  -19,   63 }, {   37,   71 }, {   64,   67 }, {},             {  174,  185 }, },    //ROOK
+    { {}, {  -14,   63 }, {   79,   71 }, {   64,   67 }, {},             {  174,  185 }, },    //ROOK
     { {}, {  -11,   37 }, {   13,  -37 }, {   11,   68 }, {   -9,   72 }, {}, },                //QUEEN
 };
 
@@ -163,7 +172,7 @@ ChessEvaluation PawnPhalanxPstParameters[Square::SQUARE_COUNT];
 PstParameterConstructorSet BasePstConstructorSet[PieceType::PIECETYPE_COUNT] = {
     {},
     {   //PAWN
-        {
+        {   
             {}, {}, {}, {}, {}, {}, {}, {},
             {  181,  330 }, {   60,  366 }, {   77,  284 }, {   68,  210 }, {   61,  182 }, {  -21,  230 }, { -130,  274 }, { -173,  421 },
             {  -15,   75 }, {  -12,   55 }, {   -3,   46 }, {   -2,   48 }, {   13,   38 }, {   63,    1 }, {   71,   52 }, {    9,   45 },
@@ -174,7 +183,7 @@ PstParameterConstructorSet BasePstConstructorSet[PieceType::PIECETYPE_COUNT] = {
             {}, {}, {}, {}, {}, {}, {}, {},
         },
         {
-            .rank = { { 6, 33 }, { -35, -12 }, { -27, 67 } },
+            .rank = { { 3, 16 }, { -35, -12 }, { -27, 67 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
@@ -195,7 +204,7 @@ PstParameterConstructorSet BasePstConstructorSet[PieceType::PIECETYPE_COUNT] = {
             .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -10, -7 }, { 19, 65 }, { -10, 13 } },
+            .center = { { -5, -3 }, { 19, 65 }, { -10, 13 } },
         },
     },
     {   //BISHOP
@@ -276,7 +285,7 @@ QuadraticParameterConstructorSet ControlConstructorSet[PieceType::PIECETYPE_COUN
     {},
     { //PAWN
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 66, -21 }, { -172, 94 }, { -14, 4 } },
+        .quadraticConstruct = { { 33, -10 }, { -172, 94 }, { -14, 4 } },
     },
     { //KNIGHT
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
@@ -310,7 +319,7 @@ PstParameterConstructorSet ControlPstConstructorSet[PieceType::PIECETYPE_COUNT] 
             {}, {}, {}, {}, {}, {}, {}, {},
         },
         {
-            .rank = { { 13, -3 }, { -19, 18 }, { 18, -3 } },
+            .rank = { { 6, -1 }, { -19, 18 }, { 18, -3 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
@@ -331,7 +340,7 @@ PstParameterConstructorSet ControlPstConstructorSet[PieceType::PIECETYPE_COUNT] 
             .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -24, 30 }, { 63, -66 }, { -17, 6 } },
+            .center = { { -12, 15 }, { 63, -66 }, { -17, 6 } },
         },
     },
     {   //BISHOP
@@ -349,7 +358,7 @@ PstParameterConstructorSet ControlPstConstructorSet[PieceType::PIECETYPE_COUNT] 
             .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -2, -1 }, { 7, 6 }, { -5, 4 } },
+            .center = { { -1, 0 }, { 7, 6 }, { -5, 4 } },
         },
     },
     {   //ROOK
@@ -367,7 +376,7 @@ PstParameterConstructorSet ControlPstConstructorSet[PieceType::PIECETYPE_COUNT] 
             .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 3, 1 }, { 3, 4 }, { -12, -7 } },
+            .center = { { 1, 0 }, { 3, 4 }, { -12, -7 } },
         },
     },
     {   //QUEEN
@@ -385,7 +394,7 @@ PstParameterConstructorSet ControlPstConstructorSet[PieceType::PIECETYPE_COUNT] 
             .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -7, 0 }, { 38, 0 }, { -13, 0 } },
+            .center = { { -3, 0 }, { 38, 0 }, { -13, 0 } },
         },
     },
     {   //KING
@@ -414,30 +423,34 @@ QuadraticParameterConstructorSet MobilityConstructorSet[PieceType::PIECETYPE_COU
         //.quadraticBase = { {  -58,  -77 }, {  -38,  -56 }, {  -15,  -26 }, {   -8,   29 }, {    6,   31 }, {    7,   60 }, {   20,   39 }, {   30,   23 }, {   54,  -23 }, },
         //.quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { -11, -182 }, { 120, 447 }, { -52, -94 } },
+        .quadraticConstruct = { { -6, -84 }, { 131, 455 }, { -51, -84 } },
     },
     { //BISHOP
         //.quadraticBase = { { -132, -217 }, {  -17, -123 }, {   -5,  -41 }, {    9,    2 }, {   13,   62 }, {   15,  119 }, {   35,  123 }, {   48,  143 }, {   55,  160 }, {   80,  144 }, {  150,  129 },
         //    {  153,  143 }, {  119,  185 }, {  199,  217 }, },
         //.quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { -1, -104 }, { 157, 551 }, { -73, -183 } },
+        .quadraticConstruct = { { 0, -52 }, { 157, 551 }, { -73, -183 } },
     },
     { //ROOK
         //.quadraticBase = { {  -82,  -85 }, {  -78,  -71 }, {  -74,  -66 }, {  -63,  -58 }, {  -63,  -29 }, {  -50,   -2 }, {  -49,   29 }, {  -22,   22 }, {   -9,   46 }, {    9,   54 }, {   34,   57 },
         //    {   45,   62 }, {   66,   65 }, {  129,   20 }, {  208,  -45 }, },
         //.quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 54, -59 }, { -52, 274 }, { -70, -115 } },
+        .quadraticConstruct = { { 27, -29 }, { -52, 274 }, { -70, -115 } },
     },
     { //QUEEN
       //  .quadraticBase = { { -105, -255 }, { -128, -203 }, { -127, -236 }, {  -98, -220 }, {  -75, -187 }, {  -76, -161 }, {  -58, -152 }, {  -54, -118 }, {  -59,  -51 }, {  -31,  -92 }, {  -56,  -20 }, {  -51,   32 }, {  -65,   89 }, {  -38,   71 }, {  -42,   89 },
       //{  -29,  119 }, {    8,   86 }, {   -8,  126 }, {   63,  114 }, {   31,  147 }, {  121,  148 }, {  129,  156 }, {  146,  173 }, {  161,  136 }, {  149,  166 }, {  171,  186 }, {  237,  -45 }, { -112,  -99 }, },
       //  .quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 2, -38 }, { 65, 367 }, { -128, -328 } },
+        .quadraticConstruct = { { 1, -19 }, { 65, 367 }, { -128, -328 } },
     }
 };
+
+//KING_MOBILITY_MIDDLEGAME_BONUS: array[28, Score] = [0, 0, 0, 140, 156, 112, 82, 59, 40, 20, 20, -12, -19, -42, -65, -99, -132, -167, -199, -217, -226, -249, -246, -251, -319, -272, -285, -248]
+//
+//KING_MOBILITY_ENDGAME_BONUS : array[28, Score] = [0, 0, 0, -11, -53, 5, 3, -8, -4, -6, -9, 15, 8, 21, 19, 29, 30, 27, 27, 10, 9, -9, -31, -44, -52, -98, -108, -152]
 
 PstParameterConstructorSet OutpostPstConstructorSet[PieceType::PIECETYPE_COUNT] = {
     {}, {},
@@ -571,7 +584,7 @@ PstParameterConstructorSet PawnDoubledPstConstructorSet = {
         {}, {}, {}, {}, {}, {}, {}, {},
     },
     {
-        .rank = { { 11, -63 }, { 13, -38 }, { 0, 0 } },
+        .rank = { { 5, -31 }, { 13, -38 }, { 0, 0 } },
         .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
@@ -657,14 +670,14 @@ ParameterMap chessEngineParameterMap = {
     { "material-queen-mg", &MaterialParameters[PieceType::QUEEN].mg },
     { "material-queen-eg", &MaterialParameters[PieceType::QUEEN].eg },
 
-    //{ "material-knight-pair-mg", &PiecePairs[PieceType::KNIGHT].mg},
-    //{ "material-knight-pair-eg", &PiecePairs[PieceType::KNIGHT].eg},
-    //{ "material-bishop-pair-mg", &PiecePairs[PieceType::BISHOP].mg},
-    //{ "material-bishop-pair-eg", &PiecePairs[PieceType::BISHOP].eg},
-    //{ "material-rook-pair-mg", &PiecePairs[PieceType::ROOK].mg},
-    //{ "material-rook-pair-eg", &PiecePairs[PieceType::ROOK].eg},
-    //{ "material-queen-pair-mg", &PiecePairs[PieceType::QUEEN].mg},
-    //{ "material-queen-pair-eg", &PiecePairs[PieceType::QUEEN].eg},
+    { "material-knight-pair-mg", &PiecePairs[PieceType::KNIGHT].mg},
+    { "material-knight-pair-eg", &PiecePairs[PieceType::KNIGHT].eg},
+    { "material-bishop-pair-mg", &PiecePairs[PieceType::BISHOP].mg},
+    { "material-bishop-pair-eg", &PiecePairs[PieceType::BISHOP].eg},
+    { "material-rook-pair-mg", &PiecePairs[PieceType::ROOK].mg},
+    { "material-rook-pair-eg", &PiecePairs[PieceType::ROOK].eg},
+    { "material-queen-pair-mg", &PiecePairs[PieceType::QUEEN].mg},
+    { "material-queen-pair-eg", &PiecePairs[PieceType::QUEEN].eg},
 
     //{ "control-pawn-quadratic-mg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.quadratic.mg },
     //{ "control-pawn-quadratic-eg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.quadratic.eg },
@@ -801,6 +814,40 @@ ParameterMap chessEngineParameterMap = {
     //{ "pst-pawn-center-slope-eg", &pstConstruct[PieceType::PAWN].center.slope.eg },
     //{ "pst-pawn-center-yintercept-mg", &pstConstruct[PieceType::PAWN].center.yintercept.mg },
     //{ "pst-pawn-center-yintercept-eg",&pstConstruct[PieceType::PAWN].center.yintercept.eg },
+
+    { "pst-pawn-square-a7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A7].mg },
+    { "pst-pawn-square-a7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A7].eg },
+    { "pst-pawn-square-b7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B7].mg },
+    { "pst-pawn-square-b7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B7].eg },
+    { "pst-pawn-square-c7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C7].mg },
+    { "pst-pawn-square-c7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C7].eg },
+    { "pst-pawn-square-d7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D7].mg },
+    { "pst-pawn-square-d7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D7].eg },
+    { "pst-pawn-square-e7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E7].mg },
+    { "pst-pawn-square-e7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E7].eg },
+    { "pst-pawn-square-f7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F7].mg },
+    { "pst-pawn-square-f7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F7].eg },
+    { "pst-pawn-square-g7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G7].mg },
+    { "pst-pawn-square-g7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G7].eg },
+    { "pst-pawn-square-h7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H7].mg },
+    { "pst-pawn-square-h7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H7].eg },
+
+    { "pst-pawn-square-a2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A2].mg },
+    { "pst-pawn-square-a2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A2].eg },
+    { "pst-pawn-square-b2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B2].mg },
+    { "pst-pawn-square-b2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B2].eg },
+    { "pst-pawn-square-c2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C2].mg },
+    { "pst-pawn-square-c2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C2].eg },
+    { "pst-pawn-square-d2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D2].mg },
+    { "pst-pawn-square-d2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D2].eg },
+    { "pst-pawn-square-e2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E2].mg },
+    { "pst-pawn-square-e2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E2].eg },
+    { "pst-pawn-square-f2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F2].mg },
+    { "pst-pawn-square-f2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F2].eg },
+    { "pst-pawn-square-g2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G2].mg },
+    { "pst-pawn-square-g2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G2].eg },
+    { "pst-pawn-square-h2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H2].mg },
+    { "pst-pawn-square-h2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H2].eg },
 
     { "pst-knight-rank-quadratic-mg", &BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.mg },
     { "pst-knight-rank-quadratic-eg",&BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.eg },
@@ -956,8 +1003,8 @@ ParameterMap chessEngineParameterMap = {
     //{ "pawn-blocked-other-file-center-mg", &pawnOtherColorBlockedPstConstruct.filecenter.slope.mg },
     //{ "pawn-blocked-other-file-center-eg", &pawnOtherColorBlockedPstConstruct.filecenter.slope.eg },
 
-    //{ "pawn-chain-back-default-mg", &PawnChainBackDefault.mg },
-    //{ "pawn-chain-back-default-eg", &PawnChainBackDefault.eg },
+    { "pawn-chain-back-default-mg", &PawnChainBackPstConstructorSet.defaultEvaluation.mg },
+    { "pawn-chain-back-default-eg", &PawnChainBackPstConstructorSet.defaultEvaluation.eg },
 
     //{ "pawn-chain-back-rank-quadratic-mg", &pawnChainBackPstConstruct.rank.quadratic.mg },
     //{ "pawn-chain-back-rank-quadratic-eg", &pawnChainBackPstConstruct.rank.quadratic.eg },
@@ -969,8 +1016,8 @@ ParameterMap chessEngineParameterMap = {
     //{ "pawn-chain-back-file-center-slope-mg", &pawnChainBackPstConstruct.filecenter.slope.mg },
     //{ "pawn-chain-back-file-center-slope-eg", &pawnChainBackPstConstruct.filecenter.slope.eg },
 
-    //{ "pawn-chain-front-default-mg", &PawnChainFrontDefault.mg },
-    //{ "pawn-chain-front-default-eg", &PawnChainFrontDefault.eg },
+    { "pawn-chain-front-default-mg", &PawnChainFrontPstConstructorSet.defaultEvaluation.mg },
+    { "pawn-chain-front-default-eg", &PawnChainFrontPstConstructorSet.defaultEvaluation.eg },
 
     //{ "pawn-chain-front-rank-quadratic-mg", &pawnChainFrontPstConstruct.rank.quadratic.mg },
     //{ "pawn-chain-front-rank-quadratic-eg", &pawnChainFrontPstConstruct.rank.quadratic.eg },
@@ -1218,26 +1265,26 @@ ParameterMap chessEngineParameterMap = {
     { "search-reductions-pruning-margin-searchedmoves-yintercept-mg", &PruningMarginSearchedMoves.yintercept.mg },
     { "search-reductions-pruning-margin-searchedmoves-yintercept-eg", &PruningMarginSearchedMoves.yintercept.eg },
 
-    //{ "tropism-knight-quadratic-mg", &tropismConstructor[PieceType::KNIGHT].quadratic.mg },
-    //{ "tropism-knight-quadratic-eg", &tropismConstructor[PieceType::KNIGHT].quadratic.eg },
-    //{ "tropism-knight-slope-mg", &tropismConstructor[PieceType::KNIGHT].slope.mg },
-    //{ "tropism-knight-slope-eg", &tropismConstructor[PieceType::KNIGHT].slope.eg },
-    //{ "tropism-knight-yintercept-mg", &tropismConstructor[PieceType::KNIGHT].yintercept.mg },
-    //{ "tropism-knight-yintercept-eg", &tropismConstructor[PieceType::KNIGHT].yintercept.eg },
+    { "tropism-knight-quadratic-mg", &TropismConstructorSet[PieceType::KNIGHT].quadraticConstruct.quadratic.mg },
+    { "tropism-knight-quadratic-eg", &TropismConstructorSet[PieceType::KNIGHT].quadraticConstruct.quadratic.eg },
+    { "tropism-knight-slope-mg", &TropismConstructorSet[PieceType::KNIGHT].quadraticConstruct.slope.mg },
+    { "tropism-knight-slope-eg", &TropismConstructorSet[PieceType::KNIGHT].quadraticConstruct.slope.eg },
+    { "tropism-knight-yintercept-mg", &TropismConstructorSet[PieceType::KNIGHT].quadraticConstruct.yintercept.mg },
+    { "tropism-knight-yintercept-eg", &TropismConstructorSet[PieceType::KNIGHT].quadraticConstruct.yintercept.eg },
 
-    //{ "tropism-bishop-quadratic-mg", &tropismConstructor[PieceType::BISHOP].quadratic.mg },
-    //{ "tropism-bishop-quadratic-eg", &tropismConstructor[PieceType::BISHOP].quadratic.eg },
-    //{ "tropism-bishop-slope-mg", &tropismConstructor[PieceType::BISHOP].slope.mg },
-    //{ "tropism-bishop-slope-eg", &tropismConstructor[PieceType::BISHOP].slope.eg },
-    //{ "tropism-bishop-yintercept-mg", &tropismConstructor[PieceType::BISHOP].yintercept.mg },
-    //{ "tropism-bishop-yintercept-eg", &tropismConstructor[PieceType::BISHOP].yintercept.eg },
+    { "tropism-bishop-quadratic-mg", &TropismConstructorSet[PieceType::BISHOP].quadraticConstruct.quadratic.mg },
+    { "tropism-bishop-quadratic-eg", &TropismConstructorSet[PieceType::BISHOP].quadraticConstruct.quadratic.eg },
+    { "tropism-bishop-slope-mg", &TropismConstructorSet[PieceType::BISHOP].quadraticConstruct.slope.mg },
+    { "tropism-bishop-slope-eg", &TropismConstructorSet[PieceType::BISHOP].quadraticConstruct.slope.eg },
+    { "tropism-bishop-yintercept-mg", &TropismConstructorSet[PieceType::BISHOP].quadraticConstruct.yintercept.mg },
+    { "tropism-bishop-yintercept-eg", &TropismConstructorSet[PieceType::BISHOP].quadraticConstruct.yintercept.eg },
 
-    //{ "tropism-rook-quadratic-mg", &tropismConstructor[PieceType::ROOK].quadratic.mg },
-    //{ "tropism-rook-quadratic-eg", &tropismConstructor[PieceType::ROOK].quadratic.eg },
-    //{ "tropism-rook-slope-mg", &tropismConstructor[PieceType::ROOK].slope.mg },
-    //{ "tropism-rook-slope-eg", &tropismConstructor[PieceType::ROOK].slope.eg },
-    //{ "tropism-rook-yintercept-mg", &tropismConstructor[PieceType::ROOK].yintercept.mg },
-    //{ "tropism-rook-yintercept-eg", &tropismConstructor[PieceType::ROOK].yintercept.eg },
+    { "tropism-rook-quadratic-mg", &TropismConstructorSet[PieceType::ROOK].quadraticConstruct.quadratic.mg },
+    { "tropism-rook-quadratic-eg", &TropismConstructorSet[PieceType::ROOK].quadraticConstruct.quadratic.eg },
+    { "tropism-rook-slope-mg", &TropismConstructorSet[PieceType::ROOK].quadraticConstruct.slope.mg },
+    { "tropism-rook-slope-eg", &TropismConstructorSet[PieceType::ROOK].quadraticConstruct.slope.eg },
+    { "tropism-rook-yintercept-mg", &TropismConstructorSet[PieceType::ROOK].quadraticConstruct.yintercept.mg },
+    { "tropism-rook-yintercept-eg", &TropismConstructorSet[PieceType::ROOK].quadraticConstruct.yintercept.eg },
 
     { "tropism-queen-quadratic-mg", &TropismConstructorSet[PieceType::QUEEN].quadraticConstruct.quadratic.mg },
     { "tropism-queen-quadratic-eg", &TropismConstructorSet[PieceType::QUEEN].quadraticConstruct.quadratic.eg },
@@ -1246,14 +1293,14 @@ ParameterMap chessEngineParameterMap = {
     { "tropism-queen-yintercept-mg", &TropismConstructorSet[PieceType::QUEEN].quadraticConstruct.yintercept.mg },
     { "tropism-queen-yintercept-eg", &TropismConstructorSet[PieceType::QUEEN].quadraticConstruct.yintercept.eg },
 
-    //{ "doubled-rooks-mg", &DoubledRooks.mg },
-    //{ "doubled-rooks-eg", &DoubledRooks.eg },
+    { "doubled-rooks-mg", &DoubledRooks.mg },
+    { "doubled-rooks-eg", &DoubledRooks.eg },
 
     //{ "empty-file-queen-mg", &EmptyFileQueen.mg },
     //{ "empty-file-queen-eg", &EmptyFileQueen.eg },
 
-    //{ "empty-file-rook-mg", &EmptyFileRook.mg },
-    //{ "empty-file-rook-eg", &EmptyFileRook.eg },
+    { "empty-file-rook-mg", &EmptyFileRook.mg },
+    { "empty-file-rook-eg", &EmptyFileRook.eg },
 
     //{ "queen-behind-passed-pawn-default-mg", &queenBehindPassedPawnDefault.mg },
     //{ "queen-behind-passed-pawn-default-eg", &queenBehindPassedPawnDefault.eg },

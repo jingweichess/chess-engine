@@ -45,6 +45,8 @@ struct ChessSearchStack {
     ChessMove hashMove;
     ChessMove killer1;
     ChessMove killer2;
+    ChessMove mateKiller1;
+    ChessMove mateKiller2;
     ChessMove currentMove;
     ChessMove excludedMove;
     Bitboard passedPawns;
