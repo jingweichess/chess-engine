@@ -18,7 +18,7 @@
 
 #pragma once
 
-enum PieceType {
+enum PieceType : std::uint8_t {
 	NO_PIECE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, ALL, PIECETYPE_COUNT
 };
 

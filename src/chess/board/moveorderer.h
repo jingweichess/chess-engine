@@ -60,7 +60,8 @@ public:
 
             move.seeScore = INVALID_SCORE;
 
-            if (searchStack->pvMove == move) {
+            if (searchStack->pvMove == move
+                || searchStack->hashMove == move) {
                 move.ordinal = ChessMoveOrdinal::PV_MOVE;
             }
             else if (movingPiece != PieceType::PAWN
@@ -147,7 +148,8 @@ public:
 
             move.seeScore = INVALID_SCORE;
 
-            if (searchStack->pvMove == move) {
+            if (searchStack->pvMove == move
+                || searchStack->hashMove == move) {
                 move.ordinal = ChessMoveOrdinal::PV_MOVE;
             }
             else if (movingPiece != PieceType::PAWN

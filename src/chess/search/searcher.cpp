@@ -185,7 +185,7 @@ void ChessSearcher::iterativeDeepeningLoop(const ChessBoard& board, ChessPrincip
         if (enableAspirationWindow
             && !foundMateSolution
             && searchDepth >= Depth::THREE) {
-            aspirationWindowDelta = Score(256);
+            aspirationWindowDelta = Score(PAWN_SCORE);
 
             alpha = std::max(previousScore - aspirationWindowDelta, -INFINITE_SCORE);
             beta = std::min(previousScore + aspirationWindowDelta, INFINITE_SCORE);
@@ -262,7 +262,7 @@ void ChessSearcher::iterativeDeepeningLoop(const ChessBoard& board, ChessPrincip
 
             foundMateSolution = IsMateScore(score);
 
-            aspirationWindowDelta += Score(256);
+            aspirationWindowDelta += Score(PAWN_SCORE);
             rounds++;
         }
 
@@ -323,13 +323,10 @@ Score ChessSearcher::quiescenceSearch(ChessBoard& board, ChessSearchStack* searc
     }
 
     this->quiescentNodeCount++;
+    searchStack->bestMove = NullMove;
 
     //5) Check Hashtable
     const Depth depthLeft = maxDepth - currentDepth;
-
-    if (depthLeft < Depth::ZERO) {
-        int a = 0;
-    }
 
     bool hashFound = false;
 
@@ -344,6 +341,14 @@ Score ChessSearcher::quiescenceSearch(ChessBoard& board, ChessSearchStack* searc
             const HashtableEntryType hashtableEntryType = hashtableEntry.getType();
             hashDepthLeft = hashtableEntry.getDepthLeft();
             hashScore = hashtableEntry.getScore(currentDepth);
+
+            //searchStack->hashMove = {
+            //    .src = hashtableEntry.getSrc(),
+            //    .dst = hashtableEntry.getDst(),
+            //    .promotionPiece = hashtableEntry.getPromotionPiece(),
+
+            //    .seeScore = NO_SCORE
+            //};
 
             if (nodeType != NodeType::PV
                 //&& !IsMateScore(hashScore)
@@ -679,7 +684,7 @@ bool ChessSearcher::saveToHashtable(const ChessBoard& board, const ChessMove& mo
         return false;
     }
 
-    this->hashtable.insert(board.hashValue, score, currentDepth, depthLeft, hashtableEntryType);
+    this->hashtable.insert(board.hashValue, score, currentDepth, depthLeft, hashtableEntryType, move);
 
     return true;
 }
@@ -756,6 +761,14 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
             searchStack->hashDepth = hashtableEntry.getDepthLeft();
             hashScore = hashtableEntry.getScore(currentDepth);
 
+            searchStack->hashMove = {
+                .src = hashtableEntry.getSrc(),
+                .dst = hashtableEntry.getDst(),
+                .promotionPiece = hashtableEntry.getPromotionPiece(),
+
+                .seeScore = NO_SCORE
+            };
+
             //if (nodeType != NodeType::PV
             //    && IsMateScore(hashScore)) {
             //    return hashScore;
@@ -789,19 +802,20 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
                 }
             }
 
-            if constexpr (nodeType != NodeType::PV) {
-                //ChessBoard nextBoard = board;
-                //this->boardMover.dispatchDoMove(nextBoard, hashMove);
+            //if (nodeType != NodeType::PV
+            //    && searchStack->hashMove != NullMove) {
+            //    ChessBoard nextBoard = board;
+            //    this->boardMover.dispatchDoMove(nextBoard, searchStack->hashMove);
 
-                //constexpr NodeType newNodeType = nodeType == NodeType::ALL ? NodeType::CUT : NodeType::ALL;
-                //const Score score = -this->search<newNodeType>(nextBoard, principalVariation, -alpha - 1, -alpha, maxDepth, currentDepth + Depth::ONE);
+            //    constexpr NodeType newNodeType = nodeType == NodeType::ALL ? NodeType::CUT : NodeType::ALL;
+            //    const Score score = -this->search<newNodeType>(nextBoard, searchStack + 1, -(alpha + 1), -alpha, maxDepth, currentDepth + Depth::ONE);
 
-                //if (score >= beta) {
-                //    this->saveToHashtable(board, hashMove, alpha, beta, score, currentDepth, depthLeft);
+            //    if (score >= beta) {
+            //        this->saveToHashtable(board, searchStack->hashMove, alpha, beta, score, currentDepth, depthLeft);
 
-                //    return score;
-                //}
-            }
+            //        return score;
+            //    }
+            //}
         }
     }
 
@@ -975,7 +989,7 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
                 score = -this->search<nextNodeType>(nextBoard, searchStack + 1, -probCutBeta, -probCutBeta + 1, maxDepth - probCutReduction, currentDepth + Depth::ONE);
 
                 if (score >= probCutBeta) {
-                    this->saveToHashtable(board, searchStack->bestMove, alpha, beta, score, currentDepth - probCutReduction, depthLeft);
+                    this->saveToHashtable(board, move, alpha, beta, score, currentDepth - probCutReduction, depthLeft);
 
                     return score;
                 }

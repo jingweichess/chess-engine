@@ -37,8 +37,6 @@ all: compile
 
 compile:
 
-	echo $(SPRT)
-
 	mkdir -p bin
 
 	g++-12 -o bin/jing-wei $(ENGINE_FILES) -std=c++20 -DUSE_M128I -D__BMI__ -DNDEBUG -O3 -m64 -mbmi2 -mpopcnt -msse4.2 -march=native -flto=4 -s
