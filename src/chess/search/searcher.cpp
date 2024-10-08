@@ -861,9 +861,15 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
         //7) Reverse Futility Pruning
         if (enableReverseFutilityPruning
             && depthLeft < Depth::FOUR
+            //&& depthLeft < Depth::SIX
             && searchStack->staticEvaluation < BASICALLY_WINNING_SCORE
             && searchStack->staticEvaluation >= beta + FutilityMargin(depthLeft, phase)) {
-            return searchStack->staticEvaluation;
+            //if (depthLeft < Depth::FOUR) {
+                return searchStack->staticEvaluation;
+            //}
+            //else {
+            //    return this->quiescenceSearch<nodeType>(board, searchStack, alpha, beta, maxDepth, currentDepth);
+            //}
         }
 
         //8) Razoring
@@ -902,17 +908,19 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
 
             if (!isMateScore
                 && nullScore >= beta) {
+                if (enableNullMoveVerification) {
+                    const Depth nullVerificationReduction = NullMoveVerificationReduction(depthLeft, phase);
+                    const Score verifiedNullScore = this->search<nodeType>(board, searchStack, beta - 1, beta, maxDepth - nullVerificationReduction, currentDepth);
+
+                    const bool isMateScore = IsMateScore(verifiedNullScore);
+                    if (!isMateScore
+                        && verifiedNullScore >= beta) {
+
+                        return verifiedNullScore;
+                    }
+                }
+
                 return nullScore; 
-
-                //const Depth nullVerificationReduction = NullMoveVerificationReduction(depthLeft, phase);
-                //const Score verifiedNullScore = this->search<nodeType>(board, searchStack, beta - 1, beta, maxDepth - nullVerificationReduction, currentDepth);
-
-                //const bool isMateScore = IsMateScore(verifiedNullScore);
-                //if (!isMateScore
-                //    && verifiedNullScore >= beta) {
-
-                //    return verifiedNullScore;
-                //}
             }
         }
     }
@@ -1002,7 +1010,7 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
 
     //13) Save to Hashtable
     if (enableSearchHashtable
-//        && nodeType == NodeType::CUT
+        //&& nodeType == NodeType::CUT
         && !this->abortedSearch
         ) {
         this->saveToHashtable(board, searchStack->bestMove, alpha, beta, score, currentDepth, depthLeft);
@@ -1060,7 +1068,8 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
     Depth positionExtensions = Depth::ZERO;
     const bool isInCheck = this->attackGenerator.dispatchIsInCheck(board);
 
-    if (enablePositionExtensions) {
+    if (enablePositionExtensions
+        /*&& nodeType != NodeType::PV*/) {
         if (moveList.size() == 1) {
             positionExtensions += Depth::ONE;
         }
@@ -1136,10 +1145,7 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
 
         //5) Prefetch Hashtables
         this->hashtable.prefetch(nextBoard.hashValue);
-
-        //if (maxDepth + extensions == currentDepth + Depth::ONE) {
-        //    this->evaluator.prefetch(nextBoard.hashValue);
-        //}
+        this->evaluator.prefetch(nextBoard.hashValue);
 
         Depth extensions = positionExtensions;
 
@@ -1176,6 +1182,7 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
         const bool isPassedPawn = (searchStack->passedPawns & OneShiftedBy(src)) != EmptyBitboard;
 
         if (enableMoveExtensions
+            //&& nodeType != NodeType::PV
             /*&& currentDepth < this->rootSearchDepth*/) {
             //Extend Castle Moves
             if (movingPiece == PieceType::KING
@@ -1227,14 +1234,24 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
                 //}
 
                 //Extend Pieces which threaten the Queen?
+                const Bitboard otherQueens = isWhiteToMove ? nextBoard.blackPieces[PieceType::QUEEN] : nextBoard.whitePieces[PieceType::QUEEN];
+
+                //if (movingPiece == PieceType::KNIGHT) {
+                //    const Bitboard dstMoves = PieceMoves[PieceType::KNIGHT][src];
+
+                //    extensions += Depth::ONE * PopCount(otherQueens & dstMoves);
+                //}
+
                 if (movingPiece == PieceType::BISHOP) {
-                    const Bitboard otherQueens = isWhiteToMove ? nextBoard.blackPieces[PieceType::QUEEN] : nextBoard.whitePieces[PieceType::QUEEN];
                     const Bitboard dstMoves = BishopMagic(dst, nextBoard.allPieces);
 
-                    for (const Square queenSrc : SquareBitboardIterator(otherQueens & dstMoves)) {
-                        extensions += Depth::ONE;
-                    }
+                    extensions += Depth::ONE * PopCount(otherQueens & dstMoves);
                 }
+                //else if (movingPiece == PieceType::ROOK) {
+                //    const Bitboard dstMoves = RookMagic(dst, nextBoard.allPieces);
+
+                //    extensions += Depth::ONE * PopCount(otherQueens & dstMoves);
+                //}
 
                 //Extend if See captures a Minor Piece or more?
                 //if (move.seeScore >= ROOK_SCORE) {
@@ -1264,8 +1281,11 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
             //&& extensions == Depth::ZERO
             //&& !IsMateScore(alpha)
 
+            //&& move != searchStack->mateKiller1
+            //&& move != searchStack->mateKiller2
             //&& move != searchStack->killer1
             //&& move != searchStack->killer2
+
             //&& move.ordinal <= ChessMoveOrdinal::UNCLASSIFIED_MOVE
 
             //Don't reduce passed pawn moves

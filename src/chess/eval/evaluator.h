@@ -32,17 +32,23 @@
 
 #include "../hash/chesshashtable.h"
 
+#include "constructor.h"
+
+extern ChessEvaluation PassedPawnDefended;
+extern std::array<ChessEvaluation, PieceType::PIECETYPE_COUNT> PassedPawnBlockedByPiece;
+
 extern ChessEvaluation AttackParameters[PieceType::PIECETYPE_COUNT][PieceType::PIECETYPE_COUNT];
 extern ChessEvaluation MobilityParameters[PieceType::PIECETYPE_COUNT][32];
 
 extern ChessEvaluation PawnBlockedPstParameters[Color::COLOR_COUNT][Square::SQUARE_COUNT];
 extern ChessEvaluation PawnChainBackPstParameters[Square::SQUARE_COUNT];
 extern ChessEvaluation PawnChainFrontPstParameters[Square::SQUARE_COUNT];
-extern ChessEvaluation PawnDoubledPstParameters[Square::SQUARE_COUNT];
-extern ChessEvaluation PawnTripledPstParameters[Square::SQUARE_COUNT];
-extern ChessEvaluation PawnPassedPstParameters[Square::SQUARE_COUNT];
-extern ChessEvaluation PawnPhalanxPstParameters[Square::SQUARE_COUNT];
-extern ChessEvaluation PawnUnstoppablePstParameters[Square::SQUARE_COUNT];
+
+extern ChessEvaluation PawnChainBackByRank[Rank::RANK_COUNT];
+extern ChessEvaluation PawnChainFrontByRank[Rank::RANK_COUNT];
+extern ChessEvaluation PawnDoubledByRank[Rank::RANK_COUNT];
+extern ChessEvaluation PawnPassedByRank[Rank::RANK_COUNT];
+extern ChessEvaluation PawnPhalanxByRank[Rank::RANK_COUNT];
 
 class ChessEvaluator : public Evaluator<ChessEvaluator, ChessBoard, ChessEvaluation>
 {
@@ -73,36 +79,11 @@ protected:
 
             assert(attackedPiece != PieceType::KING);
 
+            //TODO: Account for side to move
             result += AttackParameters[srcPiece][attackedPiece];
         }
 
         return result;
-    }
-
-    constexpr EvaluationType evaluateMobility(Bitboard& outDstSquares, Bitboard allPieces, Bitboard colorPieces, PieceType pieceType, Square src, Bitboard unsafeSquares) const
-    {
-        switch (pieceType) {
-        case PieceType::KNIGHT:
-            outDstSquares = PieceMoves[pieceType][src];
-            break;
-        case PieceType::BISHOP:
-            outDstSquares = BishopMagic(src, allPieces);
-            break;
-        case PieceType::ROOK:
-            outDstSquares = RookMagic(src, allPieces);
-            break;
-        case PieceType::QUEEN:
-            outDstSquares = QueenMagic(src, allPieces);
-            break;
-        default:
-            assert(0);
-
-            return { ZERO_SCORE, ZERO_SCORE };
-        }
-
-        const std::uint32_t mobility = std::popcount(outDstSquares & ~colorPieces & ~unsafeSquares);
-
-        return MobilityParameters[pieceType][mobility];
     }
 
     constexpr ChessEvaluation evaluatePawnAttacks(const BoardType& board, Color color) const
@@ -161,16 +142,22 @@ protected:
 
             for (const Square src : SquareBitboardIterator(colorPawns)) {
                 const Square evaluatedSrc = colorIsWhite ? src : FlipSquareOnHorizontalLine(src);
+                const Rank evaluatedRank = GetRank(evaluatedSrc);
+
+                const Bitboard pawnDefends = colorIsWhite ? BlackPawnCaptures[src] : WhitePawnCaptures[src];
+                const Bitboard pawnsDefendedBy = pawnDefends & colorPieces[PieceType::PAWN];
+
+                const bool isDefendedByPawn = pawnsDefendedBy != EmptyBitboard;
 
                 //1) Check for a chained pawn
-                if ((colorPawnCaptures[src] & colorPieces[PieceType::PAWN]) != EmptyBitboard) {
-                    result += multiplier * PawnChainBackPstParameters[evaluatedSrc];
+                if (isDefendedByPawn) {
+                    //result += multiplier * PawnChainFrontPstParameters[evaluatedSrc];
+                    result += multiplier * PawnChainFrontByRank[evaluatedRank];
 
-                    const Bitboard frontChainPawns = colorPawnCaptures[src] & colorPieces[PieceType::PAWN];
-
-                    for (const Square dst : SquareBitboardIterator(frontChainPawns)) {
+                    for (const Square dst : SquareBitboardIterator(pawnsDefendedBy)) {
                         const Square evaluatedDst = colorIsWhite ? dst : FlipSquareOnHorizontalLine(dst);
-                        result += multiplier * PawnChainFrontPstParameters[evaluatedDst];
+                        //result += multiplier * PawnChainBackPstParameters[evaluatedDst];
+                        result += multiplier * PawnChainBackByRank[evaluatedRank];
                     }
                 }
 
@@ -178,7 +165,7 @@ protected:
                 const File file = GetFile(src);
                 if (file != File::_H
                     && (OneShiftedBy(src + Direction::RIGHT) & colorPawns) != EmptyBitboard) {
-                    result += multiplier * PawnPhalanxPstParameters[evaluatedSrc];
+                    result += multiplier * PawnPhalanxByRank[evaluatedRank];
                 }
 
                 //3) Check for a blocked pawn
@@ -190,17 +177,18 @@ protected:
                 //}
 
                 //4) Check for doubled/tripled pawns
-//                const Bitboard pawnsInFrontOfSrc = SquaresInFront(evaluatedSrc) & evaluatedColorPawns;
-                const Bitboard pawnsInFrontOfSrc = OneShiftedBy(evaluatedSrc + Direction::UP) & evaluatedColorPawns;
+                const Bitboard pawnsInFrontOfSrc = SquaresInFront(evaluatedSrc) & evaluatedColorPawns;
+                //const Bitboard pawnsInFrontOfSrc = OneShiftedBy(evaluatedSrc + Direction::UP) & evaluatedColorPawns;
 
                 const bool doubled = pawnsInFrontOfSrc != EmptyBitboard;
                 if (doubled) {
-                    //if (PopCountIsOne(pawnsInFrontOfSrc)) {
-                    result += multiplier * PawnDoubledPstParameters[evaluatedSrc];
-                    //}
-                    //else {
-                    //    result += multiplier * PawnTripledPstParameters[evaluatedSrc];
-                    //}
+                    if (PopCountIsOne(pawnsInFrontOfSrc)) {
+                        result += multiplier * PawnDoubledByRank[evaluatedRank];
+                    }
+                    else {
+                        result += multiplier * PawnDoubledByRank[evaluatedRank];
+                        //result += multiplier * PawnTripledByRank[evaluatedRank];
+                    }
                 }
 
                 //5) Check for a passed pawn
@@ -208,10 +196,23 @@ protected:
                 if (passed) {
                     passedPawns |= src;
 
+                    result += multiplier * PawnPassedByRank[evaluatedRank];
+
+                    if (isDefendedByPawn) {
+                        result += multiplier * PassedPawnDefended;
+                    }
+
+                    const Direction forward = colorIsWhite ? Direction::UP : Direction::DOWN;
+                    const PieceType blockedByPieceType = board.pieceAt(src + forward);
+                    if ((colorPawns & OneShiftedBy(src + forward)) == EmptyBitboard
+                        && blockedByPieceType != PieceType::NO_PIECE) {
+                        assert(blockedByPieceType != PieceType::PAWN);
+
+                        result += multiplier * PassedPawnBlockedByPiece[blockedByPieceType];
+                    }
+
                     //constexpr Rank lastRank = Rank::_8;
                     //const Square lastRankSquare = SetRank(evaluatedSrc, lastRank);
-
-                    result += multiplier * PawnPassedPstParameters[evaluatedSrc];
 
                     //4b) The pawn is unstoppable if it's closer to the back rank than the enemy king is to the pawn
                     //if (SquareDistance(evaluatedSrc, lastRankSquare) < SquareDistance(evaluatedSrc, otherKingPosition)) {
@@ -237,7 +238,7 @@ protected:
         return result;
     }
 
-    EvaluationType evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const;
+    //EvaluationType evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const;
     //EvaluationType evaluateQueen(Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src) const;
 public:
 	ChessEvaluator();

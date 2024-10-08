@@ -37,14 +37,19 @@ constexpr File operator - (File f1, File f2)
     return File(int(f1) - int(f2));
 }
 
-constexpr bool operator > (File r1, File r2)
+constexpr bool operator > (File f1, File f2)
 {
-    return int(r1) > int(r2);
+    return int(f1) > int(f2);
 }
 
-constexpr bool operator < (File r1, File r2)
+constexpr bool operator < (File f1, File f2)
 {
-    return int(r1) < int(r2);
+    return int(f1) < int(f2);
+}
+
+constexpr File operator ~ (File f)
+{
+    return File::_H - f;
 }
 
 class FileIterator {

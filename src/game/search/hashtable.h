@@ -121,9 +121,19 @@ struct HashtableEntry {
         return this->search.dst;
     }
 
+    constexpr Score getEg() const
+    {
+        return this->eval.eg;
+    }
+
     constexpr Score getMateScore() const
     {
         return this->mate.score;
+    }
+
+    constexpr Score getMg() const
+    {
+        return this->eval.mg;
     }
 
     constexpr PieceType getPromotionPiece() const
@@ -168,6 +178,7 @@ public:
 
     void insert(Hash hashValue, Score score, Depth currentDepth, Depth depthLeft, HashtableEntryType hashtableEntryType, const ChessMove& move);
     void insert(Hash hashValue, Score mateScore);
+    void insert(Hash hashValue, Score mg, Score eg);
 
     void prefetch(Hash hashValue) const
     {

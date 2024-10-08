@@ -178,3 +178,14 @@ constexpr Bitboard FileNeighborBitboard[File::FILE_COUNT] = {
     FileBitboard[File::_F] | FileBitboard[File::_H],
     FileBitboard[File::_G]
 };
+
+constexpr std::array<Bitboard, File::FILE_COUNT> KingPawnShield = {
+    0x0300000000000000,
+    0x0700000000000000,
+    0x0e00000000000000,
+    0x1c00000000000000,
+    0x3800000000000000,
+    0x7000000000000000,
+    0xe000000000000000,
+    0xc000000000000000
+};

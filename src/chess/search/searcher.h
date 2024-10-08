@@ -35,6 +35,7 @@ constexpr bool enableMateHistoryTable = enableAllSearchFeatures && false;
 constexpr bool enableMateKillerMoves = enableAllSearchFeatures && false;
 constexpr bool enableMoveExtensions = enableAllSearchFeatures && true;
 constexpr bool enableNullMove = enableAllSearchFeatures && true;
+constexpr bool enableNullMoveVerification = enableAllSearchFeatures && false;
 constexpr bool enablePositionExtensions = enableAllSearchFeatures && true;
 constexpr bool enableQuiescenceStaticExchangeEvaluation = enableAllSearchFeatures && true;
 constexpr bool enableRazoring = enableAllSearchFeatures && true;

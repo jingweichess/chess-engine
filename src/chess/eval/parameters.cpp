@@ -140,6 +140,45 @@ ChessEvaluation PiecePairs[PieceType::PIECETYPE_COUNT] = {
 ChessEvaluation DoubledRooks = { -20, 47 };
 ChessEvaluation EmptyFileRook = { 0, 0 };
 
+ChessEvaluation PassedPawnDefended = { 0, -20 };
+
+std::array<ChessEvaluation, 2> BishopPawns = { {
+    { 0, 0 },   //Same color pawns
+    { 0, 0 }    //Opposite color opponent pawns
+} };
+
+std::array<ChessEvaluation, PieceType::PIECETYPE_COUNT> KingAttacks = { {
+    {}, {},
+    { 0, 0 },   //KNIGHT
+    { 0, 0 },   //BISHOP
+    { 0, 0 },   //ROOK
+    { -37, 131 }    //QUEEN
+} };
+
+std::array<ChessEvaluation, 2> KingShield = { {
+    { 55, -39 },
+    {  5, -29 }
+} };
+
+std::array<ChessEvaluation, PieceType::PIECETYPE_COUNT> Outpost = { {
+    {}, {},
+    { 0, 0 },   //KNIGHT
+    { 0, 0 },   //BISHOP
+    { 0, 0 },   //ROOK
+    { 0, 0 }    //QUEEN
+} };
+
+std::array<ChessEvaluation, PieceType::PIECETYPE_COUNT> PassedPawnBlockedByPiece = { {
+    {}, {},
+    { 0, 0 },
+    { 0, 0 },
+    { 0, 0 },
+    { 0, 0 },
+    { 0, 0 }
+} };
+
+ChessEvaluation Tempo = { 0, 0 };
+
 ChessEvaluation PstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
 
 //Attack Parameters aren't "built" so they're hard coded here
@@ -152,21 +191,76 @@ ChessEvaluation AttackParameters[PieceType::PIECETYPE_COUNT][PieceType::PIECETYP
     { {}, {  -11,   37 }, {   13,  -37 }, {   11,   68 }, {   -9,   72 }, {}, },                //QUEEN
 };
 
-ChessEvaluation ControlPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
-ChessEvaluation KingControlPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
-
-ChessEvaluation ControlParameters[PieceType::PIECETYPE_COUNT][32];
 ChessEvaluation MobilityParameters[PieceType::PIECETYPE_COUNT][32];
-
-ChessEvaluation OutpostPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
-
 ChessEvaluation TropismParameters[PieceType::PIECETYPE_COUNT][16];
 
 ChessEvaluation PawnChainBackPstParameters[Square::SQUARE_COUNT];
 ChessEvaluation PawnChainFrontPstParameters[Square::SQUARE_COUNT];
-ChessEvaluation PawnDoubledPstParameters[Square::SQUARE_COUNT];
-ChessEvaluation PawnPassedPstParameters[Square::SQUARE_COUNT];
-ChessEvaluation PawnPhalanxPstParameters[Square::SQUARE_COUNT];
+
+ChessEvaluation PawnChainBackByRank[Rank::RANK_COUNT] = {
+    {}, {},           {   0,   0 }, {   0,   0 }, {   0,   0 }, {   0,   0 }, {   0,   0 }, {}
+};
+
+ChessEvaluation PawnChainFrontByRank[Rank::RANK_COUNT] = {
+    {},
+    {   0,   0 },
+    {   0,   0 },
+    {   0,   0 },
+    {  15,   0 },
+    {   9,   0 },
+    {}, {}
+};
+
+ChessEvaluation PawnDoubledByRank[Rank::RANK_COUNT] = {
+    {}, {},           { -16,  47 }, {  23,  -1 }, { -18,  31 }, { -15, -32 }, { -36,   3 }, {}
+};
+
+ChessEvaluation PawnPassedByRank[Rank::RANK_COUNT] = {
+    {}, { -68, 193 }, {  16, 111 }, { 117, 169 }, {  53,  91 }, { -33,  -8 }, {  88, -34 }, {}
+};
+
+ChessEvaluation PawnPhalanxByRank[Rank::RANK_COUNT] = {
+    {}, { -19, -80 }, {   0,  36 }, {  36,  59 }, {  66,  59 }, {  23,  49 }, {  19,  69 }, {}
+};
+
+ChessEvaluation PstByPieceAndFile[PieceType::PIECETYPE_COUNT][File::FILE_COUNT] = {
+    {},
+    {
+        { -35, 90 }, { -22,  85 }, {  12, 54 }, { 34, 49 }
+    },
+    {
+        {  24,  0 }, {  12,   0 }, {  66,  0 }, { 56,  0 }
+    },
+    {
+        { -57, 13 }, {  37, -56 }, {   7,  0 }, {  6,  0 }
+    },
+    {
+        { -11,  0 }, {   5,   0 }, {  35,  0 }, { 22,  0 }
+    },
+    {}, {}
+};
+
+ChessEvaluation PstByPieceAndRank[PieceType::PIECETYPE_COUNT][Rank::RANK_COUNT] = {
+    {},
+    {
+        {},           { 107, 156 }, {  23, 111 }, { -13,  36 }, { -38,  24 }, { -77,  45 }, { -28,  32 }, {}
+    },
+    {
+        { -40,   0 }, { -60,   0 }, {   0,  -4 }, {  51,  24 }, {  46,  28 }, {  22,  -9 }, {  20, -20 }, { -17, -17 }
+    },
+    {
+        {-103, 0 }, {-122, 0 }, {   8, 0 }, { -41, 0 }, { -24, 0 }, {   5, 0 },{  15, 0 }, {  -5, 0 }
+    },
+    {
+        { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }
+    },
+    {
+        { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }
+    },
+    {
+        { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }
+    }
+};
 
 //Parameters used in construction of Parameters used by Evaluation
 PstParameterConstructorSet BasePstConstructorSet[PieceType::PIECETYPE_COUNT] = {
@@ -174,16 +268,16 @@ PstParameterConstructorSet BasePstConstructorSet[PieceType::PIECETYPE_COUNT] = {
     {   //PAWN
         {   
             {}, {}, {}, {}, {}, {}, {}, {},
-            {  181,  330 }, {   60,  366 }, {   77,  284 }, {   68,  210 }, {   61,  182 }, {  -21,  230 }, { -130,  274 }, { -173,  421 },
-            {  -15,   75 }, {  -12,   55 }, {   -3,   46 }, {   -2,   48 }, {   13,   38 }, {   63,    1 }, {   71,   52 }, {    9,   45 },
-            {  -39,   28 }, {  -13,  -12 }, {  -28,  -22 }, {    2,  -76 }, {    6,  -56 }, {   16,  -62 }, {   29,  -26 }, {  -12,   -1 },
-            {  -30,  -42 }, {  -63,    7 }, {   -7,  -68 }, {  -20,  -63 }, {  -14,  -61 }, {  -18,  -48 }, {   -9,  -29 }, {  -44,  -51 },
-            {  -49,  -35 }, {  -42,  -22 }, {  -63,  -54 }, {  -42,  -37 }, {  -38,  -37 }, {  -50,  -33 }, {  -16,  -18 }, {  -38,  -55 },
-            {  -56,  -23 }, {  -48,   -7 }, {  -53,  -43 }, {  -61,  -54 }, {  -45,   -6 }, {   -8,  -23 }, {   29,  -25 }, {  -49,  -62 },
+            {  90, 165 }, {  30, 183 }, {  38, 142 }, {  34, 105 }, {  30,  91 }, { -10, 115 }, { -65, 137 }, { -86, 210 },
+            {  -7,  37 }, {  -6,  27 }, {  -1,  23 }, {  -1,  24 }, {   6,  19 }, {  31,   0 }, {  35,  26 }, {   4,  22 },
+            { -19,  14 }, {  -6,  -6 }, { -14, -11 }, {   1, -38 }, {   3, -28 }, {   8, -31 }, {  14, -13 }, {  -6,   0 },
+            { -15, -21 }, { -31,   3 }, {  -3, -34 }, { -10, -31 }, {  -7, -30 }, {  -9, -24 }, {  -4, -14 }, { -22, -25 },
+            { -24, -17 }, { -21, -11 }, { -31, -27 }, { -21, -18 }, { -19, -18 }, { -25, -16 }, {  -8,  -9 }, { -19, -27 },
+            { -28, -11 }, { -24,  -3 }, { -26, -21 }, { -30, -27 }, { -22,  -3 }, {  -4, -11 }, {  14, -12 }, { -24, -31 },
             {}, {}, {}, {}, {}, {}, {}, {},
         },
         {
-            .rank = { { 3, 16 }, { -35, -12 }, { -27, 67 } },
+            .rank = { { 1, 8 }, { -17, -6 }, { -13, 33 } },
             .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
             .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
@@ -281,142 +375,6 @@ PstParameterConstructorSet BasePstConstructorSet[PieceType::PIECETYPE_COUNT] = {
     },
 };
 
-QuadraticParameterConstructorSet ControlConstructorSet[PieceType::PIECETYPE_COUNT] = {
-    {},
-    { //PAWN
-        .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 33, -10 }, { -172, 94 }, { -14, 4 } },
-    },
-    { //KNIGHT
-        .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    },
-    { //BISHOP
-        .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    },
-    { //ROOK
-        .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    },
-    { //QUEEN
-        .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
-        .quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    }
-};
-
-PstParameterConstructorSet ControlPstConstructorSet[PieceType::PIECETYPE_COUNT] = {
-    {},
-    {   //PAWN
-        {
-            {}, {}, {}, {}, {}, {}, {}, {},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            {}, {}, {}, {}, {}, {}, {}, {},
-        },
-        {
-            .rank = { { 6, -1 }, { -19, 18 }, { 18, -3 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        },
-    },
-    {   //KNIGHT
-        {
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -12, 15 }, { 63, -66 }, { -17, 6 } },
-        },
-    },
-    {   //BISHOP
-        {
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -1, 0 }, { 7, 6 }, { -5, 4 } },
-        },
-    },
-    {   //ROOK
-        {
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 1, 0 }, { 3, 4 }, { -12, -7 } },
-        },
-    },
-    {   //QUEEN
-        {
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { -3, 0 }, { 38, 0 }, { -13, 0 } },
-        },
-    },
-    {   //KING
-        {
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-            { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0}, { 0 , 0},
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        },
-    },
-};
-
 QuadraticParameterConstructorSet MobilityConstructorSet[PieceType::PIECETYPE_COUNT] = {
     {}, {},
     { //KNIGHT
@@ -445,90 +403,6 @@ QuadraticParameterConstructorSet MobilityConstructorSet[PieceType::PIECETYPE_COU
       //  .quadraticConstruct = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
         .quadraticBase = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, },
         .quadraticConstruct = { { 1, -19 }, { 65, 367 }, { -128, -328 } },
-    }
-};
-
-//KING_MOBILITY_MIDDLEGAME_BONUS: array[28, Score] = [0, 0, 0, 140, 156, 112, 82, 59, 40, 20, 20, -12, -19, -42, -65, -99, -132, -167, -199, -217, -226, -249, -246, -251, -319, -272, -285, -248]
-//
-//KING_MOBILITY_ENDGAME_BONUS : array[28, Score] = [0, 0, 0, -11, -53, 5, 3, -8, -4, -6, -9, 15, 8, 21, 19, 29, 30, 27, 27, 10, 9, -9, -31, -44, -52, -98, -108, -152]
-
-PstParameterConstructorSet OutpostPstConstructorSet[PieceType::PIECETYPE_COUNT] = {
-    {}, {},
-    {   //KNIGHT
-        {
-            {  306,  346 }, {  351,  275 }, {  217,  -73 }, {  242,  169 }, { -252,   64 }, {  201, -407 }, {  -92,  -10 }, {  396,  396 },
-            {  388, -144 }, {  -11,   37 }, {   49,   -3 }, {   13,  184 }, {   60,   58 }, { -241,   88 }, { -146,  240 }, { -277,    0 },
-            {   30,  -40 }, {   12,   33 }, {   49,   -9 }, {   25,   14 }, {   25,   26 }, {   63,    7 }, {   61,  -18 }, {  -76,  -21 },
-            {  -28,   71 }, {    7,    4 }, {   10,   -2 }, {    9,   47 }, {    8,   20 }, {  -26,   58 }, {   -9,   29 }, {    0,  -75 },
-            {  -11,   59 }, {  -38,   52 }, {  -42,   50 }, {   -9,   45 }, {   -6,    3 }, {  -35,   27 }, {  -14,  -50 }, {   -2,   -5 },
-            {   30,    0 }, {  -25,  -21 }, {    5,  -29 }, {  -24,    0 }, {  -20,    9 }, {   -6,  -69 }, {  -22,    1 }, {   23, -104 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        },
-        { 15,   23 }
-    },
-    {   //BISHOP
-        {
-            {  143,  158 }, { -197, -148 }, {  -15, -164 }, { -160, -225 }, {  169, -111 }, {   23,   67 }, {  -43,  -52 }, {  325,  -81 },
-            {  -52,   53 }, {   72,  -27 }, {   49,  -38 }, {  209, -215 }, {  142,  -70 }, { -124,   79 }, {  154, -101 }, { -279, -181 },
-            { -138,  226 }, {   29,  -81 }, {   43,   30 }, {  108,  -40 }, {  107, -159 }, {  112,  -88 }, {   17,  -31 }, { -144,  271 },
-            {   -3,  -99 }, {   21,  -26 }, {   32,  -27 }, {    3,   -1 }, {   20,  -31 }, {   48,  -85 }, {   49,  -98 }, {  230, -205 },
-            { -137,   51 }, { -104,   29 }, {    7,   29 }, {   -4,   81 }, {  -43,   85 }, {    4,   12 }, { -123,  103 }, {  -37,  -39 },
-            {  -31,  -42 }, {    2,   22 }, {   75,   10 }, {   37,   52 }, {  -20,   99 }, {   -5,   17 }, {   -8,   33 }, {    7,  -97 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        },
-        { 0, 0 }
-    },
-    {   //ROOK
-        {
-            {   58,   79 }, {   96,  101 }, {   72,   85 }, {   51,   68 }, {   58,   58 }, {   98,  105 }, {  122,  125 }, {   28,   79 },
-            {    5,   -7 }, {  -24,   -1 }, {   21,   20 }, {   39,   29 }, {   11,   17 }, {   -5,   27 }, {   28,   46 }, {  110,   97 },
-            {   -3,  -23 }, {   -1,   -3 }, {  -17,   37 }, {  -20,   61 }, {   42,   35 }, {   50,   13 }, {  -33,   59 }, {  -45,  -76 },
-            { -150,   79 }, {   -2,   23 }, {  -26,   13 }, {    6,   44 }, {   35,   74 }, {  -39,   82 }, {   58,  -56 }, {   62, -129 },
-            {   82, -135 }, {  -16,  -21 }, {   82,  -49 }, {   54,  -32 }, {   -5,   66 }, {   21,  -10 }, {  -61,  -15 }, {  -62,  -43 },
-            {   31, -137 }, {  -18,  -41 }, {   42,  -82 }, {   40, -127 }, {   36,  -84 }, {  -73,   75 }, {  -33,    0 }, {  -76, -108 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        },
-        {   -3,   15 }
-    },
-    {   //QUEEN
-        {
-            {  120,  130 }, {  -39,   84 }, {  -10,  160 }, {  180,  237 }, {  210,  231 }, {   53, -279 }, {  244,   66 }, {  166,    9 },
-            {   24, -174 }, {   94,  -50 }, {   27,  -84 }, {  176,   41 }, {   82,   56 }, {   61,  137 }, { -234,  135 }, {  107,   12 },
-            {  -53,    6 }, {  128, -240 }, {  142, -181 }, {  -33, -143 }, {   12, -109 }, {   23,  -29 }, { -113,  -80 }, {  154,   64 },
-            {   89, -121 }, {   37, -125 }, {  -33,  -26 }, {   -9,   -7 }, {   38,  -43 }, {  -44,  157 }, {   -6,  -88 }, {  -32, -191 },
-            {  -21,   50 }, {   12,  -79 }, {  -12,   88 }, {   69,  -74 }, {  119, -181 }, {  -18,    3 }, {  -57,    0 }, {   31, -111 },
-            {   -7,  -53 }, {  -15,   87 }, {  -21,  101 }, {    2,  130 }, {   -5,  105 }, {  -28,   70 }, {   27,   14 }, {   66,  -28 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-            {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        },
-        {
-            .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-            .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        },
-        {   15,  -11 }
     }
 };
 
@@ -570,67 +444,6 @@ PstParameterConstructorSet PawnChainFrontPstConstructorSet = {
         .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
     },
     { 0, 0 }
-};
-
-PstParameterConstructorSet PawnDoubledPstConstructorSet = {
-    {
-        {}, {}, {}, {}, {}, {}, {}, {},
-        {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 }, {    0,    0 },
-        {}, {}, {}, {}, {}, {}, {}, {},
-    },
-    {
-        .rank = { { 5, -31 }, { 13, -38 }, { 0, 0 } },
-        .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    },
-    {    6,  -83 }
-};
-
-PstParameterConstructorSet PawnPassedPstConstructorSet = {
-    {
-        {}, {}, {}, {}, {}, {}, {}, {},
-        {  186,  164 }, {  157,  139 }, {  153,  143 }, {  122,  112 }, {   65,   99 }, {  145,  117 }, {  112,  116 }, {  166,  156 },
-        {  153,  136 }, {  152,  121 }, {   95,   82 }, {  -36,   31 }, {  -50,   26 }, {  -18,   89 }, {  -30,   56 }, {   89,  111 },
-        {  -24,   47 }, {  -16,   60 }, {   -1,   24 }, {  -51,  -20 }, {  -85,   28 }, {   56,  -57 }, {  -88,   73 }, {  -37,   50 },
-        {  -57,    2 }, {  -54,  -25 }, {  -80,    8 }, {  -56, -103 }, {  -43,  -46 }, {   -8, -124 }, {  -52,  -32 }, {  -60,   16 },
-        {  -22, -132 }, {  -92, -115 }, { -137,  -66 }, {  -32, -158 }, { -109,  -70 }, {  -91, -114 }, { -150,  -51 }, {  -24, -105 },
-        { -113,  -84 }, {  -69, -141 }, {   13, -164 }, { -110,   79 }, {  126, -192 }, {  -61,  -98 }, {   72, -149 }, {    3,  -38 },
-        {}, {}, {}, {}, {}, {}, {}, {},
-
-    },
-    {
-        .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    },
-    {   61,  123 }
-};
-
-PstParameterConstructorSet PawnPhalanxPstConstructorSet = {
-    {
-        {}, {}, {}, {}, {}, {}, {}, {},
-        {   57,   49 }, {   50,   38 }, {   59,   46 }, {   65,   55 }, {   65,   55 }, {   60,   51 }, {   28,   18 }, {    0,    0 },
-        {   55,   42 }, {   24,   17 }, {   50,   38 }, {   43,   33 }, {   18,   13 }, {   55,   43 }, {   51,   45 }, {    0,    0 },
-        {   54,   43 }, {   21,   48 }, {   46,   34 }, {   39,   39 }, {   49,   40 }, {   65,   49 }, {   63,   52 }, {    0,    0 },
-        {  -69,   11 }, {  -42,  -62 }, {   20,   19 }, {   -5,   10 }, {   -9,  -15 }, {    5,  -39 }, {   11,   22 }, {    0,    0 },
-        {  -49, -111 }, {  -61,  -15 }, {  -55,   36 }, {  -33,   19 }, {  -55,    6 }, {  -24,  -77 }, {  -51, -122 }, {    0,    0 },
-        {  -26,   -9 }, {  -14,   29 }, {  -90,  -59 }, {  -50, -101 }, {  -69,   16 }, {  -48,  -42 }, {  -43, -126 }, {    0,    0 },
-        {}, {}, {}, {}, {}, {}, {}, {},
-    },
-    {
-        .rank = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .filecenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .rankcenter = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-        .center = { { 0, 0 }, { 0, 0 }, { 0, 0 } },
-    },
-    {   62,   87 }
 };
 
 QuadraticParameterConstructorSet TropismConstructorSet[PieceType::PIECETYPE_COUNT] = {
@@ -679,120 +492,38 @@ ParameterMap chessEngineParameterMap = {
     { "material-queen-pair-mg", &PiecePairs[PieceType::QUEEN].mg},
     { "material-queen-pair-eg", &PiecePairs[PieceType::QUEEN].eg},
 
-    //{ "control-pawn-quadratic-mg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.quadratic.mg },
-    //{ "control-pawn-quadratic-eg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.quadratic.eg },
-    //{ "control-pawn-slope-mg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.slope.mg },
-    //{ "control-pawn-slope-eg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.slope.eg },
-    //{ "control-pawn-yintercept-mg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.yintercept.mg },
-    //{ "control-pawn-yintercept-eg", &ControlConstructorSet[PieceType::PAWN].quadraticConstruct.yintercept.eg },
-
-    //{ "control-knight-quadratic-mg", &ControlConstructorSet[PieceType::KNIGHT].quadraticConstruct.quadratic.mg },
-    //{ "control-knight-quadratic-eg", &ControlConstructorSet[PieceType::KNIGHT].quadraticConstruct.quadratic.eg },
-    //{ "control-knight-slope-mg", &ControlConstructorSet[PieceType::KNIGHT].quadraticConstruct.slope.mg },
-    //{ "control-knight-slope-eg", &ControlConstructorSet[PieceType::KNIGHT].quadraticConstruct.slope.eg },
-    //{ "control-knight-yintercept-mg", &ControlConstructorSet[PieceType::KNIGHT].quadraticConstruct.yintercept.mg },
-    //{ "control-knight-yintercept-eg", &ControlConstructorSet[PieceType::KNIGHT].quadraticConstruct.yintercept.eg },
-
-    //{ "control-bishop-quadratic-mg", &ControlConstructorSet[PieceType::BISHOP].quadraticConstruct.quadratic.mg },
-    //{ "control-bishop-quadratic-eg", &ControlConstructorSet[PieceType::BISHOP].quadraticConstruct.quadratic.eg },
-    //{ "control-bishop-slope-mg", &ControlConstructorSet[PieceType::BISHOP].quadraticConstruct.slope.mg },
-    //{ "control-bishop-slope-eg", &ControlConstructorSet[PieceType::BISHOP].quadraticConstruct.slope.eg },
-    //{ "control-bishop-yintercept-mg", &ControlConstructorSet[PieceType::BISHOP].quadraticConstruct.yintercept.mg },
-    //{ "control-bishop-yintercept-eg", &ControlConstructorSet[PieceType::BISHOP].quadraticConstruct.yintercept.eg },
-
-    //{ "control-pawn-rank-quadratic-mg", &ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.quadratic.mg },
-    //{ "control-pawn-rank-quadratic-eg",&ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.quadratic.eg },
-    //{ "control-pawn-rank-slope-mg", &ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.slope.mg },
-    //{ "control-pawn-rank-slope-eg",&ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.slope.eg },
-    //{ "control-pawn-rank-yintercept-mg", &ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.yintercept.mg },
-    //{ "control-pawn-rank-yintercept-eg",&ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.yintercept.eg },
-
-    //{ "control-pawn-center-quadratic-mg", &ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.quadratic.mg },
-    //{ "control-pawn-center-quadratic-eg",&ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.quadratic.eg },
-    //{ "control-pawn-center-slope-mg", &ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.slope.mg },
-    //{ "control-pawn-center-slope-eg",&ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.slope.eg },
-    //{ "control-pawn-center-yintercept-mg", &ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.yintercept.mg },
-    //{ "control-pawn-center-yintercept-eg",&ControlPstConstructorSet[PieceType::PAWN].pstConstruct.rank.yintercept.eg },
-
-    //{ "control-knight-rank-quadratic-mg", &ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.mg },
-    //{ "control-knight-rank-quadratic-eg",&ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.eg },
-    //{ "control-knight-rank-slope-mg", &ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.slope.mg },
-    //{ "control-knight-rank-slope-eg",&ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.slope.eg },
-    //{ "control-knight-rank-yintercept-mg", &ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.yintercept.mg },
-    //{ "control-knight-rank-yintercept-eg",&ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.yintercept.eg },
-
-    //{ "control-knight-center-quadratic-mg", &ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.quadratic.mg },
-    //{ "control-knight-center-quadratic-eg",&ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.quadratic.eg },
-    //{ "control-knight-center-slope-mg", &ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.slope.mg },
-    //{ "control-knight-center-slope-eg",&ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.slope.eg },
-    //{ "control-knight-center-yintercept-mg", &ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.yintercept.mg },
-    //{ "control-knight-center-yintercept-eg",&ControlPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.yintercept.eg },
-
-    //{ "control-bishop-rank-quadratic-mg", &ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.rank.quadratic.mg },
-    //{ "control-bishop-rank-quadratic-eg",&ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.rank.quadratic.eg },
-    //{ "control-bishop-rank-slope-mg", &ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.rank.slope.mg },
-    //{ "control-bishop-rank-slope-eg",&ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.rank.slope.eg },
-    //{ "control-bishop-rank-yintercept-mg", &ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.rank.yintercept.mg },
-    //{ "control-bishop-rank-yintercept-eg",&ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.rank.yintercept.eg },
-
-    //{ "control-bishop-center-quadratic-mg", &ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.center.quadratic.mg },
-    //{ "control-bishop-center-quadratic-eg",&ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.center.quadratic.eg },
-    //{ "control-bishop-center-slope-mg", &ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.center.slope.mg },
-    //{ "control-bishop-center-slope-eg",&ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.center.slope.eg },
-    //{ "control-bishop-center-yintercept-mg", &ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.center.yintercept.mg },
-    //{ "control-bishop-center-yintercept-eg",&ControlPstConstructorSet[PieceType::BISHOP].pstConstruct.center.yintercept.eg },
-
-    //{ "control-rook-rank-quadratic-mg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.rank.quadratic.mg },
-    //{ "control-rook-rank-quadratic-eg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.rank.quadratic.eg },
-    //{ "control-rook-rank-slope-mg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.rank.slope.mg },
-    //{ "control-rook-rank-slope-eg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.rank.slope.eg },
-    //{ "control-rook-rank-yintercept-mg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.rank.yintercept.mg },
-    //{ "control-rook-rank-yintercept-eg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.rank.yintercept.eg },
-
-    //{ "control-rook-center-quadratic-mg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.center.quadratic.mg },
-    //{ "control-rook-center-quadratic-eg",&ControlPstConstructorSet[PieceType::ROOK].pstConstruct.center.quadratic.eg },
-    //{ "control-rook-center-slope-mg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.center.slope.mg },
-    //{ "control-rook-center-slope-eg",&ControlPstConstructorSet[PieceType::ROOK].pstConstruct.center.slope.eg },
-    //{ "control-rook-center-yintercept-mg", &ControlPstConstructorSet[PieceType::ROOK].pstConstruct.center.yintercept.mg },
-    //{ "control-rook-center-yintercept-eg",&ControlPstConstructorSet[PieceType::ROOK].pstConstruct.center.yintercept.eg },
-
-    //{ "control-queen-rank-quadratic-mg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.rank.quadratic.mg },
-    //{ "control-queen-rank-quadratic-eg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.rank.quadratic.eg },
-    //{ "control-queen-rank-slope-mg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.rank.slope.mg },
-    //{ "control-queen-rank-slope-eg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.rank.slope.eg },
-    //{ "control-queen-rank-yintercept-mg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.rank.yintercept.mg },
-    //{ "control-queen-rank-yintercept-eg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.rank.yintercept.eg },
-
-    //{ "control-queen-center-quadratic-mg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.center.quadratic.mg },
-    //{ "control-queen-center-quadratic-eg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.center.quadratic.eg },
-    //{ "control-queen-center-slope-mg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.center.slope.mg },
-    //{ "control-queen-center-slope-eg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.center.slope.eg },
-    //{ "control-queen-center-yintercept-mg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.center.yintercept.mg },
-    //{ "control-queen-center-yintercept-eg", &ControlPstConstructorSet[PieceType::QUEEN].pstConstruct.center.yintercept.eg },
-
-    //{ "pst-king-square-a1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::A1].mg },
-    //{ "pst-king-square-a1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::A1].eg },
-    //{ "pst-king-square-b1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::B1].mg },
-    //{ "pst-king-square-b1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::B1].eg },
-    //{ "pst-king-square-c1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::C1].mg },
-    //{ "pst-king-square-c1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::C1].eg },
-    //{ "pst-king-square-d1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::D1].mg },
-    //{ "pst-king-square-d1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::D1].eg },
-    //{ "pst-king-square-e1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::E1].mg },
-    //{ "pst-king-square-e1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::E1].eg },
-    //{ "pst-king-square-f1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::F1].mg },
-    //{ "pst-king-square-f1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::F1].eg },
-    //{ "pst-king-square-g1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::G1].mg },
-    //{ "pst-king-square-g1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::G1].eg },
-    //{ "pst-king-square-h1-mg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::H1].mg },
-    //{ "pst-king-square-h1-eg", &BasePstConstructorSet[PieceType::KING].pstBase[Square::H1].eg },
-
     { "pst-pawn-rank-quadratic-mg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.rank.quadratic.mg },
     { "pst-pawn-rank-quadratic-eg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.rank.quadratic.eg },
     { "pst-pawn-rank-slope-mg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.rank.slope.mg },
     { "pst-pawn-rank-slope-eg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.rank.slope.eg },
     { "pst-pawn-rank-yintercept-mg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.rank.yintercept.mg },
     { "pst-pawn-rank-yintercept-eg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.rank.yintercept.eg },
+
+    { "pst-king-file-a-mg", &PstByPieceAndFile[PieceType::KING][File::_A].mg },
+    { "pst-king-file-a-eg", &PstByPieceAndFile[PieceType::KING][File::_A].eg },
+    { "pst-king-file-b-mg", &PstByPieceAndFile[PieceType::KING][File::_B].mg },
+    { "pst-king-file-b-eg", &PstByPieceAndFile[PieceType::KING][File::_B].eg },
+    { "pst-king-file-c-mg", &PstByPieceAndFile[PieceType::KING][File::_C].mg },
+    { "pst-king-file-c-eg", &PstByPieceAndFile[PieceType::KING][File::_C].eg },
+    { "pst-king-file-d-mg", &PstByPieceAndFile[PieceType::KING][File::_D].mg },
+    { "pst-king-file-d-eg", &PstByPieceAndFile[PieceType::KING][File::_D].eg },
+
+    { "pst-king-rank-8-mg", &PstByPieceAndRank[PieceType::KING][Rank::_8].mg },
+    { "pst-king-rank-8-eg", &PstByPieceAndRank[PieceType::KING][Rank::_8].eg },
+    { "pst-king-rank-7-mg", &PstByPieceAndRank[PieceType::KING][Rank::_7].mg },
+    { "pst-king-rank-7-eg", &PstByPieceAndRank[PieceType::KING][Rank::_7].eg },
+    { "pst-king-rank-6-mg", &PstByPieceAndRank[PieceType::KING][Rank::_6].mg },
+    { "pst-king-rank-6-eg", &PstByPieceAndRank[PieceType::KING][Rank::_6].eg },
+    { "pst-king-rank-5-mg", &PstByPieceAndRank[PieceType::KING][Rank::_5].mg },
+    { "pst-king-rank-5-eg", &PstByPieceAndRank[PieceType::KING][Rank::_5].eg },
+    { "pst-king-rank-4-mg", &PstByPieceAndRank[PieceType::KING][Rank::_4].mg },
+    { "pst-king-rank-4-eg", &PstByPieceAndRank[PieceType::KING][Rank::_4].eg },
+    { "pst-king-rank-3-mg", &PstByPieceAndRank[PieceType::KING][Rank::_3].mg },
+    { "pst-king-rank-3-eg", &PstByPieceAndRank[PieceType::KING][Rank::_3].eg },
+    { "pst-king-rank-2-mg", &PstByPieceAndRank[PieceType::KING][Rank::_2].mg },
+    { "pst-king-rank-2-eg", &PstByPieceAndRank[PieceType::KING][Rank::_2].eg },
+    { "pst-king-rank-1-mg", &PstByPieceAndRank[PieceType::KING][Rank::_1].mg },
+    { "pst-king-rank-1-eg", &PstByPieceAndRank[PieceType::KING][Rank::_1].eg },
 
     { "pst-pawn-file-center-quadratic-mg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.filecenter.quadratic.mg },
     { "pst-pawn-file-center-quadratic-eg",&BasePstConstructorSet[PieceType::PAWN].pstConstruct.filecenter.quadratic.eg },
@@ -801,74 +532,12 @@ ParameterMap chessEngineParameterMap = {
     { "pst-pawn-file-center-yintercept-mg", &BasePstConstructorSet[PieceType::PAWN].pstConstruct.filecenter.yintercept.mg },
     { "pst-pawn-file-center-yintercept-eg",&BasePstConstructorSet[PieceType::PAWN].pstConstruct.filecenter.yintercept.eg },
 
-    //{ "pst-pawn-rank-center-quadratic-mg", &pstConstruct[PieceType::PAWN].rankcenter.quadratic.mg },
-    //{ "pst-pawn-rank-center-quadratic-eg",&pstConstruct[PieceType::PAWN].rankcenter.quadratic.eg },
-    //{ "pst-pawn-rank-center-slope-mg", &pstConstruct[PieceType::PAWN].rankcenter.slope.mg },
-    //{ "pst-pawn-rank-center-slope-eg", &pstConstruct[PieceType::PAWN].rankcenter.slope.eg },
-    //{ "pst-pawn-rank-center-yintercept-mg", &pstConstruct[PieceType::PAWN].rankcenter.yintercept.mg },
-    //{ "pst-pawn-rank-center-yintercept-eg",&pstConstruct[PieceType::PAWN].rankcenter.yintercept.eg },
-
-    //{ "pst-pawn-center-quadratic-mg", &pstConstruct[PieceType::PAWN].center.quadratic.mg },
-    //{ "pst-pawn-center-quadratic-eg",&pstConstruct[PieceType::PAWN].center.quadratic.eg },
-    //{ "pst-pawn-center-slope-mg", &pstConstruct[PieceType::PAWN].center.slope.mg },
-    //{ "pst-pawn-center-slope-eg", &pstConstruct[PieceType::PAWN].center.slope.eg },
-    //{ "pst-pawn-center-yintercept-mg", &pstConstruct[PieceType::PAWN].center.yintercept.mg },
-    //{ "pst-pawn-center-yintercept-eg",&pstConstruct[PieceType::PAWN].center.yintercept.eg },
-
-    { "pst-pawn-square-a7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A7].mg },
-    { "pst-pawn-square-a7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A7].eg },
-    { "pst-pawn-square-b7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B7].mg },
-    { "pst-pawn-square-b7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B7].eg },
-    { "pst-pawn-square-c7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C7].mg },
-    { "pst-pawn-square-c7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C7].eg },
-    { "pst-pawn-square-d7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D7].mg },
-    { "pst-pawn-square-d7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D7].eg },
-    { "pst-pawn-square-e7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E7].mg },
-    { "pst-pawn-square-e7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E7].eg },
-    { "pst-pawn-square-f7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F7].mg },
-    { "pst-pawn-square-f7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F7].eg },
-    { "pst-pawn-square-g7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G7].mg },
-    { "pst-pawn-square-g7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G7].eg },
-    { "pst-pawn-square-h7-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H7].mg },
-    { "pst-pawn-square-h7-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H7].eg },
-
-    { "pst-pawn-square-a2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A2].mg },
-    { "pst-pawn-square-a2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::A2].eg },
-    { "pst-pawn-square-b2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B2].mg },
-    { "pst-pawn-square-b2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::B2].eg },
-    { "pst-pawn-square-c2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C2].mg },
-    { "pst-pawn-square-c2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::C2].eg },
-    { "pst-pawn-square-d2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D2].mg },
-    { "pst-pawn-square-d2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::D2].eg },
-    { "pst-pawn-square-e2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E2].mg },
-    { "pst-pawn-square-e2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::E2].eg },
-    { "pst-pawn-square-f2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F2].mg },
-    { "pst-pawn-square-f2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::F2].eg },
-    { "pst-pawn-square-g2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G2].mg },
-    { "pst-pawn-square-g2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::G2].eg },
-    { "pst-pawn-square-h2-mg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H2].mg },
-    { "pst-pawn-square-h2-eg", &BasePstConstructorSet[PieceType::PAWN].pstBase[Square::H2].eg },
-
     { "pst-knight-rank-quadratic-mg", &BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.mg },
     { "pst-knight-rank-quadratic-eg",&BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.eg },
     { "pst-knight-rank-slope-mg", &BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.slope.mg },
     { "pst-knight-rank-slope-eg",&BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.slope.eg },
     { "pst-knight-rank-yintercept-mg", &BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.yintercept.mg },
     { "pst-knight-rank-yintercept-eg",&BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.yintercept.eg },
-
-    //{ "pst-knight-file-center-quadratic-mg", &pstConstruct[PieceType::KNIGHT].filecenter.quadratic.mg },
-    //{ "pst-knight-file-center-quadratic-eg",&pstConstruct[PieceType::KNIGHT].filecenter.quadratic.eg },
-    //{ "pst-knight-file-center-slope-mg", &pstConstruct[PieceType::KNIGHT].filecenter.slope.mg },
-    //{ "pst-knight-file-center-slope-eg",&pstConstruct[PieceType::KNIGHT].filecenter.slope.eg },
-    //{ "pst-knight-file-center-yintercept-mg", &pstConstruct[PieceType::KNIGHT].filecenter.yintercept.mg },
-    //{ "pst-knight-file-center-yintercept-eg",&pstConstruct[PieceType::KNIGHT].filecenter.yintercept.eg },
-
-    //{ "pst-knight-rank-center-quadratic-mg", &pstConstruct[PieceType::KNIGHT].rankcenter.quadratic.mg },
-    //{ "pst-knight-rank-center-quadratic-eg",&pstConstruct[PieceType::KNIGHT].rankcenter.quadratic.eg },
-    //{ "pst-knight-rank-center-slope-mg", &pstConstruct[PieceType::KNIGHT].rankcenter.slope.mg },
-    //{ "pst-knight-rank-center-slope-eg", &pstConstruct[PieceType::KNIGHT].rankcenter.slope.eg },
-    //{ "pst-knight-rank-center-yintercept-mg", &pstConstruct[PieceType::KNIGHT].rankcenter.yintercept.mg },
-    //{ "pst-knight-rank-center-yintercept-eg",&pstConstruct[PieceType::KNIGHT].rankcenter.yintercept.eg },
 
     { "pst-knight-center-quadratic-mg", &BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.center.quadratic.mg },
     { "pst-knight-center-quadratic-eg",&BasePstConstructorSet[PieceType::KNIGHT].pstConstruct.center.quadratic.eg },
@@ -884,20 +553,6 @@ ParameterMap chessEngineParameterMap = {
     { "pst-bishop-rank-yintercept-mg", &BasePstConstructorSet[PieceType::BISHOP].pstConstruct.rank.yintercept.mg },
     { "pst-bishop-rank-yintercept-eg",&BasePstConstructorSet[PieceType::BISHOP].pstConstruct.rank.yintercept.eg },
 
-    //{ "pst-bishop-file-center-quadratic-mg", &pstConstruct[PieceType::BISHOP].filecenter.quadratic.mg },
-    //{ "pst-bishop-file-center-quadratic-eg",&pstConstruct[PieceType::BISHOP].filecenter.quadratic.eg },
-    //{ "pst-bishop-file-center-slope-mg", &pstConstruct[PieceType::BISHOP].filecenter.slope.mg },
-    //{ "pst-bishop-file-center-slope-eg",&pstConstruct[PieceType::BISHOP].filecenter.slope.eg },
-    //{ "pst-bishop-file-center-yintercept-mg", &pstConstruct[PieceType::BISHOP].filecenter.yintercept.mg },
-    //{ "pst-bishop-file-center-yintercept-eg",&pstConstruct[PieceType::BISHOP].filecenter.yintercept.eg },
-
-    //{ "pst-bishop-rank-center-quadratic-mg", &pstConstruct[PieceType::BISHOP].rankcenter.quadratic.mg },
-    //{ "pst-bishop-rank-center-quadratic-eg",&pstConstruct[PieceType::BISHOP].rankcenter.quadratic.eg },
-    //{ "pst-bishop-rank-center-slope-mg", &pstConstruct[PieceType::BISHOP].rankcenter.slope.mg },
-    //{ "pst-bishop-rank-center-slope-eg", &pstConstruct[PieceType::BISHOP].rankcenter.slope.eg },
-    //{ "pst-bishop-rank-center-yintercept-mg", &pstConstruct[PieceType::BISHOP].rankcenter.yintercept.mg },
-    //{ "pst-bishop-rank-center-yintercept-eg",&pstConstruct[PieceType::BISHOP].rankcenter.yintercept.eg },
-
     { "pst-bishop-center-quadratic-mg", &BasePstConstructorSet[PieceType::BISHOP].pstConstruct.center.quadratic.mg },
     { "pst-bishop-center-quadratic-eg",&BasePstConstructorSet[PieceType::BISHOP].pstConstruct.center.quadratic.eg },
     { "pst-bishop-center-slope-mg", &BasePstConstructorSet[PieceType::BISHOP].pstConstruct.center.slope.mg },
@@ -911,20 +566,6 @@ ParameterMap chessEngineParameterMap = {
     { "pst-rook-rank-slope-eg",&BasePstConstructorSet[PieceType::ROOK].pstConstruct.rank.slope.eg },
     { "pst-rook-rank-yintercept-mg", &BasePstConstructorSet[PieceType::ROOK].pstConstruct.rank.yintercept.mg },
     { "pst-rook-rank-yintercept-eg",&BasePstConstructorSet[PieceType::ROOK].pstConstruct.rank.yintercept.eg },
-
-    //{ "pst-rook-file-center-quadratic-mg", &pstConstruct[PieceType::ROOK].filecenter.quadratic.mg },
-    //{ "pst-rook-file-center-quadratic-eg",&pstConstruct[PieceType::ROOK].filecenter.quadratic.eg },
-    //{ "pst-rook-file-center-slope-mg", &pstConstruct[PieceType::ROOK].filecenter.slope.mg },
-    //{ "pst-rook-file-center-slope-eg",&pstConstruct[PieceType::ROOK].filecenter.slope.eg },
-    //{ "pst-rook-file-center-yintercept-mg", &pstConstruct[PieceType::ROOK].filecenter.yintercept.mg },
-    //{ "pst-rook-file-center-yintercept-eg",&pstConstruct[PieceType::ROOK].filecenter.yintercept.eg },
-
-    //{ "pst-rook-rank-center-quadratic-mg", &pstConstruct[PieceType::ROOK].rankcenter.quadratic.mg },
-    //{ "pst-rook-rank-center-quadratic-eg",&pstConstruct[PieceType::ROOK].rankcenter.quadratic.eg },
-    //{ "pst-rook-rank-center-slope-mg", &pstConstruct[PieceType::ROOK].rankcenter.slope.mg },
-    //{ "pst-rook-rank-center-slope-eg", &pstConstruct[PieceType::ROOK].rankcenter.slope.eg },
-    //{ "pst-rook-rank-center-yintercept-mg", &pstConstruct[PieceType::ROOK].rankcenter.yintercept.mg },
-    //{ "pst-rook-rank-center-yintercept-eg",&pstConstruct[PieceType::ROOK].rankcenter.yintercept.eg },
 
     { "pst-rook-center-quadratic-mg", &BasePstConstructorSet[PieceType::ROOK].pstConstruct.center.quadratic.mg },
     { "pst-rook-center-quadratic-eg",&BasePstConstructorSet[PieceType::ROOK].pstConstruct.center.quadratic.eg },
@@ -940,20 +581,6 @@ ParameterMap chessEngineParameterMap = {
     { "pst-queen-rank-yintercept-mg", &BasePstConstructorSet[PieceType::QUEEN].pstConstruct.rank.yintercept.mg },
     { "pst-queen-rank-yintercept-eg",&BasePstConstructorSet[PieceType::QUEEN].pstConstruct.rank.yintercept.eg },
 
-    //{ "pst-queen-file-center-quadratic-mg", &pstConstruct[PieceType::QUEEN].filecenter.quadratic.mg },
-    //{ "pst-queen-file-center-quadratic-eg",&pstConstruct[PieceType::QUEEN].filecenter.quadratic.eg },
-    //{ "pst-queen-file-center-slope-mg", &pstConstruct[PieceType::QUEEN].filecenter.slope.mg },
-    //{ "pst-queen-file-center-slope-eg",&pstConstruct[PieceType::QUEEN].filecenter.slope.eg },
-    //{ "pst-queen-file-center-yintercept-mg", &pstConstruct[PieceType::QUEEN].filecenter.yintercept.mg },
-    //{ "pst-queen-file-center-yintercept-eg",&pstConstruct[PieceType::QUEEN].filecenter.yintercept.eg },
-
-    //{ "pst-queen-rank-center-quadratic-mg", &pstConstruct[PieceType::QUEEN].rankcenter.quadratic.mg },
-    //{ "pst-queen-rank-center-quadratic-eg",&pstConstruct[PieceType::QUEEN].rankcenter.quadratic.eg },
-    //{ "pst-queen-rank-center-slope-mg", &pstConstruct[PieceType::QUEEN].rankcenter.slope.mg },
-    //{ "pst-queen-rank-center-slope-eg", &pstConstruct[PieceType::QUEEN].rankcenter.slope.eg },
-    //{ "pst-queen-rank-center-yintercept-mg", &pstConstruct[PieceType::QUEEN].rankcenter.yintercept.mg },
-    //{ "pst-queen-rank-center-yintercept-eg",&pstConstruct[PieceType::QUEEN].rankcenter.yintercept.eg },
-
     { "pst-queen-center-quadratic-mg", &BasePstConstructorSet[PieceType::QUEEN].pstConstruct.center.quadratic.mg },
     { "pst-queen-center-quadratic-eg",&BasePstConstructorSet[PieceType::QUEEN].pstConstruct.center.quadratic.eg },
     { "pst-queen-center-slope-mg", &BasePstConstructorSet[PieceType::QUEEN].pstConstruct.center.slope.mg },
@@ -968,40 +595,12 @@ ParameterMap chessEngineParameterMap = {
     { "pst-king-rank-yintercept-mg", &BasePstConstructorSet[PieceType::KING].pstConstruct.rank.yintercept.mg },
     { "pst-king-rank-yintercept-eg",&BasePstConstructorSet[PieceType::KING].pstConstruct.rank.yintercept.eg },
 
-    //{ "pst-king-file-center-quadratic-mg", &pstConstruct[PieceType::KING].filecenter.quadratic.mg },
-    //{ "pst-king-file-center-quadratic-eg",&pstConstruct[PieceType::KING].filecenter.quadratic.eg },
-    //{ "pst-king-file-center-slope-mg", &pstConstruct[PieceType::KING].filecenter.slope.mg },
-    //{ "pst-king-file-center-slope-eg",&pstConstruct[PieceType::KING].filecenter.slope.eg },
-    //{ "pst-king-file-center-yintercept-mg", &pstConstruct[PieceType::KING].filecenter.yintercept.mg },
-    //{ "pst-king-file-center-yintercept-eg",&pstConstruct[PieceType::KING].filecenter.yintercept.eg },
-
-    //{ "pst-king-rank-center-quadratic-mg", &pstConstruct[PieceType::KING].rankcenter.quadratic.mg },
-    //{ "pst-king-rank-center-quadratic-eg",&pstConstruct[PieceType::KING].rankcenter.quadratic.eg },
-    //{ "pst-king-rank-center-slope-mg", &pstConstruct[PieceType::KING].rankcenter.slope.mg },
-    //{ "pst-king-rank-center-slope-eg", &pstConstruct[PieceType::KING].rankcenter.slope.eg },
-    //{ "pst-king-rank-center-yintercept-mg", &pstConstruct[PieceType::KING].rankcenter.yintercept.mg },
-    //{ "pst-king-rank-center-yintercept-eg",&pstConstruct[PieceType::KING].rankcenter.yintercept.eg },
-
     { "pst-king-center-quadratic-mg", &BasePstConstructorSet[PieceType::KING].pstConstruct.center.quadratic.mg },
     { "pst-king-center-quadratic-eg",&BasePstConstructorSet[PieceType::KING].pstConstruct.center.quadratic.eg },
     { "pst-king-center-slope-mg", &BasePstConstructorSet[PieceType::KING].pstConstruct.center.slope.mg },
     { "pst-king-center-slope-eg", &BasePstConstructorSet[PieceType::KING].pstConstruct.center.slope.eg },
     { "pst-king-center-yintercept-mg", &BasePstConstructorSet[PieceType::KING].pstConstruct.center.yintercept.mg },
     { "pst-king-center-yintercept-eg",&BasePstConstructorSet[PieceType::KING].pstConstruct.center.yintercept.eg },
-
-    //{ "pawn-blocked-current-default-mg", &PawnCurrentColorBlockedDefault.mg },
-    //{ "pawn-blocked-current-default-eg", &PawnCurrentColorBlockedDefault.eg },
-    //{ "pawn-blocked-current-rank-mg", &pawnCurrentColorBlockedPstConstruct.rank.slope.mg },
-    //{ "pawn-blocked-current-rank-eg", &pawnCurrentColorBlockedPstConstruct.rank.slope.eg },
-    //{ "pawn-blocked-current-file-center-mg", &pawnCurrentColorBlockedPstConstruct.filecenter.slope.mg },
-    //{ "pawn-blocked-current-file-center-eg", &pawnCurrentColorBlockedPstConstruct.filecenter.slope.eg },
-
-    //{ "pawn-blocked-other-default-mg", &PawnOtherColorBlockedDefault.mg },
-    //{ "pawn-blocked-other-default-eg", &PawnOtherColorBlockedDefault.eg },
-    //{ "pawn-blocked-other-rank-mg", &pawnOtherColorBlockedPstConstruct.rank.slope.mg },
-    //{ "pawn-blocked-other-rank-eg", &pawnOtherColorBlockedPstConstruct.rank.slope.eg },
-    //{ "pawn-blocked-other-file-center-mg", &pawnOtherColorBlockedPstConstruct.filecenter.slope.mg },
-    //{ "pawn-blocked-other-file-center-eg", &pawnOtherColorBlockedPstConstruct.filecenter.slope.eg },
 
     { "pawn-chain-back-default-mg", &PawnChainBackPstConstructorSet.defaultEvaluation.mg },
     { "pawn-chain-back-default-eg", &PawnChainBackPstConstructorSet.defaultEvaluation.eg },
@@ -1029,65 +628,58 @@ ParameterMap chessEngineParameterMap = {
     //{ "pawn-chain-front-file-center-slope-mg", &pawnChainFrontPstConstruct.filecenter.slope.mg },
     //{ "pawn-chain-front-file-center-slope-eg", &pawnChainFrontPstConstruct.filecenter.slope.eg },
 
-    { "pawn-doubled-default-mg", &PawnDoubledPstConstructorSet.defaultEvaluation.mg },
-    { "pawn-doubled-default-eg", &PawnDoubledPstConstructorSet.defaultEvaluation.eg },
+    { "pawn-chain-front-rank-2-mg", &PawnChainFrontByRank[Rank::_2].mg },
+    { "pawn-chain-front-rank-2-eg", &PawnChainFrontByRank[Rank::_2].eg },
+    { "pawn-chain-front-rank-3-mg", &PawnChainFrontByRank[Rank::_3].mg },
+    { "pawn-chain-front-rank-3-eg", &PawnChainFrontByRank[Rank::_3].eg },
+    { "pawn-chain-front-rank-4-mg", &PawnChainFrontByRank[Rank::_4].mg },
+    { "pawn-chain-front-rank-4-eg", &PawnChainFrontByRank[Rank::_4].eg },
+    { "pawn-chain-front-rank-5-mg", &PawnChainFrontByRank[Rank::_5].mg },
+    { "pawn-chain-front-rank-5-eg", &PawnChainFrontByRank[Rank::_5].eg },
+    { "pawn-chain-front-rank-6-mg", &PawnChainFrontByRank[Rank::_6].mg },
+    { "pawn-chain-front-rank-6-eg", &PawnChainFrontByRank[Rank::_6].eg },
+    { "pawn-chain-front-rank-7-mg", &PawnChainFrontByRank[Rank::_7].mg },
+    { "pawn-chain-front-rank-7-eg", &PawnChainFrontByRank[Rank::_7].eg },
 
-    { "pawn-doubled-rank-quadratic-mg", &PawnDoubledPstConstructorSet.pstConstruct.rank.quadratic.mg },
-    { "pawn-doubled-rank-quadratic-eg",&PawnDoubledPstConstructorSet.pstConstruct.rank.quadratic.eg },
-    { "pawn-doubled-rank-slope-mg", &PawnDoubledPstConstructorSet.pstConstruct.rank.slope.mg },
-    { "pawn-doubled-rank-slope-eg",&PawnDoubledPstConstructorSet.pstConstruct.rank.slope.eg },
+    { "pawn-doubled-rank-2-mg", &PawnDoubledByRank[Rank::_2].mg },
+    { "pawn-doubled-rank-2-eg", &PawnDoubledByRank[Rank::_2].eg },
+    { "pawn-doubled-rank-3-mg", &PawnDoubledByRank[Rank::_3].mg },
+    { "pawn-doubled-rank-3-eg", &PawnDoubledByRank[Rank::_3].eg },
+    { "pawn-doubled-rank-4-mg", &PawnDoubledByRank[Rank::_4].mg },
+    { "pawn-doubled-rank-4-eg", &PawnDoubledByRank[Rank::_4].eg },
+    { "pawn-doubled-rank-5-mg", &PawnDoubledByRank[Rank::_5].mg },
+    { "pawn-doubled-rank-5-eg", &PawnDoubledByRank[Rank::_5].eg },
+    { "pawn-doubled-rank-6-mg", &PawnDoubledByRank[Rank::_6].mg },
+    { "pawn-doubled-rank-6-eg", &PawnDoubledByRank[Rank::_6].eg },
 
-    { "pawn-doubled-file-center-quadratic-mg", &PawnDoubledPstConstructorSet.pstConstruct.filecenter.quadratic.mg },
-    { "pawn-doubled-file-center-quadratic-eg",&PawnDoubledPstConstructorSet.pstConstruct.filecenter.quadratic.eg },
-    { "pawn-doubled-file-center-slope-mg", &PawnDoubledPstConstructorSet.pstConstruct.filecenter.slope.mg },
-    { "pawn-doubled-file-center-slope-eg",&PawnDoubledPstConstructorSet.pstConstruct.filecenter.slope.eg },
+    { "pawn-passed-defended-mg", &PassedPawnDefended.mg },
+    { "pawn-passed-defended-eg", &PassedPawnDefended.eg },
 
-    { "pawn-passed-default-mg", &PawnPassedPstConstructorSet.defaultEvaluation.mg },
-    { "pawn-passed-default-eg", &PawnPassedPstConstructorSet.defaultEvaluation.eg },
+    { "pawn-passed-rank-2-mg", &PawnPassedByRank[Rank::_2].mg },
+    { "pawn-passed-rank-2-eg", &PawnPassedByRank[Rank::_2].eg },
+    { "pawn-passed-rank-3-mg", &PawnPassedByRank[Rank::_3].mg },
+    { "pawn-passed-rank-3-eg", &PawnPassedByRank[Rank::_3].eg },
+    { "pawn-passed-rank-4-mg", &PawnPassedByRank[Rank::_4].mg },
+    { "pawn-passed-rank-4-eg", &PawnPassedByRank[Rank::_4].eg },
+    { "pawn-passed-rank-5-mg", &PawnPassedByRank[Rank::_5].mg },
+    { "pawn-passed-rank-5-eg", &PawnPassedByRank[Rank::_5].eg },
+    { "pawn-passed-rank-6-mg", &PawnPassedByRank[Rank::_6].mg },
+    { "pawn-passed-rank-6-eg", &PawnPassedByRank[Rank::_6].eg },
+    { "pawn-passed-rank-7-mg", &PawnPassedByRank[Rank::_7].mg },
+    { "pawn-passed-rank-7-eg", &PawnPassedByRank[Rank::_7].eg },
 
-    { "pawn-passed-rank-quadratic-mg", &PawnPassedPstConstructorSet.pstConstruct.rank.quadratic.mg },
-    { "pawn-passed-rank-quadratic-eg",&PawnPassedPstConstructorSet.pstConstruct.rank.quadratic.eg },
-    { "pawn-passed-rank-slope-mg", &PawnPassedPstConstructorSet.pstConstruct.rank.slope.mg },
-    { "pawn-passed-rank-slope-eg",&PawnPassedPstConstructorSet.pstConstruct.rank.slope.eg },
-
-    { "pawn-passed-file-center-quadratic-mg", &PawnPassedPstConstructorSet.pstConstruct.filecenter.quadratic.mg },
-    { "pawn-passed-file-center-quadratic-eg",&PawnPassedPstConstructorSet.pstConstruct.filecenter.quadratic.eg },
-    { "pawn-passed-file-center-slope-mg", &PawnPassedPstConstructorSet.pstConstruct.filecenter.slope.mg },
-    { "pawn-passed-file-center-slope-eg",&PawnPassedPstConstructorSet.pstConstruct.filecenter.slope.eg },
-
-    { "pawn-phalanx-default-mg", &PawnPhalanxPstConstructorSet.defaultEvaluation.mg },
-    { "pawn-phalanx-default-eg", &PawnPhalanxPstConstructorSet.defaultEvaluation.eg },
-
-    //{ "pawn-phalanx-rank-quadratic-mg", &pawnPhalanxPstConstruct.rank.quadratic.mg },
-    //{ "pawn-phalanx-rank-quadratic-eg", &pawnPhalanxPstConstruct.rank.quadratic.eg },
-    //{ "pawn-phalanx-rank-slope-mg", &pawnPhalanxPstConstruct.rank.slope.mg },
-    //{ "pawn-phalanx-rank-slope-eg", &pawnPhalanxPstConstruct.rank.slope.eg },
-
-    //{ "pawn-phalanx-file-center-quadratic-mg", &pawnPhalanxPstConstruct.filecenter.quadratic.mg },
-    //{ "pawn-phalanx-file-center-quadratic-eg", &pawnPhalanxPstConstruct.filecenter.quadratic.eg },
-    //{ "pawn-phalanx-file-center-slope-mg", &pawnPhalanxPstConstruct.filecenter.slope.mg },
-    //{ "pawn-phalanx-file-center-slope-eg", &pawnPhalanxPstConstruct.filecenter.slope.eg },
-
-    //{ "pawn-unstoppable-default-mg", &PawnUnstoppableDefault.mg },
-    //{ "pawn-unstoppable-default-eg", &PawnUnstoppableDefault.eg },
-    //{ "pawn-unstoppable-rank-mg", &pawnUnstoppablePstConstruct.rank.slope.mg },
-    //{ "pawn-unstoppable-rank-eg", &pawnUnstoppablePstConstruct.rank.slope.eg },
-    //{ "pawn-unstoppable-file-center-mg", &pawnUnstoppablePstConstruct.filecenter.slope.mg },
-    //{ "pawn-unstoppable-file-center-eg", &pawnUnstoppablePstConstruct.filecenter.slope.eg },
-
-    { "outpost-knight-center-quadratic-mg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.quadratic.mg },
-    { "outpost-knight-center-quadratic-eg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.quadratic.eg },
-    { "outpost-knight-center-slope-mg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.slope.mg },
-    { "outpost-knight-center-slope-eg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.slope.eg },
-    { "outpost-knight-center-yintercept-mg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.yintercept.mg },
-    { "outpost-knight-center-yintercept-eg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.center.yintercept.eg },
-
-    { "outpost-knight-rank-quadratic-mg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.mg },
-    { "outpost-knight-rank-quadratic-eg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.quadratic.eg },
-    { "outpost-knight-rank-slope-mg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.slope.mg },
-    { "outpost-knight-rank-slope-eg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.slope.eg },
-    { "outpost-knight-rank-yintercept-mg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.yintercept.mg },
-    { "outpost-knight-rank-yintercept-eg", &OutpostPstConstructorSet[PieceType::KNIGHT].pstConstruct.rank.yintercept.eg },
+    { "pawn-phalanx-rank-2-mg", &PawnPhalanxByRank[Rank::_2].mg },
+    { "pawn-phalanx-rank-2-eg", &PawnPhalanxByRank[Rank::_2].eg },
+    { "pawn-phalanx-rank-3-mg", &PawnPhalanxByRank[Rank::_3].mg },
+    { "pawn-phalanx-rank-3-eg", &PawnPhalanxByRank[Rank::_3].eg },
+    { "pawn-phalanx-rank-4-mg", &PawnPhalanxByRank[Rank::_4].mg },
+    { "pawn-phalanx-rank-4-eg", &PawnPhalanxByRank[Rank::_4].eg },
+    { "pawn-phalanx-rank-5-mg", &PawnPhalanxByRank[Rank::_5].mg },
+    { "pawn-phalanx-rank-5-eg", &PawnPhalanxByRank[Rank::_5].eg },
+    { "pawn-phalanx-rank-6-mg", &PawnPhalanxByRank[Rank::_6].mg },
+    { "pawn-phalanx-rank-6-eg", &PawnPhalanxByRank[Rank::_6].eg },
+    { "pawn-phalanx-rank-7-mg", &PawnPhalanxByRank[Rank::_7].mg },
+    { "pawn-phalanx-rank-7-eg", &PawnPhalanxByRank[Rank::_7].eg },
 
     { "mobility-knight-quadratic-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticConstruct.quadratic.mg },
     { "mobility-knight-quadratic-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticConstruct.quadratic.eg },
@@ -1095,25 +687,6 @@ ParameterMap chessEngineParameterMap = {
     { "mobility-knight-slope-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticConstruct.slope.eg },
     { "mobility-knight-yintercept-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticConstruct.yintercept.mg },
     { "mobility-knight-yintercept-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticConstruct.yintercept.eg },
-
-    //{ "mobility-knight-0-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[0].mg},
-    //{ "mobility-knight-0-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[0].eg },
-    //{ "mobility-knight-1-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[1].mg },
-    //{ "mobility-knight-1-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[1].eg },
-    //{ "mobility-knight-2-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[2].mg },
-    //{ "mobility-knight-2-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[2].eg },
-    //{ "mobility-knight-3-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[3].mg },
-    //{ "mobility-knight-3-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[3].eg },
-    //{ "mobility-knight-4-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[4].mg },
-    //{ "mobility-knight-4-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[4].eg },
-    //{ "mobility-knight-5-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[5].mg },
-    //{ "mobility-knight-5-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[5].eg },
-    //{ "mobility-knight-6-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[6].mg },
-    //{ "mobility-knight-6-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[6].eg },
-    //{ "mobility-knight-7-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[7].mg },
-    //{ "mobility-knight-7-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[7].eg },
-    //{ "mobility-knight-8-mg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[8].mg },
-    //{ "mobility-knight-8-eg", &MobilityConstructorSet[PieceType::KNIGHT].quadraticBase[8].eg },
 
     { "mobility-bishop-quadratic-mg", &MobilityConstructorSet[PieceType::BISHOP].quadraticConstruct.quadratic.mg },
     { "mobility-bishop-quadratic-eg", &MobilityConstructorSet[PieceType::BISHOP].quadraticConstruct.quadratic.eg },
@@ -1296,11 +869,28 @@ ParameterMap chessEngineParameterMap = {
     { "doubled-rooks-mg", &DoubledRooks.mg },
     { "doubled-rooks-eg", &DoubledRooks.eg },
 
+    { "tempo-mg", &Tempo.mg },
+    { "tempo-eg", &Tempo.eg },
+        
     //{ "empty-file-queen-mg", &EmptyFileQueen.mg },
     //{ "empty-file-queen-eg", &EmptyFileQueen.eg },
 
     { "empty-file-rook-mg", &EmptyFileRook.mg },
     { "empty-file-rook-eg", &EmptyFileRook.eg },
+
+    { "king-shield-0-mg", &KingShield[0].mg },
+    { "king-shield-0-eg", &KingShield[0].eg },
+    { "king-shield-1-mg", &KingShield[1].mg },
+    { "king-shield-1-eg", &KingShield[1].eg },
+
+    { "king-attacks-knight-mg", &KingAttacks[PieceType::KNIGHT].mg },
+    { "king-attacks-knight-eg", &KingAttacks[PieceType::KNIGHT].eg },
+    { "king-attacks-bishop-mg", &KingAttacks[PieceType::BISHOP].mg },
+    { "king-attacks-bishop-eg", &KingAttacks[PieceType::BISHOP].eg },
+    { "king-attacks-rook-mg", &KingAttacks[PieceType::ROOK].mg },
+    { "king-attacks-rook-eg", &KingAttacks[PieceType::ROOK].eg },
+    { "king-attacks-queen-mg", &KingAttacks[PieceType::QUEEN].mg },
+    { "king-attacks-queen-eg", &KingAttacks[PieceType::QUEEN].eg },
 
     //{ "queen-behind-passed-pawn-default-mg", &queenBehindPassedPawnDefault.mg },
     //{ "queen-behind-passed-pawn-default-eg", &queenBehindPassedPawnDefault.eg },
@@ -1323,24 +913,30 @@ void InitializeParameters()
 
     for (PieceType pieceType = PieceType::PAWN; pieceType < PieceType::PIECETYPE_COUNT; pieceType++) {
         scoreConstructor.construct(PstParameters[pieceType], BasePstConstructorSet[pieceType]);
-        scoreConstructor.construct(ControlPstParameters[pieceType], ControlPstConstructorSet[pieceType]);
-        scoreConstructor.construct(OutpostPstParameters[pieceType], OutpostPstConstructorSet[pieceType]);
 
-        scoreConstructor.construct(&(ControlParameters[pieceType][0]), ControlConstructorSet[pieceType], 32);
         scoreConstructor.construct(&(MobilityParameters[pieceType][0]), MobilityConstructorSet[pieceType], 32);
         scoreConstructor.construct(&(TropismParameters[pieceType][0]), TropismConstructorSet[pieceType], 16);
     }
 
     scoreConstructor.construct(PawnChainBackPstParameters, PawnChainBackPstConstructorSet);
     scoreConstructor.construct(PawnChainFrontPstParameters, PawnChainFrontPstConstructorSet);
-    scoreConstructor.construct(PawnDoubledPstParameters, PawnDoubledPstConstructorSet);
-    scoreConstructor.construct(PawnPassedPstParameters, PawnPassedPstConstructorSet);
-    scoreConstructor.construct(PawnPhalanxPstParameters, PawnPhalanxPstConstructorSet);
 
     for (const Square src : SquareIterator()) {
-        const File file = GetFile(src);
-        const Rank rank = GetRank(src);
+        File file = GetFile(src);
+        Rank rank = GetRank(src);
 
         Distance[file][rank] = std::uint32_t(std::sqrt(file * file + rank * rank));
+
+        if (file > File::_D) {
+            file = ~file;
+        }
+
+        PstParameters[PieceType::PAWN][src] = PstParameters[PieceType::PAWN][src] / 2 + PstByPieceAndRank[PieceType::PAWN][rank] + PstByPieceAndFile[PieceType::PAWN][file];
+
+        PstParameters[PieceType::KNIGHT][src] = PstByPieceAndRank[PieceType::KNIGHT][rank] + PstByPieceAndFile[PieceType::KNIGHT][file];
+        PstParameters[PieceType::BISHOP][src] = PstByPieceAndRank[PieceType::BISHOP][rank] + PstByPieceAndFile[PieceType::BISHOP][file];
+        //PstParameters[PieceType::ROOK][src] = PstByPieceAndRank[PieceType::ROOK][rank] + PstByPieceAndFile[PieceType::ROOK][file];
+        //PstParameters[PieceType::QUEEN][src] = PstByPieceAndRank[PieceType::QUEEN][rank] + PstByPieceAndFile[PieceType::QUEEN][file];
+        //PstParameters[PieceType::KING][src] = PstByPieceAndRank[PieceType::KING][rank] + PstByPieceAndFile[PieceType::KING][file];
     }
 }

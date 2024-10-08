@@ -261,6 +261,11 @@ public:
         return this->sideToMove == Color::WHITE;
     }
 
+    constexpr PieceType pieceAt(Square src) const
+    {
+        return this->pieces[src];
+    }
+
     void resetSpecificPositionImplementation(const std::string& fen);
     void resetStartingPositionImplementation();
 

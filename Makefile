@@ -26,12 +26,25 @@ ENGINE = "jing-wei/engine.cpp"
 
 ENGINE_FILES = $(ENGINE) $(CHESS_BITBOARDS) $(CHESS_BOARD) $(CHESS_COMM) $(CHESS_ENDGAME) $(CHESS_EVAL) $(CHESS_HASH) $(CHESS_PLAYER) $(CHESS_SEARCH) $(CHESS_TYPES) $(GAME_CLOCK) $(GAME_PERSONALITY) $(GAME_SEARCH)
 
-ELO1 = 3
 LEVEL_IN_SECONDS = 2
 NODE_COUNT = 100000
 TIME_IN_SECONDS = 5
 
-SPRT = -sprt elo0=0 elo1=$(ELO1) alpha=0.05 beta=0.05
+MINUTES = 0
+SECONDS = $(LEVEL_IN_SECONDS)
+INTERVAL = 0.02
+
+LEVEL = 0/$(MINUTES):$(SECONDS)+$(INTERVAL)
+
+OPPONENT = stockfish
+OPPONENT_DEPTH = 7
+
+ELO0 = 0.5
+ELO1 = 2.5
+
+SPRT = elo0=$(ELO0) elo1=$(ELO1) alpha=0.05 beta=0.05
+RESIGN = 
+#-resign movecount=3 score=500 twosided=true
 
 all: compile
 
@@ -48,31 +61,31 @@ install:
 
 opponents-sprt: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) initstr="personality data/personality.txt" dir="./bin" -engine conf=stockfish st=1 depth=6 -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt elo0=0 elo1=$(ELO1) alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) initstr="personality data/personality.txt" dir="./bin" -engine conf=$(OPPONENT) st=1 depth=$(OPPONENT_DEPTH) -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1
 
 opponents-test: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) initstr="personality data/personality.txt" dir="./bin" -engine conf=stockfish st=1 depth=6 -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) initstr="personality data/personality.txt" dir="./bin" -engine conf=$(OPPONENT) st=1 depth=$(OPPONENT_DEPTH) -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
 
 sprt-nodes: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=10 nodes=$(NODE_COUNT) dir="./bin" timemargin=100000 book="bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 12 -sprt elo0=0 elo1=$(ELO1) alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=10 nodes=$(NODE_COUNT) dir="./bin" timemargin=100000 book="bin/data/varied.bin" bookdepth=12 restart=on -recover -concurrency 12 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
 
 sprt-level: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt elo0=0 elo1=$(ELO1) alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=$(LEVEL) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
 
 sprt-time: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=$(TIME_IN_SECONDS) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt elo0=0 elo1=$(ELO1) alpha=0.05 beta=0.05 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard st=$(TIME_IN_SECONDS) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
 
 test: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:5 dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=$(LEVEL) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
 
 test-data-gen: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=0/0:1 dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=$(LEVEL) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
 
 update-old: compile
 
