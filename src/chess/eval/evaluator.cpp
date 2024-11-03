@@ -150,7 +150,7 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
     }
 
     //4) Continue, actually evaluating the board
-    EvaluationType evaluation = board.materialEvaluation + board.pstEvaluation + Tempo;
+    EvaluationType evaluation = board.materialEvaluation + board.pstEvaluation;
 
     //5) Evaluate Pawn Structure.  Since the Pawn Evaluator is another evaluator, it will return score with side to move
     //  This must be done first because other evaluation terms rely on pawn structure calculations.
@@ -277,7 +277,7 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
     }
 
     //7) Begin Result Calculation
-    const Score result = isWhiteToMove ? evaluation(phase) : -evaluation(phase);
+    const Score result = (isWhiteToMove ? evaluation(phase) : -evaluation(phase)) + Tempo(phase);
 
     return result;
 }

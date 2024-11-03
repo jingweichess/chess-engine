@@ -666,6 +666,10 @@ Score ChessSearcher::rootSearch(const ChessBoard& board, ChessPrincipalVariation
 
 bool ChessSearcher::saveToHashtable(const ChessBoard& board, const ChessMove& move, Score alpha, Score beta, Score score, Depth currentDepth, Depth depthLeft)
 {
+    if (this->abortedSearch) {
+        return false;
+    }
+
     HashtableEntryType hashtableEntryType = HashtableEntryType::NONE;
 
     if (score >= beta) {
@@ -1270,9 +1274,16 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
         //7) Calculate Reductions
         const std::uint32_t phase = nextBoard.getPhase();
 
+        //const bool isPawnMove = move.movedPiece == PieceType::PAWN;
+        //const Rank dstRank = GetRank(move.dst);
+
+        //const bool isWhiteToMove = board.isWhiteToMove();
+        //const Rank SeventhRank = isWhiteToMove ? Rank::_7 : Rank::_2;
+
         if (enableReductions
             && nodeType != NodeType::PV
             //&& (nodeType != NodeType::PV || movesSearched > 30)
+            //&& !(isPawnMove && dstRank == SeventhRank)
             && bestScore > LostInMaxDepth()
             && !givesCheck
             && !isInCheck

@@ -41,8 +41,6 @@ extern ChessEvaluation AttackParameters[PieceType::PIECETYPE_COUNT][PieceType::P
 extern ChessEvaluation MobilityParameters[PieceType::PIECETYPE_COUNT][32];
 
 extern ChessEvaluation PawnBlockedPstParameters[Color::COLOR_COUNT][Square::SQUARE_COUNT];
-extern ChessEvaluation PawnChainBackPstParameters[Square::SQUARE_COUNT];
-extern ChessEvaluation PawnChainFrontPstParameters[Square::SQUARE_COUNT];
 
 extern ChessEvaluation PawnChainBackByRank[Rank::RANK_COUNT];
 extern ChessEvaluation PawnChainFrontByRank[Rank::RANK_COUNT];

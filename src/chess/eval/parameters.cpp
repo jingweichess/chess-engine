@@ -194,20 +194,23 @@ ChessEvaluation AttackParameters[PieceType::PIECETYPE_COUNT][PieceType::PIECETYP
 ChessEvaluation MobilityParameters[PieceType::PIECETYPE_COUNT][32];
 ChessEvaluation TropismParameters[PieceType::PIECETYPE_COUNT][16];
 
-ChessEvaluation PawnChainBackPstParameters[Square::SQUARE_COUNT];
-ChessEvaluation PawnChainFrontPstParameters[Square::SQUARE_COUNT];
-
 ChessEvaluation PawnChainBackByRank[Rank::RANK_COUNT] = {
-    {}, {},           {   0,   0 }, {   0,   0 }, {   0,   0 }, {   0,   0 }, {   0,   0 }, {}
+    {}, {},
+    {   0,   0 },
+    {   0,   0 },
+    {   0,   0 },
+    {   0,  74 },
+    { -29, -46 },
+    {}
 };
 
 ChessEvaluation PawnChainFrontByRank[Rank::RANK_COUNT] = {
     {},
-    {   0,   0 },
-    {   0,   0 },
-    {   0,   0 },
-    {  15,   0 },
-    {   9,   0 },
+    {   6,   9 },
+    { 107,  14 },
+    {  64, -14 },
+    {  70,  -5 },
+    {  77,  -9 },
     {}, {}
 };
 
@@ -628,6 +631,19 @@ ParameterMap chessEngineParameterMap = {
     //{ "pawn-chain-front-file-center-slope-mg", &pawnChainFrontPstConstruct.filecenter.slope.mg },
     //{ "pawn-chain-front-file-center-slope-eg", &pawnChainFrontPstConstruct.filecenter.slope.eg },
 
+    { "pawn-chain-back-rank-2-mg", &PawnChainBackByRank[Rank::_2].mg },
+    { "pawn-chain-back-rank-2-eg", &PawnChainBackByRank[Rank::_2].eg },
+    { "pawn-chain-back-rank-3-mg", &PawnChainBackByRank[Rank::_3].mg },
+    { "pawn-chain-back-rank-3-eg", &PawnChainBackByRank[Rank::_3].eg },
+    { "pawn-chain-back-rank-4-mg", &PawnChainBackByRank[Rank::_4].mg },
+    { "pawn-chain-back-rank-4-eg", &PawnChainBackByRank[Rank::_4].eg },
+    { "pawn-chain-back-rank-5-mg", &PawnChainBackByRank[Rank::_5].mg },
+    { "pawn-chain-back-rank-5-eg", &PawnChainBackByRank[Rank::_5].eg },
+    { "pawn-chain-back-rank-6-mg", &PawnChainBackByRank[Rank::_6].mg },
+    { "pawn-chain-back-rank-6-eg", &PawnChainBackByRank[Rank::_6].eg },
+    { "pawn-chain-back-rank-7-mg", &PawnChainBackByRank[Rank::_7].mg },
+    { "pawn-chain-back-rank-7-eg", &PawnChainBackByRank[Rank::_7].eg },
+
     { "pawn-chain-front-rank-2-mg", &PawnChainFrontByRank[Rank::_2].mg },
     { "pawn-chain-front-rank-2-eg", &PawnChainFrontByRank[Rank::_2].eg },
     { "pawn-chain-front-rank-3-mg", &PawnChainFrontByRank[Rank::_3].mg },
@@ -871,7 +887,12 @@ ParameterMap chessEngineParameterMap = {
 
     { "tempo-mg", &Tempo.mg },
     { "tempo-eg", &Tempo.eg },
-        
+
+    { "bishop-current-pawns-mg", &BishopPawns[0].mg },
+    { "bishop-current-pawns-eg", &BishopPawns[0].eg },
+    { "bishop-other-pawns-mg", &BishopPawns[1].mg },
+    { "bishop-other-pawns-eg", &BishopPawns[1].eg },
+
     //{ "empty-file-queen-mg", &EmptyFileQueen.mg },
     //{ "empty-file-queen-eg", &EmptyFileQueen.eg },
 
@@ -917,9 +938,6 @@ void InitializeParameters()
         scoreConstructor.construct(&(MobilityParameters[pieceType][0]), MobilityConstructorSet[pieceType], 32);
         scoreConstructor.construct(&(TropismParameters[pieceType][0]), TropismConstructorSet[pieceType], 16);
     }
-
-    scoreConstructor.construct(PawnChainBackPstParameters, PawnChainBackPstConstructorSet);
-    scoreConstructor.construct(PawnChainFrontPstParameters, PawnChainFrontPstConstructorSet);
 
     for (const Square src : SquareIterator()) {
         File file = GetFile(src);
