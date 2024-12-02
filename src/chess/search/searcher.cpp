@@ -216,7 +216,7 @@ void ChessSearcher::iterativeDeepeningLoop(const ChessBoard& board, ChessPrincip
                 const Depth distanceToMate = DistanceToWin(score);
                 mateScore = score;
 
-                if (searchDepth > distanceToMate * 3) {
+                if (searchDepth > distanceToMate * 2) {
                     break;
                 }
 
@@ -279,7 +279,7 @@ void ChessSearcher::iterativeDeepeningLoop(const ChessBoard& board, ChessPrincip
 
         if (foundMateSolution) {
             const Depth distanceToMate = DistanceToWin(score);
-            isSearching = searchDepth > distanceToMate * 3 ? false : isSearching;
+            isSearching = searchDepth > distanceToMate * 2 ? false : isSearching;
         }
 
         isSearching = isSearching && this->clock.shouldContinueSearch(searchDepth, this->getNodeCount());
@@ -699,6 +699,10 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
     ChessPrincipalVariation& principalVariation = searchStack->principalVariation;
 
     //1) Check for instant abort conditions
+    if (this->abortedSearch) {
+        return NO_SCORE;
+    }
+
     if (currentDepth >= (Depth::MAX - Depth::ONE)
         || !this->clock.shouldContinueSearch(Depth::ZERO, this->getNodeCount())) {
         this->abortedSearch = true;
@@ -847,6 +851,9 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
     const Bitboard calculatedPassedPawns = this->evaluator.calculatePassedPawns(board, board.sideToMove);
     assert(searchStack->passedPawns == calculatedPassedPawns);
 #endif
+
+    // Clear Child Killer Moves
+    //(searchStack + 1)->killer1 = (searchStack + 1)->killer2 = NullMove;
 
     const std::uint32_t phase = board.getPhase();
 
@@ -1054,7 +1061,7 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
 
         const Score iidScore = this->searchLoop<nodeType, true, capturesOnly>(board, searchStack, alpha, beta, maxDepth - IirReduction, currentDepth);
 
-        if (depthLeft < Depth::SEVEN
+        if (depthLeft < Depth::EIGHT
             //&& IsWinScore(iidScore)
             && IsMateScore(iidScore)
             /*&& (nodeType != NodeType::ALL || !IsWinScore(alpha))*/) {
@@ -1419,7 +1426,7 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
                     this->mateHistoryTable.add(movingPiece, dst, delta);
                 }
 
-                if (enableKillerMoves
+                if (enableMateKillerMoves
                     && IsWinScore(score)) {
                     searchStack->mateKiller2 = searchStack->mateKiller1;
                     searchStack->mateKiller1 = move;

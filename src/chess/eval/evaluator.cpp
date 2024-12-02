@@ -54,8 +54,6 @@ extern ChessEvaluation PiecePairs[PieceType::PIECETYPE_COUNT];
 extern ChessEvaluation QueenBehindPassedPawnPst[Square::SQUARE_COUNT];
 extern ChessEvaluation RookBehindPassedPawnPst[Square::SQUARE_COUNT];
 
-extern ChessEvaluation OutpostPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
-
 extern ChessEvaluation TropismParameters[PieceType::PIECETYPE_COUNT][16];
 
 extern std::uint32_t Distance[File::FILE_COUNT][Rank::RANK_COUNT];
@@ -236,20 +234,20 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
 
                 break;
             case PieceType::KING: {
-                mobilityDstSquares = QueenMagic(src, board.allPieces);
+                //mobilityDstSquares = QueenMagic(src, board.allPieces);
 
-                const File file = GetFile(src);
-                const Rank rank = GetRank(evaluatedSrc);
+                //const File file = GetFile(src);
+                //const Rank rank = GetRank(evaluatedSrc);
 
-                if (rank < Rank::_3) {
-                    const Bitboard shield = KingPawnShield[file];
+                //if (rank < Rank::_3) {
+                //    const Bitboard shield = KingPawnShield[file];
 
-                    Bitboard evaluatedPawns = colorIsWhite ? colorPieces[PieceType::PAWN] : FlipBitboardOnVertical(colorPieces[PieceType::PAWN]);
-                    evaluatedPawns <<= 8 * (Rank::_1 - rank + 1);
+                //    Bitboard evaluatedPawns = colorIsWhite ? colorPieces[PieceType::PAWN] : FlipBitboardOnVertical(colorPieces[PieceType::PAWN]);
+                //    evaluatedPawns <<= 8 * (Rank::_1 - rank + 1);
 
-                    evaluation += multiplier * std::popcount(evaluatedPawns & shield) * KingShield[0];
-                    evaluation += multiplier * std::popcount((evaluatedPawns + Direction::DOWN) & shield) * KingShield[1];
-                }
+                //    evaluation += multiplier * std::popcount(evaluatedPawns & shield) * KingShield[0];
+                //    evaluation += multiplier * std::popcount((evaluatedPawns + Direction::DOWN) & shield) * KingShield[1];
+                //}
 
             }   break;
             default:
@@ -265,7 +263,6 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
                 const std::uint32_t kingAttackCount = std::popcount(kingAttacks);
                 evaluation += multiplier * KingAttacks[pieceType] * kingAttackCount;
 
-                //TODO: Account for unsafe squares
                 evaluation += multiplier * this->evaluateAttacks(board, color, pieceType, mobilityDstSquares);
                 evaluation += multiplier * this->evaluateTropism(pieceType, src, otherKingPosition);
             }

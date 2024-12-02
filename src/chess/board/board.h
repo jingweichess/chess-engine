@@ -254,6 +254,11 @@ public:
         return pawnsAndKing != piecesToMove[PieceType::ALL];
     }
 
+    constexpr NodeCount getFiftyMoveCount() const
+    {
+        return this->fiftyMoveCount;
+    }
+
     void initFromFen(const std::string& fen);
 
     constexpr bool isWhiteToMove() const

@@ -42,8 +42,15 @@ extern ChessEvaluation MobilityParameters[PieceType::PIECETYPE_COUNT][32];
 
 extern ChessEvaluation PawnBlockedPstParameters[Color::COLOR_COUNT][Square::SQUARE_COUNT];
 
-extern ChessEvaluation PawnChainBackByRank[Rank::RANK_COUNT];
-extern ChessEvaluation PawnChainFrontByRank[Rank::RANK_COUNT];
+//extern ChessEvaluation PawnChainBackByRank[Rank::RANK_COUNT];
+//extern ChessEvaluation PawnChainFrontByRank[Rank::RANK_COUNT];
+
+extern ChessEvaluation PawnChainBack;
+extern ChessEvaluation PawnChainFront;
+
+extern ChessEvaluation PawnChainBackPerRank;
+extern ChessEvaluation PawnChainFrontPerRank;
+
 extern ChessEvaluation PawnDoubledByRank[Rank::RANK_COUNT];
 extern ChessEvaluation PawnPassedByRank[Rank::RANK_COUNT];
 extern ChessEvaluation PawnPhalanxByRank[Rank::RANK_COUNT];
@@ -143,19 +150,19 @@ protected:
                 const Rank evaluatedRank = GetRank(evaluatedSrc);
 
                 const Bitboard pawnDefends = colorIsWhite ? BlackPawnCaptures[src] : WhitePawnCaptures[src];
-                const Bitboard pawnsDefendedBy = pawnDefends & colorPieces[PieceType::PAWN];
+                const Bitboard pawnsDefendedBy = pawnDefends & colorPawns;
 
                 const bool isDefendedByPawn = pawnsDefendedBy != EmptyBitboard;
 
                 //1) Check for a chained pawn
                 if (isDefendedByPawn) {
                     //result += multiplier * PawnChainFrontPstParameters[evaluatedSrc];
-                    result += multiplier * PawnChainFrontByRank[evaluatedRank];
+                    result += multiplier * (PawnChainFront + ~evaluatedRank * PawnChainFrontPerRank);
 
                     for (const Square dst : SquareBitboardIterator(pawnsDefendedBy)) {
                         const Square evaluatedDst = colorIsWhite ? dst : FlipSquareOnHorizontalLine(dst);
                         //result += multiplier * PawnChainBackPstParameters[evaluatedDst];
-                        result += multiplier * PawnChainBackByRank[evaluatedRank];
+                        result += multiplier * (PawnChainBack + ~evaluatedRank * PawnChainBackPerRank);
                     }
                 }
 
@@ -200,14 +207,14 @@ protected:
                         result += multiplier * PassedPawnDefended;
                     }
 
-                    const Direction forward = colorIsWhite ? Direction::UP : Direction::DOWN;
-                    const PieceType blockedByPieceType = board.pieceAt(src + forward);
-                    if ((colorPawns & OneShiftedBy(src + forward)) == EmptyBitboard
-                        && blockedByPieceType != PieceType::NO_PIECE) {
-                        assert(blockedByPieceType != PieceType::PAWN);
+                    //const Direction forward = colorIsWhite ? Direction::UP : Direction::DOWN;
+                    //const PieceType blockedByPieceType = board.pieceAt(src + forward);
+                    //if ((colorPawns & OneShiftedBy(src + forward)) == EmptyBitboard
+                    //    && blockedByPieceType != PieceType::NO_PIECE) {
+                    //    assert(blockedByPieceType != PieceType::PAWN);
 
-                        result += multiplier * PassedPawnBlockedByPiece[blockedByPieceType];
-                    }
+                    //    result += multiplier * PassedPawnBlockedByPiece[blockedByPieceType];
+                    //}
 
                     //constexpr Rank lastRank = Rank::_8;
                     //const Square lastRankSquare = SetRank(evaluatedSrc, lastRank);
