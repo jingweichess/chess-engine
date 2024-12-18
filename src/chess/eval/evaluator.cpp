@@ -125,7 +125,7 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
 
             const ChessEvaluation evaluation = { hashtableEntryInfo.getMg(), hashtableEntryInfo.getEg() };
 
-            const std::uint32_t phase = board.getPhase();
+            const std::int32_t phase = board.getPhase();
             const Score result = evaluation(phase);
 
             return isWhiteToMove ? result : -result;
@@ -133,11 +133,11 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
     }
 
     //3) Check for lazy evaluation
-    const std::uint32_t phase = board.getPhase();
+    const std::int32_t phase = board.getPhase();
 
     const Score lazyEvaluation = this->lazyEvaluate(board);
 
-    const Score lazyThreshold = LazyThreshold(phase);
+    const Score lazyThreshold = 3 * PAWN_SCORE;
     if (lazyEvaluation + lazyThreshold < alpha
         || lazyEvaluation - lazyThreshold >= beta) {
 
@@ -236,18 +236,18 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
             case PieceType::KING: {
                 //mobilityDstSquares = QueenMagic(src, board.allPieces);
 
-                //const File file = GetFile(src);
-                //const Rank rank = GetRank(evaluatedSrc);
+                const File file = GetFile(src);
+                const Rank rank = GetRank(evaluatedSrc);
 
-                //if (rank < Rank::_3) {
-                //    const Bitboard shield = KingPawnShield[file];
+                if (rank < Rank::_3) {
+                    const Bitboard shield = KingPawnShield[file];
 
-                //    Bitboard evaluatedPawns = colorIsWhite ? colorPieces[PieceType::PAWN] : FlipBitboardOnVertical(colorPieces[PieceType::PAWN]);
-                //    evaluatedPawns <<= 8 * (Rank::_1 - rank + 1);
+                    Bitboard evaluatedPawns = colorIsWhite ? colorPieces[PieceType::PAWN] : FlipBitboardOnVertical(colorPieces[PieceType::PAWN]);
+                    evaluatedPawns <<= 8 * (Rank::_1 - rank + 1);
 
-                //    evaluation += multiplier * std::popcount(evaluatedPawns & shield) * KingShield[0];
-                //    evaluation += multiplier * std::popcount((evaluatedPawns + Direction::DOWN) & shield) * KingShield[1];
-                //}
+                    evaluation += multiplier * std::popcount(evaluatedPawns & shield) * KingShield[0];
+                    evaluation += multiplier * std::popcount((evaluatedPawns + Direction::DOWN) & shield) * KingShield[1];
+                }
 
             }   break;
             default:
@@ -290,7 +290,7 @@ Score ChessEvaluator::lazyEvaluateImplementation(const BoardType& board)
 {
     const EvaluationType evaluation = board.materialEvaluation + board.pstEvaluation + Tempo;
 
-    const std::uint32_t phase = board.getPhase();
+    const std::int32_t phase = board.getPhase();
     const Score result = evaluation(phase);
 
     const bool isWhiteToMove = board.isWhiteToMove();

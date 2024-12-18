@@ -276,12 +276,12 @@ public:
 
     std::string saveToFen() const;
 
-    constexpr std::uint32_t getPhase() const
+    constexpr std::int32_t getPhase() const
     {
         return std::popcount(this->allPieces);
     }
 
-    constexpr std::uint32_t getPieceCount() const
+    constexpr std::int32_t getPieceCount() const
     {
         return std::popcount(this->allPieces);
     }

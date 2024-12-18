@@ -146,7 +146,9 @@ void ChessSearcher::initialize()
     }
 
     if (enableMateHistoryTable) {
-        this->mateHistoryTable.reset();
+        for (std::uint32_t i = 0; i < 2; i++) {
+            this->mateHistoryTable[i].reset();
+        }
     }
 
     this->abortedSearch = false;
@@ -289,6 +291,8 @@ void ChessSearcher::iterativeDeepeningLoop(const ChessBoard& board, ChessPrincip
         previousScore = score;
         searchDepth++;
     }
+
+    //this->verifyPrincipalVariation(board, principalVariation, previousScore, searchDepth);
 
     this->searchEventHandlerList.onSearchCompleted(board);
 }
@@ -440,13 +444,13 @@ Score ChessSearcher::quiescenceSearch(ChessBoard& board, ChessSearchStack* searc
         const PieceType capturedPiece = board.pieces[dst];
 
         //8) If capturing this piece won't bring us close to alpha, skip the capture
-        const std::uint32_t phase = board.getPhase();
+        const std::int32_t phase = board.getPhase();
         if (enableQuiescenceEarlyExit
             && !isInCheck) {
             const Score capturedPieceScore = MaterialParameters[capturedPiece](phase);
             const Score lazyScore = searchStack->staticEvaluation + capturedPieceScore;
 
-            const Score earlyExitThreshold = quiescenceEarlyExitMargin(depthLeft, phase);
+            const Score earlyExitThreshold = 2 * PAWN_SCORE;
             if (lazyScore + earlyExitThreshold < alpha) {
                 continue;
             }
@@ -457,7 +461,7 @@ Score ChessSearcher::quiescenceSearch(ChessBoard& board, ChessSearchStack* searc
             && !isInCheck) {
             move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
 
-            const Score staticExchangeEvaluationExitThreshold = quiescenceStaticExchangeEvaluationMargin(depthLeft, phase);
+            const Score staticExchangeEvaluationExitThreshold = -PAWN_SCORE;
             if (move.seeScore < staticExchangeEvaluationExitThreshold) {
                 continue;
             }
@@ -543,7 +547,7 @@ Score ChessSearcher::quiescenceSearch(ChessBoard& board, ChessSearchStack* searc
 
     //12) Save to Hashtable
     if (enableQuiescenceSearchHashtable
-        && nodeType == NodeType::CUT
+        //&& nodeType == NodeType::CUT
         && !this->abortedSearch) {
         this->saveToHashtable(board, searchStack->bestMove, alpha, beta, bestScore, currentDepth, depthLeft);
     }
@@ -632,9 +636,9 @@ Score ChessSearcher::rootSearch(const ChessBoard& board, ChessPrincipalVariation
 
             this->searchEventHandlerList.onLineCompleted(principalVariation, time, nodeCount, score, maxDepth);
 
-            if (!enableAspirationWindow) {
-                this->verifyPrincipalVariation(board, principalVariation, bestScore, maxDepth);
-            }
+            //if (!enableAspirationWindow) {
+                //this->verifyPrincipalVariation(board, principalVariation, bestScore, maxDepth);
+            //}
         }
 
         if (score > alpha) {
@@ -652,9 +656,9 @@ Score ChessSearcher::rootSearch(const ChessBoard& board, ChessPrincipalVariation
 
                 this->searchEventHandlerList.onLineCompleted(currentPrincipalVariation, time, nodeCount, score, maxDepth);
 
-                if (!enableAspirationWindow) {
-                    this->verifyPrincipalVariation(board, currentPrincipalVariation, bestScore, maxDepth);
-                }
+                //if (!enableAspirationWindow) {
+                    //this->verifyPrincipalVariation(board, currentPrincipalVariation, bestScore, maxDepth);
+                //}
             }
         }
     }
@@ -825,6 +829,13 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
             //    }
             //}
         }
+        else {
+            constexpr bool isPvNode = nodeType == NodeType::PV;
+
+            if (!isPvNode) {
+                maxDepth -= depthLeft > Depth::FOUR ? Depth::ONE : Depth::ZERO;
+            }
+        }
     }
 
     //6) Get static Evaluation
@@ -855,9 +866,10 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
     // Clear Child Killer Moves
     //(searchStack + 1)->killer1 = (searchStack + 1)->killer2 = NullMove;
 
-    const std::uint32_t phase = board.getPhase();
+    const std::int32_t phase = board.getPhase();
 
     const bool hasNonPawnMaterial = board.hasNonPawnMaterial();
+    const bool isImproving = searchStack->staticEvaluation > (searchStack - 2)->staticEvaluation;
 
     searchStack->hasMateThreat = false;
 
@@ -871,35 +883,25 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
 
         //7) Reverse Futility Pruning
         if (enableReverseFutilityPruning
-            && depthLeft < Depth::FOUR
-            //&& depthLeft < Depth::SIX
+            && depthLeft < Depth::EIGHT
             && searchStack->staticEvaluation < BASICALLY_WINNING_SCORE
-            && searchStack->staticEvaluation >= beta + FutilityMargin(depthLeft, phase)) {
-            //if (depthLeft < Depth::FOUR) {
+            && searchStack->staticEvaluation >= beta + 65 * (isImproving ? depthLeft - Depth::ONE : depthLeft)) {
                 return searchStack->staticEvaluation;
-            //}
-            //else {
-            //    return this->quiescenceSearch<nodeType>(board, searchStack, alpha, beta, maxDepth, currentDepth);
-            //}
         }
 
         //8) Razoring
-        if (enableRazoring
-            && depthLeft < Depth::FOUR
-            && searchStack->staticEvaluation < alpha - RazorMargin(depthLeft, phase)) {
-            const Score razorScore = this->quiescenceSearch<nodeType>(board, searchStack, alpha, beta, maxDepth, currentDepth);
-
-            if (razorScore < alpha) {
-                return razorScore;
-            }
-        }
+        //if (enableRazoring
+        //    && depthLeft <= Depth::TWO
+        //    && searchStack->staticEvaluation < alpha - 600) {
+        //    return this->quiescenceSearch<nodeType>(board, searchStack, alpha, beta, maxDepth, currentDepth);
+        //}
 
         //9) Null Move Pruning
         const ChessMove lastOpponentMove = (searchStack - 1)->currentMove;
 
         if (enableNullMove
             && (searchStack - 1)->currentMove != NullMove
-            && (searchStack)->staticEvaluation >= beta + NullMoveMargin(depthLeft, phase)
+            && (searchStack)->staticEvaluation >= beta
             && (searchStack)->staticEvaluation < BASICALLY_WINNING_SCORE
             && phase > 9
             /*&& lastOpponentMove.capturedPiece == PieceType::NO_PIECE*/
@@ -910,7 +912,7 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
 
             searchStack->currentMove = NullMove;
 
-            const Depth nullReduction = NullMoveReduction(depthLeft, phase);
+            const Depth nullReduction = Depth::THREE;
             const Score nullScore = -this->search<NodeType::ALL>(newBoard, searchStack + 1, -beta, -beta + 1, maxDepth - nullReduction, currentDepth + Depth::ONE);
 
             searchStack->hasMateThreat = IsLossScore(nullScore);
@@ -920,7 +922,7 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
             if (!isMateScore
                 && nullScore >= beta) {
                 if (enableNullMoveVerification) {
-                    const Depth nullVerificationReduction = NullMoveVerificationReduction(depthLeft, phase);
+                    const Depth nullVerificationReduction = Depth::THREE;
                     const Score verifiedNullScore = this->search<nodeType>(board, searchStack, beta - 1, beta, maxDepth - nullVerificationReduction, currentDepth);
 
                     const bool isMateScore = IsMateScore(verifiedNullScore);
@@ -949,7 +951,7 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
     }
 
     //11) ProbCut
-    const Score probCutBeta = beta + ProbCutMargin(depthLeft, phase);
+    const Score probCutBeta = beta + 320;
 
     if (enableProbcut
         && nodeType != NodeType::PV
@@ -999,24 +1001,29 @@ Score ChessSearcher::search(ChessBoard& board, ChessSearchStack* searchStack, Sc
             this->moveHistory.push_back(nextBoard, move);
 
             constexpr NodeType nextNodeType = nodeType == NodeType::CUT ? NodeType::ALL : NodeType::CUT;
-            Score score = -this->quiescenceSearch<nextNodeType>(nextBoard, searchStack + 1, -probCutBeta, -probCutBeta + 1, currentDepth + Depth::ONE, currentDepth + Depth::ONE);
-
-            this->moveHistory.pop_back();
+            const Score score = -this->quiescenceSearch<nextNodeType>(nextBoard, searchStack + 1, -probCutBeta, -probCutBeta + 1, currentDepth + Depth::ONE, currentDepth + Depth::ONE);
 
             if (score >= probCutBeta) {
-                const Depth probCutReduction = ProbCutReduction(depthLeft, phase);
-                score = -this->search<nextNodeType>(nextBoard, searchStack + 1, -probCutBeta, -probCutBeta + 1, maxDepth - probCutReduction, currentDepth + Depth::ONE);
+                const Depth probCutReduction = Depth::FOUR;
+                const Score score = -this->search<nextNodeType>(nextBoard, searchStack + 1, -probCutBeta, -probCutBeta + 1, maxDepth - probCutReduction, currentDepth + Depth::ONE);
+
+                this->moveHistory.pop_back();
 
                 if (score >= probCutBeta) {
-                    this->saveToHashtable(board, move, alpha, beta, score, currentDepth - probCutReduction, depthLeft);
+                    this->saveToHashtable(board, move, alpha, beta, score, currentDepth, depthLeft - probCutReduction);
 
                     return score;
                 }
+            }
+            else {
+                this->moveHistory.pop_back();
             }
         }
     }
 
     //12) Search Loop
+    searchStack->bestMove = NullMove;
+
     const Score score = this->searchLoop<nodeType>(board, searchStack, alpha, beta, maxDepth, currentDepth);
 
     //13) Save to Hashtable
@@ -1053,7 +1060,7 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
     if (enableInternalIterativeDeepening
         && nodeType != NodeType::PV
         //&& nodeType == NodeType::CUT
-        && depthLeft > Depth::THREE
+        && depthLeft > Depth::SEVEN
         /*&& !searchStack->hashFound*/) {
 
         constexpr std::array<Depth, 3> IirReductionPerNodeType = { Depth::ZERO, Depth::FOUR, Depth::FOUR };
@@ -1106,10 +1113,11 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
     }
 
     Score bestScore = -INFINITE_SCORE;
-    NodeCount movesSearched = ZeroNodes;
+    NodeCount movesSearched = ZeroNodes, quietMovesSearched = ZeroNodes;
 
     const bool hasNonPawnMaterial = board.hasNonPawnMaterial();
     const bool isImproving = searchStack->staticEvaluation > (searchStack - 2)->staticEvaluation;
+    const std::int32_t phase = board.getPhase();
 
     for (ChessMove& move : moveList) {
         if (move == searchStack->excludedMove) {
@@ -1132,21 +1140,22 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
             }
         }
 
-        const bool isQuietMove = capturedPiece == PieceType::NO_PIECE
-            && promotionPiece == PieceType::NO_PIECE;
+        const bool isQuietMove = capturedPiece == PieceType::NO_PIECE && promotionPiece == PieceType::NO_PIECE;
+
+        const Score gain = (MaterialParameters[promotionPiece] + MaterialParameters[capturedPiece])(phase);
 
         //3) Early Pruning
         if (nodeType != NodeType::PV
             && !isInCheck
-            && movesSearched > 0) {
-            if (depthLeft < Depth::EIGHT
-                && isQuietMove
-                && searchStack->staticEvaluation + 110 * depthLeft < alpha) {
-                move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
+            && movesSearched > 0
+            && depthLeft < Depth::EIGHT
+            && isQuietMove
+            && searchStack->staticEvaluation + 110 * depthLeft + gain < alpha) {
 
-                if (move.seeScore < Score(-185) * depthLeft) {
-                    continue;
-                }
+            move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
+
+            if (move.seeScore < Score(-185) * depthLeft) {
+                continue;
             }
         }
 
@@ -1279,8 +1288,6 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
         }
 
         //7) Calculate Reductions
-        const std::uint32_t phase = nextBoard.getPhase();
-
         //const bool isPawnMove = move.movedPiece == PieceType::PAWN;
         //const Rank dstRank = GetRank(move.dst);
 
@@ -1313,90 +1320,72 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
             /*&& !searchStack->hasMateThreat*/) {
             //TODO: Don't reduce on certain move types
 
-            if (nodeType != NodeType::PV
-                && depthLeft < Depth::SEVEN
+            if (/*nodeType != NodeType::PV
+                && */depthLeft < Depth::SEVEN
                 && searchStack->staticEvaluation + PruningMargin(depthLeft, movesSearched, phase) < alpha) {
                 continue;
             }
 
-            if (nodeType == NodeType::ALL
-                && depthLeft < Depth::THREE
-                && movesSearched > 40) {
-                continue;
-            }
+            //move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
 
-            move.seeScore = this->staticExchangeEvaluator.staticExchangeEvaluation(board, move);
+            //const Score staticExchangeEvaluationReductionThreshold = -PAWN_SCORE;// StaticExchangeEvaluationReductionThreshold(depthLeft, movesSearched, phase);
+            //if (move.seeScore <= staticExchangeEvaluationReductionThreshold) {
+            //    if (nodeType != NodeType::PV
+            //        && depthLeft < Depth::FOUR) {
+            //        continue;
+            //    }
 
-            const Score staticExchangeEvaluationReductionThreshold = StaticExchangeEvaluationReductionThreshold(depthLeft, movesSearched, phase);
-            if (move.seeScore <= staticExchangeEvaluationReductionThreshold) {
-                if (nodeType != NodeType::PV
-                    && depthLeft < Depth::FOUR) {
-                    continue;
-                }
-
-                extensions -= Depth::ONE;
-            }
+            //    extensions -= Depth::ONE;
+            //}
 
             //if (move.seeScore <= -KNIGHT_SCORE
             //    && movingPiece == PieceType::QUEEN) {
             //    extensions -= Depth::ONE;
             //}
 
-            constexpr std::array<Depth, 3> LateMoveReductionDepthLeftPerNodeType = { Depth::ZERO, Depth::ONE, Depth::ONE };
-            constexpr Depth LateMoveReductionDepthLeft = LateMoveReductionDepthLeftPerNodeType[static_cast<std::uint32_t>(nodeType)];
-
             if (/*&& movesSearched > 0*/
-                /*&&*/ depthLeft > LateMoveReductionDepthLeft) {
-                extensions += Depth::ZERO - LateMoveReductions(depthLeft, movesSearched, phase);
+                /*&&*/ depthLeft > Depth::ONE) {
+                extensions -= LateMoveReductions(depthLeft, movesSearched, phase);
             }
         }
 
-        //8) Recurse
+        if (isPvNode
+            //&& depthLeft > Depth::THREE
+            && extensions == Depth::ZERO
+            && isQuietMove
+            && true) {
+            extensions -= Depth(movesSearched / 12);
+        }
+
+        //8) Do Move
         searchStack->currentMove = move;
         this->moveHistory.push_back(nextBoard, move);
 
+        //8) Recurse
+
         (searchStack + 1)->excludedMove = NullMove;
 
-        Score score = ZERO_SCORE;
+        Score score = NO_SCORE;
 
-        switch (nodeType) {
-        case NodeType::PV:
-            if (movesSearched == ZeroNodes) {
-                assert(extensions >= Depth::ZERO);
-                score = -this->search<NodeType::PV>(nextBoard, searchStack + 1, -beta, -alpha, maxDepth + extensions, currentDepth + Depth::ONE);
-            }
-            else {
-                score = -this->search<NodeType::CUT>(nextBoard, searchStack + 1, -alpha - 1, -alpha, maxDepth + extensions, currentDepth + Depth::ONE);
-
-                if (score > alpha
-                    && score < beta) {
-                    extensions = extensions < Depth::ZERO ? Depth::ZERO : extensions;
-
-                    score = -this->search<NodeType::PV>(nextBoard, searchStack + 1, -beta, -alpha, maxDepth + extensions, currentDepth + Depth::ONE);
-                }
-            }
-            break;
-        case NodeType::CUT:
-            score = -this->search<NodeType::ALL>(nextBoard, searchStack + 1, -alpha - 1, -alpha, maxDepth + extensions, currentDepth + Depth::ONE);
-
-            if (score > alpha
-                && extensions < Depth::ZERO) {
-                score = -this->search<NodeType::ALL>(nextBoard, searchStack + 1, -alpha - 1, -alpha, maxDepth, currentDepth + Depth::ONE);
-            }
-
-            break;
-        case NodeType::ALL:
+        if (!isPvNode
+            || movesSearched > ZeroNodes) {
             score = -this->search<NodeType::CUT>(nextBoard, searchStack + 1, -alpha - 1, -alpha, maxDepth + extensions, currentDepth + Depth::ONE);
 
-            if (score > alpha
+            if (!isPvNode
+                && score > alpha
                 && extensions < Depth::ZERO) {
                 score = -this->search<NodeType::CUT>(nextBoard, searchStack + 1, -alpha - 1, -alpha, maxDepth, currentDepth + Depth::ONE);
             }
-
-            break;
-        default:
-            assert(0);
         }
+
+        if (isPvNode
+            && (movesSearched == ZeroNodes || (score > alpha && score < beta))) {
+            extensions = extensions < Depth::ZERO ? Depth::ZERO : extensions;
+
+            score = -this->search<NodeType::PV>(nextBoard, searchStack + 1, -beta, -alpha, maxDepth + extensions, currentDepth + Depth::ONE);
+        }
+
+        assert(score != NO_SCORE);
 
         //9) Undo Move
         this->moveHistory.pop_back();
@@ -1414,16 +1403,16 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
             //11) Check if the new score > beta.  Save some statistics and return.
             if (score >= beta) {
                 if (enableHistoryTable) {
-                    //if (isQuietMove) {
-                        const std::uint32_t delta = HistoryDelta(depthLeft, phase);
+                    if (isQuietMove) {
+                        const std::uint32_t delta = 1;// HistoryDelta(depthLeft, phase);
                         this->historyTable.add(movingPiece, dst, delta);
-                    //}
+                    }
                 }
 
                 if (enableMateHistoryTable
                     && IsWinScore(score)) {
-                    const std::uint32_t delta = HistoryDelta(depthLeft, phase);
-                    this->mateHistoryTable.add(movingPiece, dst, delta);
+                    const std::uint32_t delta = 1;// HistoryDelta(depthLeft, phase);
+                    this->mateHistoryTable[board.sideToMove].add(src, dst, delta);
                 }
 
                 if (enableMateKillerMoves
@@ -1454,6 +1443,7 @@ Score ChessSearcher::searchLoop(ChessBoard& board, ChessSearchStack* searchStack
         }
 
         movesSearched++;
+        quietMovesSearched += isQuietMove ? OneNode : ZeroNodes;
     }
 
     assert(movesSearched > 0);
@@ -1538,10 +1528,9 @@ void ChessSearcher::verifyPrincipalVariation(const ChessBoard& board, ChessPrinc
         }
     }
     else {
-        assert(enableAspirationWindow || principalVariation.size() >= depth);
+        assert(principalVariation.size() >= depth);
 
-        if (!enableAspirationWindow
-            && principalVariation.size() < depth) {
+        if (principalVariation.size() < depth) {
             std::printf("assert(principalVariation.size() >= depth)\n");
             savePosition(board, principalVariation, score, depth);
 
@@ -1555,10 +1544,9 @@ void ChessSearcher::verifyPrincipalVariation(const ChessBoard& board, ChessPrinc
             evaluatedScore = -evaluatedScore;
         }
 
-        assert(enableAspirationWindow || evaluatedScore == score);
+        assert(evaluatedScore == score);
 
-        if (!enableAspirationWindow
-            && evaluatedScore != score) {
+        if (evaluatedScore != score) {
             std::printf("assert(evaluatedScore == score)\n");
             savePosition(board, principalVariation, score, depth);
 

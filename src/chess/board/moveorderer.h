@@ -40,7 +40,7 @@ public:
     constexpr ChessMoveOrderer() = default;
     constexpr ~ChessMoveOrderer() = default;
 
-    void reorderMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack, const ChessHistoryTable& historyTable, const ChessHistoryTable& mateHistoryTable) const
+    void reorderMoves(const ChessBoard& board, ChessMoveList& moveList, const ChessSearchStack* searchStack, const PieceTypeSquareHistoryTable& historyTable, const SquareSquareHistoryTable(&mateHistoryTable)[2]) const
     {
         const bool isWhiteToMove = board.isWhiteToMove();
 
@@ -104,7 +104,7 @@ public:
                     continue;
                 }
 
-                const std::uint32_t mateHistoryScore = mateHistoryTable.get(movingPiece, dst);
+                const std::uint32_t mateHistoryScore = mateHistoryTable[board.sideToMove].get(src, dst);
 
                 if (mateHistoryScore > 0) {
                     move.ordinal = ChessMoveOrdinal::MATE_HISTORY_MOVE + ChessMoveOrdinal(mateHistoryScore);
@@ -133,7 +133,7 @@ public:
 
         const Bitboard unsafeSquares = this->attackGenerator.unsafeSquares(board.sideToMove, otherPieces);
 
-        const std::uint32_t phase = board.getPhase();
+        const std::int32_t phase = board.getPhase();
 
         for (ChessMove& move : moveList) {
             const Square& src = move.src;

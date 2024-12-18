@@ -23,3 +23,4 @@
 using NodeCount = std::uint64_t;
 
 constexpr NodeCount ZeroNodes = NodeCount(0);
+constexpr NodeCount OneNode = NodeCount(1);

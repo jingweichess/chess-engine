@@ -31,50 +31,10 @@
 
 #include "parameters.h"
 
-QuadraticConstruct FutilityPruningMargin = {
-    {  -1,  7 },
-    {  91,  80 },
-    {  69,  97 }
-};
-
-QuadraticConstruct HistoryDeltaByDepthLeft = {
-    { 0, 0 },
-    { 0, 0 },
-    { 1, 1 }
-};
-
-QuadraticConstruct LateMoveReductionsDepthLeft = {
-    { 0, 0 },
-    { 0, 0 },
-    { 0, 0 }
-};
-
 QuadraticConstruct LateMoveReductionsSearchedMoves = {
     {  78,  21 },
     { 244,  44 },
     {  37, 130 }
-};
-
-ChessEvaluation LazyEvaluationThreshold = {
-    3 * PAWN_SCORE, 3 * PAWN_SCORE
-};
-
-QuadraticConstruct NullMoveMargins = {
-    { 0, 0 },
-    { 0, 0 },
-    { 0, 0 }
-};
-
-QuadraticConstruct NullMoveReductions = {
-    {   0,   0 },
-    {   0,   0 },
-    { 768, 768 }
-};
-
-QuadraticConstruct NullMoveVerificationReductions = {
-    {   0,   0 },
-    {   0,   0 },
-    { 768, 768 }
 };
 
 QuadraticConstruct PruningMarginDepthLeft = {
@@ -87,36 +47,6 @@ QuadraticConstruct PruningMarginSearchedMoves = {
     {  -28,  -34 },
     {   54, -137 },
     {  143,   63 }
-};
-
-QuadraticConstruct QuiescenceEarlyExitMargin = {
-    {   0,   0 },
-    {   0,   0 },
-    { 512, 512 }
-};
-
-QuadraticConstruct QuiescenceStaticExchangeEvaluationMargin = {
-    {    0,    0 },
-    {    0,    0 },
-    { -256, -256 }
-};
-
-QuadraticConstruct ProbCutPruningMargin = {
-    {   0, 0 },
-    { 100, 0 },
-    { 300, 0 }
-};
-
-QuadraticConstruct ProbCutReductions = {
-    {    0,    0 },
-    {   32,   32 },
-    { 1024, 1024 }
-};
-
-QuadraticConstruct RazoringMargin = {
-    {  -67,  53 },
-    {   43, 134 },
-    { 1050, 901 }
 };
 
 //Parameters used by Evaluation
@@ -249,14 +179,7 @@ ChessEvaluation PstByPieceAndRank[PieceType::PIECETYPE_COUNT][Rank::RANK_COUNT] 
         {  12,   0 }, {  62,  36 }, {  -2,  25 }, {  31,   6 }, { -20,  42 }, { -19, -11 }, { -32,  23 }, {  20, -60 }
     },
     {
-        { 0, 0 },
-        { 0, 0 },
-        { 0, 0 },
-        { 0, 0 },
-        { 0, 0 },
-        { 0, 0 },
-        { 0, 0 },
-        { 0, 0 }
+        { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }
     },
     {
         { -20, -48 }, {  45, -26 }, {   1,   2 }, {   6,  48 }, {  40,  25 }, {  39,   7 }, { -29,   2 }, { -21, -74 }
@@ -490,69 +413,6 @@ ParameterMap chessEngineParameterMap = {
     { "attack-queen-bishop-eg", &AttackParameters[PieceType::QUEEN][PieceType::BISHOP].eg },
     { "attack-queen-rook-mg", &AttackParameters[PieceType::QUEEN][PieceType::ROOK].mg },
     { "attack-queen-rook-eg", &AttackParameters[PieceType::QUEEN][PieceType::ROOK].eg },
-
-    ////{ "search-aspiration-initial-value-mg", &AspirationWindowInitialValue.mg },
-    ////{ "search-aspiration-initial-value-eg", &AspirationWindowInitialValue.eg },
-    ////{ "search-aspiration-window-delta-mg", &AspirationWindowDelta.mg },
-    ////{ "search-aspiration-window-delta-eg", &AspirationWindowDelta.eg },
-
-    { "search-futility-margin-quadratic-mg", &FutilityPruningMargin.quadratic.mg },
-    { "search-futility-margin-quadratic-eg", &FutilityPruningMargin.quadratic.eg },
-    { "search-futility-margin-slope-mg", &FutilityPruningMargin.slope.mg },
-    { "search-futility-margin-slope-eg", &FutilityPruningMargin.slope.eg },
-    { "search-futility-margin-yintercept-mg", &FutilityPruningMargin.yintercept.mg },
-    { "search-futility-margin-yintercept-eg", &FutilityPruningMargin.yintercept.eg },
-
-    //{ "search-history-delta-depthleft-quadratic-mg", &HistoryDeltaByDepthLeft.quadratic.mg },
-    //{ "search-history-delta-depthleft-slope-mg", &HistoryDeltaByDepthLeft.slope.mg },
-    //{ "search-history-delta-depthleft-yintercept-mg", &HistoryDeltaByDepthLeft.yintercept.mg },
-
-    { "search-lazy-evaluation-margin-mg", &LazyEvaluationThreshold.mg },
-    { "search-lazy-evaluation-margin-eg", &LazyEvaluationThreshold.eg },
-
-    { "search-nullmove-margin-quadratic-mg", &NullMoveMargins.quadratic.mg },
-    { "search-nullmove-margin-quadratic-eg", &NullMoveMargins.quadratic.eg },
-    { "search-nullmove-margin-slope-mg", &NullMoveMargins.slope.mg },
-    { "search-nullmove-margin-slope-eg", &NullMoveMargins.slope.eg },
-    { "search-nullmove-margin-yintercept-mg", &NullMoveMargins.yintercept.mg },
-    { "search-nullmove-margin-yintercept-eg", &NullMoveMargins.yintercept.eg },
-
-    { "search-nullmove-reductions-quadratic-mg", &NullMoveReductions.quadratic.mg },
-    { "search-nullmove-reductions-slope-mg", &NullMoveReductions.slope.mg },
-    { "search-nullmove-reductions-yintercept-mg", &NullMoveReductions.yintercept.mg },
-
-    { "search-nullmove-verification-reductions-quadratic-mg", &NullMoveVerificationReductions.quadratic.mg },
-    { "search-nullmove-verification-reductions-slope-mg", &NullMoveVerificationReductions.slope.mg },
-    { "search-nullmove-verification-reductions-yintercept-mg", &NullMoveVerificationReductions.yintercept.mg },
-
-    //{ "search-probcut-margin-quadratic-mg", &ProbCutPruningMargin.quadratic.mg },
-    //{ "search-probcut-margin-slope-mg", &ProbCutPruningMargin.slope.mg },
-    //{ "search-probcut-margin-yintercept-mg", &ProbCutPruningMargin.yintercept.mg },
-
-    { "search-quiescence-early-exit-margin-quadratic-mg", &QuiescenceEarlyExitMargin.quadratic.mg },
-    { "search-quiescence-early-exit-margin-quadratic-eg", &QuiescenceEarlyExitMargin.quadratic.eg },
-    { "search-quiescence-early-exit-margin-slope-eg", &QuiescenceEarlyExitMargin.slope.eg },
-    { "search-quiescence-early-exit-margin-slope-mg", &QuiescenceEarlyExitMargin.slope.mg },
-    { "search-quiescence-early-exit-margin-yintercept-mg", &QuiescenceEarlyExitMargin.yintercept.mg },
-    { "search-quiescence-early-exit-margin-yintercept-eg", &QuiescenceEarlyExitMargin.yintercept.eg },
-
-    //{ "search-quiescence-early-see-quadratic-mg", &QuiescenceStaticExchangeEvaluationMargin.quadratic.mg },
-    //{ "search-quiescence-early-see-slope-mg", &QuiescenceStaticExchangeEvaluationMargin.slope.mg },
-    //{ "search-quiescence-early-see-yintercept-mg", &QuiescenceStaticExchangeEvaluationMargin.yintercept.mg },
-
-    { "search-razoring-margin-quadratic-mg", &RazoringMargin.quadratic.mg },
-    { "search-razoring-margin-quadratic-eg", &RazoringMargin.quadratic.eg },
-    { "search-razoring-margin-slope-mg", &RazoringMargin.slope.mg },
-    { "search-razoring-margin-slope-eg", &RazoringMargin.slope.eg },
-    { "search-razoring-margin-yintercept-mg", &RazoringMargin.yintercept.mg },
-    { "search-razoring-margin-yintercept-eg", &RazoringMargin.yintercept.eg },
-
-    { "search-reductions-lmr-depthleft-quadratic-mg", &LateMoveReductionsDepthLeft.quadratic.mg },
-    { "search-reductions-lmr-depthleft-quadratic-eg", &LateMoveReductionsDepthLeft.quadratic.eg },
-    { "search-reductions-lmr-depthleft-slope-mg", &LateMoveReductionsDepthLeft.slope.mg },
-    { "search-reductions-lmr-depthleft-slope-eg", &LateMoveReductionsDepthLeft.slope.eg },
-    { "search-reductions-lmr-depthleft-yintercept-mg", &LateMoveReductionsDepthLeft.yintercept.mg },
-    { "search-reductions-lmr-depthleft-yintercept-eg", &LateMoveReductionsDepthLeft.yintercept.eg },
 
     { "search-reductions-lmr-searchedmoves-quadratic-mg", &LateMoveReductionsSearchedMoves.quadratic.mg },
     { "search-reductions-lmr-searchedmoves-quadratic-eg", &LateMoveReductionsSearchedMoves.quadratic.eg },

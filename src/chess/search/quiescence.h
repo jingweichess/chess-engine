@@ -22,15 +22,15 @@
 
 #include "../eval/constructor.h"
 
-extern QuadraticConstruct QuiescenceEarlyExitMargin;
-extern QuadraticConstruct QuiescenceStaticExchangeEvaluationMargin;
+//extern QuadraticConstruct QuiescenceEarlyExitMargin;
+//extern QuadraticConstruct QuiescenceStaticExchangeEvaluationMargin;
 
-constexpr Score quiescenceEarlyExitMargin(Depth depthLeft, std::uint32_t phase)
-{
-    return QuiescenceEarlyExitMargin(depthLeft)(phase);
-}
+//constexpr Score quiescenceEarlyExitMargin(Depth depthLeft, std::uint32_t phase)
+//{
+//    return QuiescenceEarlyExitMargin(depthLeft)(phase);
+//}
 
-constexpr Score quiescenceStaticExchangeEvaluationMargin(Depth depthLeft, std::uint32_t phase)
-{
-    return QuiescenceStaticExchangeEvaluationMargin(depthLeft)(phase);
-}
+//constexpr Score quiescenceStaticExchangeEvaluationMargin(Depth depthLeft, std::uint32_t phase)
+//{
+//    return QuiescenceStaticExchangeEvaluationMargin(depthLeft)(phase);
+//}

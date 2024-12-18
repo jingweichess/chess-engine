@@ -30,11 +30,9 @@
 using PieceTypeSquareHistoryTable = HistoryTable<PieceType::PIECETYPE_COUNT, Square::SQUARE_COUNT>;
 using SquareSquareHistoryTable = HistoryTable<Square::SQUARE_COUNT, Square::SQUARE_COUNT>;
 
-using ChessHistoryTable = PieceTypeSquareHistoryTable;
-
-extern QuadraticConstruct HistoryDeltaByDepthLeft;
-
-constexpr std::uint32_t HistoryDelta(Depth depthLeft, std::uint32_t phase)
-{
-    return HistoryDeltaByDepthLeft(depthLeft)(phase);
-}
+//extern QuadraticConstruct HistoryDeltaByDepthLeft;
+//
+//constexpr std::uint32_t HistoryDelta(Depth depthLeft, std::uint32_t phase)
+//{
+//    return HistoryDeltaByDepthLeft(depthLeft)(phase);
+//}

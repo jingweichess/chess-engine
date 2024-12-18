@@ -26,17 +26,17 @@ ENGINE = "jing-wei/engine.cpp"
 
 ENGINE_FILES = $(ENGINE) $(CHESS_BITBOARDS) $(CHESS_BOARD) $(CHESS_COMM) $(CHESS_ENDGAME) $(CHESS_EVAL) $(CHESS_HASH) $(CHESS_PLAYER) $(CHESS_SEARCH) $(CHESS_TYPES) $(GAME_CLOCK) $(GAME_PERSONALITY) $(GAME_SEARCH)
 
-LEVEL_IN_SECONDS = 2
+LEVEL_IN_SECONDS = 1
 NODE_COUNT = 100000
 TIME_IN_SECONDS = 5
 
 MINUTES = 0
 SECONDS = $(LEVEL_IN_SECONDS)
-INTERVAL = 0.02
+INTERVAL = 0.01
 
 LEVEL = 0/$(MINUTES):$(SECONDS)+$(INTERVAL)
 
-OPPONENT = stockfish
+OPPONENT = 4ku
 OPPONENT_DEPTH = 7
 
 ELO0 = 0.5
@@ -59,13 +59,25 @@ install:
 	wget https://github.com/cutechess/cutechess/releases/download/v1.3.1/cutechess_20230730+1.3.1-1_amd64.deb -O /tmp/cutechess-cli.deb
 	sudo dpkg -i /tmp/cutechess-cli.deb
 
+4ku:
+
+	cutechess-cli -engine conf=4ku -engine conf=4ku-old -each tc=0/0:$(LEVEL_IN_SECONDS) timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
+
+personality: compile
+
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" initstr="personality data/personality.txt" -engine name=JingWeiControl cmd="./jing-wei-old" -each proto=xboard tc=$(LEVEL) dir="./bin" timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
+
+opponents-same: compile
+
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard initstr="personality data/personality.txt" dir="./bin" -engine conf=$(OPPONENT) -each tc=0/0:$(LEVEL_IN_SECONDS) timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
+
 opponents-sprt: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) initstr="personality data/personality.txt" dir="./bin" -engine conf=$(OPPONENT) st=1 depth=$(OPPONENT_DEPTH) -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard initstr="personality data/personality.txt" dir="./bin" tc=$(LEVEL) -engine conf=$(OPPONENT) tc=0/0:1+0.01 -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -sprt $(SPRT) -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
 
 opponents-test: compile
 
-	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard tc=0/0:$(LEVEL_IN_SECONDS) initstr="personality data/personality.txt" dir="./bin" -engine conf=$(OPPONENT) st=1 depth=$(OPPONENT_DEPTH) -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1
+	cutechess-cli -engine name=JingWeiExperimental cmd="./jing-wei" proto=xboard initstr="personality data/personality.txt" dir="./bin" tc=$(LEVEL) -engine conf=$(OPPONENT) tc=0/0:1+0.01 -each timemargin=100000 restart=on -openings file="bin/data/openings.epd" format=epd order=random -concurrency 6 -rounds 5000000 -games 2 -repeat -ratinginterval 1 $(RESIGN)
 
 sprt-nodes: compile
 

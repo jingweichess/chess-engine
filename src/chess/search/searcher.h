@@ -124,9 +124,8 @@ protected:
 
     SearchEventHandlerList<ChessBoard, ChessPrincipalVariation> searchEventHandlerList;
 
-    ChessHistoryTable continuationHistoryTable;
-    ChessHistoryTable historyTable;
-    ChessHistoryTable mateHistoryTable;
+    PieceTypeSquareHistoryTable historyTable;
+    SquareSquareHistoryTable mateHistoryTable[2];
 
     Depth rootSearchDepth;
 

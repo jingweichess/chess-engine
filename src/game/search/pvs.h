@@ -498,7 +498,7 @@ protected:
 #endif
 
         const bool hasNonPawnMaterial = board.hasNonPawnMaterial();
-        const std::uint32_t phase = board.getPhase();
+        const std::int32_t phase = board.getPhase();
 
         if (nodeType != NodeType::PV
             && !searchStack->hashFound
@@ -795,9 +795,9 @@ protected:
                 if (score >= beta) {
                     if (enableHistoryTable) {
                         if (isQuietMove) {
-                            const std::uint32_t phase = nextBoard.getPhase();
+                            const std::int32_t phase = nextBoard.getPhase();
 
-                            const std::uint32_t delta = HistoryDelta(depthLeft, phase);
+                            const std::uint32_t delta = 1;// HistoryDelta(depthLeft, phase);
                             this->historyTable.add(movingPiece, dst, delta);
                         }
                     }
