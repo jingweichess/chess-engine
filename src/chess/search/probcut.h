@@ -26,17 +26,17 @@
 
 #include "../eval/constructor.h"
 
-extern QuadraticConstruct ProbCutPruningMargin;
-extern QuadraticConstruct ProbCutReductions;
-
-constexpr Score ProbCutMargin(Depth depthLeft, std::uint32_t phase)
-{
-    return ProbCutPruningMargin(depthLeft)(phase);
-}
-
-constexpr Depth ProbCutReduction(Depth depthLeft, std::uint32_t phase)
-{
-    const Score result = ProbCutReductions(depthLeft)(phase);
-
-    return static_cast<Depth>(result / PAWN_SCORE);
-}
+//extern QuadraticConstruct ProbCutPruningMargin;
+//extern QuadraticConstruct ProbCutReductions;
+//
+//constexpr Score ProbCutMargin(Depth depthLeft, std::uint32_t phase)
+//{
+//    return ProbCutPruningMargin(depthLeft)(phase);
+//}
+//
+//constexpr Depth ProbCutReduction(Depth depthLeft, std::uint32_t phase)
+//{
+//    const Score result = ProbCutReductions(depthLeft)(phase);
+//
+//    return static_cast<Depth>(result / PAWN_SCORE);
+//}

@@ -54,7 +54,7 @@ constexpr bool operator < (Rank r1, Rank r2)
 
 constexpr Rank operator ~ (Rank r)
 {
-    return Rank::RANK_COUNT - r;
+    return Rank::_1 - r;
 }
 
 class RankIterator {

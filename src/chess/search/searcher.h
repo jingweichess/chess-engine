@@ -31,8 +31,11 @@ constexpr bool enableInternalIterativeDeepening = enableAllSearchFeatures && tru
 constexpr bool enableKillerMoves = enableAllSearchFeatures && true;
 constexpr bool enableMateAtAGlance = enableAllSearchFeatures && false;
 constexpr bool enableMateDistancePruning = enableAllSearchFeatures && true;
+constexpr bool enableMateHistoryTable = enableAllSearchFeatures && true;
+constexpr bool enableMateKillerMoves = enableAllSearchFeatures && true;
 constexpr bool enableMoveExtensions = enableAllSearchFeatures && true;
 constexpr bool enableNullMove = enableAllSearchFeatures && true;
+constexpr bool enableNullMoveVerification = enableAllSearchFeatures && false;
 constexpr bool enablePositionExtensions = enableAllSearchFeatures && true;
 constexpr bool enableQuiescenceStaticExchangeEvaluation = enableAllSearchFeatures && true;
 constexpr bool enableRazoring = enableAllSearchFeatures && true;
@@ -72,9 +75,9 @@ constexpr bool enableQuiescenceEarlyExit = enableAllSearchFeatures && false;
 
 //#include "../../game/search/pvs.h"
 
-constexpr std::uint32_t SearchStackSize = Depth::MAX + 2;
+constexpr std::uint32_t SearchStackSize = Depth::MAX + 3;
 
-constexpr std::uint32_t HASH_MEGABYTES = 1;
+constexpr std::uint32_t HASH_MEGABYTES = 2;
 constexpr std::uint32_t HASH_SIZE = HASH_MEGABYTES * 65536;
 
 //class ChessPrincipalVariationSearcher : public PrincipalVariationSearcher<ChessPrincipalVariationSearcher, ChessEvaluator, ChessMoveGenerator, ChessPrincipalVariation, ChessSearchStack, ChessBoardMover, ChessMoveOrderer, ChessHistoryTable, ChessStaticExchangeEvaluator>
@@ -121,7 +124,9 @@ protected:
 
     SearchEventHandlerList<ChessBoard, ChessPrincipalVariation> searchEventHandlerList;
 
-    ChessHistoryTable historyTable;
+    PieceTypeSquareHistoryTable historyTable;
+    SquareSquareHistoryTable mateHistoryTable[2];
+
     Depth rootSearchDepth;
 
     bool abortedSearch = false;

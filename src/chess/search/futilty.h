@@ -22,9 +22,9 @@
 
 #include "../eval/constructor.h"
 
-extern QuadraticConstruct FutilityPruningMargin;
-
-constexpr Score FutilityMargin(Depth depthLeft, std::uint32_t phase)
-{
-    return FutilityPruningMargin(depthLeft)(phase);
-}
+//extern QuadraticConstruct FutilityPruningMargin;
+//
+//constexpr Score FutilityMargin(Depth depthLeft, std::uint32_t phase)
+//{
+//    return FutilityPruningMargin(depthLeft)(phase);
+//}

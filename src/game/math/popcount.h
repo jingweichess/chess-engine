@@ -18,8 +18,13 @@
 
 #pragma once
 
-//#include <bit>
+#include <bit>
 #include <cstdint>
+
+constexpr std::uint32_t PopCount(std::uint64_t n)
+{
+    return std::popcount(n);
+}
 
 constexpr bool PopCountIsOne(std::uint64_t n)
 {

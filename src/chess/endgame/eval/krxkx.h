@@ -45,6 +45,8 @@ constexpr ChessEndgame::EndgameFunctionType krrkq = weakKingDrawishEndgameFuncti
 
 constexpr ChessEndgame::EndgameFunctionType krpkrp = weakKingDrawishEndgameFunction;
 
+//constexpr ChessEndgame::EndgameFunctionType krrkbn = weakKingEndgameFunction;
+
 constexpr bool krppkr(const ChessBoard& board, Score& score)
 {
     return weakKingEndgameFunction(board, score);

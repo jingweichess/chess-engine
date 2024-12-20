@@ -25,6 +25,9 @@
 #include "../types/hash.h"
 #include "../types/nodecount.h"
 #include "../types/score.h"
+
+#include "../../chess/types/move.h"
+#include "../../chess/types/piecetype.h"
 #include "../../chess/types/square.h"
 
 using HashtableAge = std::uint8_t;
@@ -62,15 +65,18 @@ constexpr Score ScoreToHash(Score score, Depth currentDepth)
     return score;
 }
 
+using HashScore = std::int16_t;
+
 struct HashtableEntry {
     union {
         struct {
             Hash hashValue;
-            Score score;
+            HashScore score;
             HashtableDepth depthLeft;
             HashtableAge age;
             HashtableEntryType hashtableEntryType;
-            std::uint8_t custom;
+            Square src, dst;
+            PieceType promotionPiece;
         } search;
 
         struct {
@@ -95,26 +101,58 @@ struct HashtableEntry {
             NodeCount nodeCount;
         } perft;
 
+        struct {
+            Hash hashValue;
+            Score score;
+        } mate;
+
 #if defined(USE_M128I)
         __m128i vector;
 #endif
     };
-
-    constexpr std::uint8_t getCustom() const
-    {
-        return this->search.custom;
-    }
 
     constexpr Depth getDepthLeft() const
     {
         return static_cast<Depth>(this->search.depthLeft);
     }
 
+    constexpr Square getDst() const
+    {
+        return this->search.dst;
+    }
+
+    constexpr Score getEg() const
+    {
+        return this->eval.eg;
+    }
+
+    constexpr Score getMateScore() const
+    {
+        return this->mate.score;
+    }
+
+    constexpr Score getMg() const
+    {
+        return this->eval.mg;
+    }
+
+    constexpr PieceType getPromotionPiece() const
+    {
+        return this->search.promotionPiece;
+    }
+
     constexpr Score getScore(Depth currentDepth) const
     {
-        return ScoreFromHash(this->search.score, currentDepth);
+        const HashScore hashScore = this->search.score;
+
+        return ScoreFromHash(hashScore, currentDepth);
     }
-    
+
+    constexpr Square getSrc() const
+    {
+        return this->search.src;
+    }
+
     constexpr HashtableEntryType getType() const
     {
         return this->search.hashtableEntryType;
@@ -138,7 +176,9 @@ public:
 
     void initialize(std::uint32_t entryCount);
 
-    void insert(Hash hashValue, Score score, Depth currentDepth, Depth depthLeft, HashtableEntryType hashtableEntryType, std::uint8_t custom = 0);
+    void insert(Hash hashValue, Score score, Depth currentDepth, Depth depthLeft, HashtableEntryType hashtableEntryType, const ChessMove& move);
+    void insert(Hash hashValue, Score mateScore);
+    void insert(Hash hashValue, Score mg, Score eg);
 
     void prefetch(Hash hashValue) const
     {
@@ -156,7 +196,7 @@ public:
 
     void reset();
 
-    HashtableEntryType search(Hash hashValue, Score& score, Depth currentDepth, Depth& depthLeft, std::uint8_t& custom) const;
+    HashtableEntryType search(Hash hashValue, Score& score, Depth currentDepth, Depth& depthLeft, ChessMove& move) const;
 
     bool search(HashtableEntry& hashEntry, Hash hashValue) const;
 };

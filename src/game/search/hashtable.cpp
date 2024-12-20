@@ -56,7 +56,7 @@ void Hashtable::initialize(std::uint32_t entryCount)
     this->reset();
 }
 
-void Hashtable::insert(Hash hashValue, Score score, Depth currentDepth, Depth depthLeft, HashtableEntryType hashtableEntryType, std::uint8_t custom)
+void Hashtable::insert(Hash hashValue, Score score, Depth currentDepth, Depth depthLeft, HashtableEntryType hashtableEntryType, const ChessMove& move)
 {
     const std::uint32_t position = hashValue & (this->hashEntryCount - 1);
     HashtableEntry* oldHashtableEntry = this->hashEntryList + position;
@@ -81,7 +81,9 @@ void Hashtable::insert(Hash hashValue, Score score, Depth currentDepth, Depth de
     hashtableEntry.search.depthLeft = depthLeft;
     hashtableEntry.search.age = this->currentAge;
     hashtableEntry.search.hashtableEntryType = hashtableEntryType;
-    hashtableEntry.search.custom = custom;
+    hashtableEntry.search.src = move.src;
+    hashtableEntry.search.dst = move.dst;
+    hashtableEntry.search.promotionPiece = move.promotionPiece;
 
 #if defined(USE_M128I)
     (*oldHashtableEntry).vector = hashtableEntry.vector;
@@ -92,15 +94,52 @@ void Hashtable::insert(Hash hashValue, Score score, Depth currentDepth, Depth de
     if (testHashtableSaves) {
         Score testScore;
         Depth testDepthLeft;
-        std::uint8_t testCustom;
+        ChessMove testMove;
 
-        const HashtableEntryType testHashtableEntryType = this->search(hashValue, testScore, currentDepth, testDepthLeft, testCustom);
+        const HashtableEntryType testHashtableEntryType = this->search(hashValue, testScore, currentDepth, testDepthLeft, testMove);
 
         assert(testHashtableEntryType == hashtableEntryType);
         assert(score == testScore);
         assert(depthLeft == testDepthLeft);
-        assert(testCustom == custom);
+        assert(move.src == testMove.src);
+        assert(move.dst == testMove.dst);
+        assert(move.promotionPiece == testMove.promotionPiece);
     }
+}
+
+void Hashtable::insert(Hash hashValue, Score mateScore)
+{
+    const std::uint32_t position = hashValue & (this->hashEntryCount - 1);
+    HashtableEntry* oldHashtableEntry = this->hashEntryList + position;
+
+    HashtableEntry hashtableEntry;
+
+    hashtableEntry.mate.hashValue = hashValue;
+    hashtableEntry.mate.score = mateScore;
+
+#if defined(USE_M128I)
+    (*oldHashtableEntry).vector = hashtableEntry.vector;
+#else
+    *oldHashtableEntry = hashtableEntry;
+#endif
+}
+
+void Hashtable::insert(Hash hashValue, Score mg, Score eg)
+{
+    const std::uint32_t position = hashValue & (this->hashEntryCount - 1);
+    HashtableEntry* oldHashtableEntry = this->hashEntryList + position;
+
+    HashtableEntry hashtableEntry;
+
+    hashtableEntry.eval.hashValue = hashValue;
+    hashtableEntry.eval.mg = mg;
+    hashtableEntry.eval.eg = eg;
+
+#if defined(USE_M128I)
+    (*oldHashtableEntry).vector = hashtableEntry.vector;
+#else
+    * oldHashtableEntry = hashtableEntry;
+#endif
 }
 
 void Hashtable::reset()
@@ -113,7 +152,7 @@ void Hashtable::reset()
     }
 }
 
-HashtableEntryType Hashtable::search(Hash hashValue, Score& score, Depth currentDepth, Depth& depthLeft, std::uint8_t& custom) const
+HashtableEntryType Hashtable::search(Hash hashValue, Score& score, Depth currentDepth, Depth& depthLeft, ChessMove& move) const
 {
     std::uint32_t position = hashValue & (this->hashEntryCount - 1);
     HashtableEntry* hashtableEntry = this->hashEntryList + position;
@@ -122,7 +161,11 @@ HashtableEntryType Hashtable::search(Hash hashValue, Score& score, Depth current
         return HashtableEntryType::NONE;
     }
 
-    custom = hashtableEntry->search.custom;
+    move.src = hashtableEntry->search.src;
+    move.dst = hashtableEntry->search.dst;
+
+    move.promotionPiece = hashtableEntry->search.promotionPiece;
+
     depthLeft = (Depth)hashtableEntry->search.depthLeft;
     score = ScoreFromHash(hashtableEntry->search.score, currentDepth);
 

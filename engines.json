@@ -1,0 +1,26 @@
+[
+    {
+        "command": "./bin/engines/stockfish-ubuntu-x86-64-avx2",
+        "name": "stockfish",
+        "options": [
+        ],
+        "protocol": "uci",
+        "workingDirectory": "./"
+    },
+    {
+        "command": "./bin/engines/4ku",
+        "name": "4ku",
+        "options": [
+        ],
+        "protocol": "uci",
+        "workingDirectory": "./"
+    },
+    {
+        "command": "./bin/engines/4ku-old",
+        "name": "4ku-old",
+        "options": [
+        ],
+        "protocol": "uci",
+        "workingDirectory": "./"
+    }
+]

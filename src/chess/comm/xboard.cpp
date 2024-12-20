@@ -434,7 +434,7 @@ NodeCount XBoardComm::perft(Depth depth)
     ChessBoard& board = this->player.getCurrentBoard();
 
     Perft perft;
-    return perft.perft(board, depth, true);
+    return perft.perft(board, depth, false);
 }
 
 void XBoardComm::processCommandImplementation(const std::string& cmd)

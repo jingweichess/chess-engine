@@ -49,6 +49,11 @@ constexpr Depth operator * (Depth d, int i)
     return Depth(int(d) * i);
 }
 
+constexpr Depth operator * (Depth d, unsigned int i)
+{
+    return Depth((unsigned int)(d) * i);
+}
+
 constexpr Depth operator * (Depth d, float f)
 {
     return Depth(float(d) * f);

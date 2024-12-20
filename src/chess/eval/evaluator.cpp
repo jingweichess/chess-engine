@@ -30,7 +30,6 @@
 #include "../endgame/function.h"
 
 #include "../types/bitboard.h"
-#include "../types/controlboards.h"
 #include "../types/score.h"
 
 #include "../../game/math/bitreset.h"
@@ -43,17 +42,17 @@
 extern ChessEvaluation DoubledRooks;
 extern ChessEvaluation EmptyFileQueen;
 extern ChessEvaluation EmptyFileRook;
+extern ChessEvaluation Tempo;
+
+extern std::array<ChessEvaluation, 2> BishopPawns;
+extern std::array<ChessEvaluation, PieceType::PIECETYPE_COUNT> KingAttacks;
+extern std::array<ChessEvaluation, 2> KingShield;
+extern std::array<ChessEvaluation, PieceType::PIECETYPE_COUNT> Outpost;
+
 extern ChessEvaluation PiecePairs[PieceType::PIECETYPE_COUNT];
-
-extern ChessEvaluation ControlParameters[PieceType::PIECETYPE_COUNT][32];
-
-extern ChessEvaluation ControlPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
-extern ChessEvaluation KingControlPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
 
 extern ChessEvaluation QueenBehindPassedPawnPst[Square::SQUARE_COUNT];
 extern ChessEvaluation RookBehindPassedPawnPst[Square::SQUARE_COUNT];
-
-extern ChessEvaluation OutpostPstParameters[PieceType::PIECETYPE_COUNT][Square::SQUARE_COUNT];
 
 extern ChessEvaluation TropismParameters[PieceType::PIECETYPE_COUNT][16];
 
@@ -72,9 +71,9 @@ ChessEvaluator::ChessEvaluator()
 {
     InitializeEndgame(this->endgame);
 
-    //if (enableEvaluationHashtable) {
-    //    evaluationHashtable.initialize(EVALUATION_HASH_MEGABYTES);
-    //}
+    if (enableEvaluationHashtable) {
+        evaluationHashtable.initialize(EVALUATION_HASH_MEGABYTES);
+    }
 
     //if (enablePawnHashtable) {
     //    pawnHashtable.initialize(PAWN_HASH_MEGABYTES);
@@ -116,28 +115,29 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
         }
     }
 
-    //if (enableEvaluationHashtable) {
-    //    HashtableEntry hashtableEntryInfo;
-    //    const bool hashFound = evaluationHashtable.search(hashtableEntryInfo, board.hashValue);
-    //
-    //    if (hashFound) {
-    //        this->calculatePassedPawns(board, this->passedPawns[Color::WHITE], this->passedPawns[Color::BLACK]);
+    if (enableEvaluationHashtable) {
+        HashtableEntry hashtableEntryInfo;
+        const bool hashFound = evaluationHashtable.search(hashtableEntryInfo, board.hashValue);
+    
+        if (hashFound) {
+            this->passedPawns[Color::WHITE] = this->calculatePassedPawns(board, Color::WHITE);
+            this->passedPawns[Color::BLACK] = this->calculatePassedPawns(board, Color::BLACK);
 
-    //        const ChessEvaluation evaluation = { hashtableEntryInfo.getMg(), hashtableEntryInfo.getEg() };
+            const ChessEvaluation evaluation = { hashtableEntryInfo.getMg(), hashtableEntryInfo.getEg() };
 
-    //        const std::uint32_t phase = board.getPhase();
-    //        const Score result = evaluation(phase);
+            const std::int32_t phase = board.getPhase();
+            const Score result = evaluation(phase);
 
-    //        return isWhiteToMove ? result : -result;
-    //    }
-    //}
+            return isWhiteToMove ? result : -result;
+        }
+    }
 
     //3) Check for lazy evaluation
-    const std::uint32_t phase = board.getPhase();
+    const std::int32_t phase = board.getPhase();
 
     const Score lazyEvaluation = this->lazyEvaluate(board);
 
-    const Score lazyThreshold = LazyThreshold(phase);
+    const Score lazyThreshold = 3 * PAWN_SCORE;
     if (lazyEvaluation + lazyThreshold < alpha
         || lazyEvaluation - lazyThreshold >= beta) {
 
@@ -154,122 +154,129 @@ Score ChessEvaluator::evaluateImplementation(const BoardType& board, Depth curre
     //  This must be done first because other evaluation terms rely on pawn structure calculations.
     evaluation += this->evaluatePawnStructure(board, this->passedPawns[Color::WHITE], this->passedPawns[Color::BLACK]);
 
-    //ControlBoards controlBoards;
-
     //6) Loop through pieces
     evaluation += this->evaluatePawnAttacks(board, Color::WHITE);
     evaluation -= this->evaluatePawnAttacks(board, Color::BLACK);
 
-    //controlBoards[PieceType::PAWN][Color::WHITE] = this->attackGenerator.unsafeSquares(Color::BLACK, board.whitePieces);
-    //controlBoards[PieceType::PAWN][Color::BLACK] = this->attackGenerator.unsafeSquares(Color::WHITE, board.blackPieces);
-
-    //TODO: Move Blocked Pawn/Piece Evaluation here
-
-    const BitboardPair unsafeSquares = {
+    const BitboardPair UnsafeSquares = {
         this->attackGenerator.unsafeSquares(Color::WHITE, board.blackPieces),
         this->attackGenerator.unsafeSquares(Color::BLACK, board.whitePieces)
     };
 
-    BitboardPair cumulativeControl { EmptyBitboard, EmptyBitboard };
+    for (const Color color : { Color::WHITE, Color::BLACK }) {
+        const bool isSideToMove = color == board.sideToMove;
 
-    for (PieceType pieceType = PieceType::PAWN; pieceType <= PieceType::QUEEN; pieceType++) {
-        if (pieceType != PieceType::PAWN) {
-            for (Color color = Color::WHITE; color < Color::COLOR_COUNT; color++) {
-                const bool isSideToMove = color == board.sideToMove;
+        const bool colorIsWhite = color == Color::WHITE;
+        const std::int32_t multiplier = colorIsWhite ? 1 : -1;
 
-                const bool colorIsWhite = color == Color::WHITE;
-                const std::int32_t multiplier = colorIsWhite ? 1 : -1;
+        const Bitboard* colorPieces = colorIsWhite ? board.whitePieces : board.blackPieces;
+        const Bitboard* otherPieces = colorIsWhite ? board.blackPieces : board.whitePieces;
 
-                const Bitboard* colorPieces = colorIsWhite ? board.whitePieces : board.blackPieces;
-                //const Bitboard* otherPieces = colorIsWhite ? board.blackPieces : board.whitePieces;
+        const Square otherKingPosition = color == Color::WHITE ? board.blackKingPosition() : board.whiteKingPosition();
+        const Bitboard otherKingMoves = PieceMoves[PieceType::KING][otherKingPosition] & ~otherPieces[PieceType::KING];
 
-                const Square otherKingPosition = color == Color::WHITE ? board.blackKingPosition() : board.whiteKingPosition();
-
-                //controlBoards[pieceType][color] = EmptyBitboard;
-
-                const Bitboard srcPieces = colorPieces[pieceType];
-
-                //const bool hasPiecePair = std::popcount(srcPieces) > 1;
-
-                //if (hasPiecePair) {
-                //    evaluation += multiplier * PiecePairs[pieceType];
-                //}
-
-                for (const Square src : SquareBitboardIterator(srcPieces)) {
-                    Bitboard mobilityDstSquares = EmptyBitboard;
-
-                    evaluation += multiplier * this->evaluateMobility(mobilityDstSquares, board.allPieces, colorPieces[PieceType::ALL], pieceType, src, unsafeSquares[color]);
-
-                    //controlBoards[pieceType][color] |= mobilityDstSquares;
-
-                    evaluation += multiplier * this->evaluateAttacks(board, color, pieceType, mobilityDstSquares);
-
-                    evaluation += multiplier * this->evaluateTropism(pieceType, src, otherKingPosition);
-
-                    //const Bitboard colorPawnDefenders = (colorIsWhite ? BlackPawnCaptures[src] : WhitePawnCaptures[src]) & colorPieces[PieceType::PAWN];
-                    //if (colorPawnDefenders != EmptyBitboard) {
-                    //    constexpr Bitboard outposts = FullBitboard; // 0x000000c3c3810000;
-                    //    const Square evaluatedSrc = colorIsWhite ? src : FlipSquareOnHorizontalLine(src);
-
-                    //    if ((OneShiftedBy(evaluatedSrc) & outposts) != EmptyBitboard) {
-                    //        evaluation += multiplier * OutpostPstParameters[pieceType][evaluatedSrc];
-                    //    }
-                    //}
-
-                    //switch (pieceType) {
-                    //case PieceType::KNIGHT:
-                    //case PieceType::BISHOP:
-                    //    break;
-                    //case PieceType::ROOK:
-                    //    //evaluation += multiplier * this->evaluateRook(colorPieces, mobilityDstSquares, board.allPieces, passedPawns[color], src, hasPiecePair);
-                    //    break;
-                    //case PieceType::QUEEN:
-                    //    //evaluation += multiplier * this->evaluateQueen(mobilityDstSquares, board.allPieces, passedPawns[color], src);
-                    //    break;
-                    //default:
-                    //    assert(0);
-                    //}
-                }
+        for (PieceType pieceType = PieceType::KNIGHT; pieceType <= PieceType::QUEEN; pieceType++) {
+            if (std::popcount(colorPieces[pieceType]) > 1) {
+                evaluation += multiplier * PiecePairs[pieceType];
             }
         }
 
-        //const Bitboard control = cumulativeControl[Color::WHITE] | cumulativeControl[Color::BLACK];
+        const Bitboard allColorPieces = colorPieces[PieceType::ALL];
+        for (const Square src : SquareBitboardIterator(allColorPieces ^ colorPieces[PieceType::PAWN])) {
+            const PieceType pieceType = board.pieceAt(src);
+            const Square evaluatedSrc = colorIsWhite ? src : FlipSquareOnHorizontalLine(src);
 
-        //controlBoards[pieceType][Color::WHITE] &= ~control;
-        //controlBoards[pieceType][Color::BLACK] &= ~control;
+            const Bitboard PawnDefends = colorIsWhite ? BlackPawnCaptures[src] : WhitePawnCaptures[src];
+            const Bitboard pawnsDefendedBy = PawnDefends & colorPieces[PieceType::PAWN];
 
-        //cumulativeControl[Color::WHITE] |= controlBoards[pieceType][Color::WHITE];
-        //cumulativeControl[Color::BLACK] |= controlBoards[pieceType][Color::BLACK];
+            if (pawnsDefendedBy != EmptyBitboard) {
+                evaluation += multiplier * Outpost[pieceType];
+            }
 
-        //for (Color color = Color::WHITE; color < Color::COLOR_COUNT; color++) {
-        //    const bool colorIsWhite = color == Color::WHITE;
-        //    const std::int32_t multiplier = colorIsWhite ? 1 : -1;
+            Bitboard mobilityDstSquares = EmptyBitboard;
 
-        //    const std::uint32_t controlCount = std::popcount(controlBoards[pieceType][color]);
-        //    evaluation += multiplier * ControlParameters[pieceType][controlCount];
+            switch (pieceType) {
+            case PieceType::KNIGHT:
+                mobilityDstSquares = PieceMoves[PieceType::KNIGHT][src];
+                break;
+            case PieceType::BISHOP: {
+                mobilityDstSquares = BishopMagic(src, board.allPieces);
 
-        //    //for (const Square src : SquareBitboardIterator(controlBoards[pieceType][color])) {
-        //    //    const Square evaluatedSrc = colorIsWhite ? src : FlipSquareOnHorizontalLine(src);
-        //    //    evaluation += multiplier * ControlPstParameters[pieceType][evaluatedSrc];
-        //    //}
+                const Bitboard colorSameBishopColorPawns = SquaresSameColorAs(colorPieces[PieceType::PAWN], src);
+                const std::uint32_t ourPawnsOnSameColor = std::popcount(colorSameBishopColorPawns);
 
-        //    //const Square otherKingSquare = board.otherKingPosition(color);
-        //    //const Bitboard kingMoves = PieceMoves[PieceType::KING][otherKingSquare];
+                evaluation += multiplier * std::popcount(ourPawnsOnSameColor) * BishopPawns[Color::CURRENT_COLOR];
 
-        //    //for (const Square src : SquareBitboardIterator(kingMoves & controlBoards[pieceType][color])) {
-        //    //    const Square evaluatedSrc = colorIsWhite ? src : FlipSquareOnHorizontalLine(src);
-        //    //    evaluation += multiplier * KingControlPstParameters[pieceType][evaluatedSrc];
-        //    //}
-        //}
+                const Bitboard otherOppositeBishopColorPawns = SquaresOppositeColorAs(otherPieces[PieceType::PAWN], src);
+                const std::uint32_t otherPawnsOnOppositeColor = std::popcount(otherOppositeBishopColorPawns);
+
+                evaluation += multiplier * std::popcount(otherPawnsOnOppositeColor) * BishopPawns[Color::OTHER_COLOR];
+
+            } break;
+            case PieceType::ROOK: {
+                mobilityDstSquares = RookMagic(src, board.allPieces);
+
+                const Bitboard colorRooks = colorPieces[PieceType::ROOK];
+
+                if ((colorRooks & mobilityDstSquares) != EmptyBitboard) {
+                    evaluation += multiplier * DoubledRooks;
+                }
+
+                const File file = GetFile(src);
+                const Bitboard piecesInSameFile = board.allPieces & FileBitboard[file];
+
+                if (piecesInSameFile == OneShiftedBy(src)) {
+                    evaluation += multiplier * EmptyFileRook;
+                }
+            } break;
+            case PieceType::QUEEN:
+                mobilityDstSquares = QueenMagic(src, board.allPieces);
+
+                break;
+            case PieceType::KING: {
+                //mobilityDstSquares = QueenMagic(src, board.allPieces);
+
+                const File file = GetFile(src);
+                const Rank rank = GetRank(evaluatedSrc);
+
+                if (rank < Rank::_3) {
+                    const Bitboard shield = KingPawnShield[file];
+
+                    Bitboard evaluatedPawns = colorIsWhite ? colorPieces[PieceType::PAWN] : FlipBitboardOnVertical(colorPieces[PieceType::PAWN]);
+                    evaluatedPawns <<= 8 * (Rank::_1 - rank + 1);
+
+                    evaluation += multiplier * std::popcount(evaluatedPawns & shield) * KingShield[0];
+                    evaluation += multiplier * std::popcount((evaluatedPawns + Direction::DOWN) & shield) * KingShield[1];
+                }
+
+            }   break;
+            default:
+                assert(0);
+            }
+
+            const std::uint32_t mobility = std::popcount(mobilityDstSquares & ~allColorPieces & ~UnsafeSquares[color]);
+            evaluation += multiplier * MobilityParameters[pieceType][mobility];
+
+            if (pieceType != PieceType::KING) {
+                const Bitboard kingAttacks = mobilityDstSquares & otherKingMoves & ~UnsafeSquares[color];
+
+                const std::uint32_t kingAttackCount = std::popcount(kingAttacks);
+                evaluation += multiplier * KingAttacks[pieceType] * kingAttackCount;
+
+                evaluation += multiplier * this->evaluateAttacks(board, color, pieceType, mobilityDstSquares);
+                evaluation += multiplier * this->evaluateTropism(pieceType, src, otherKingPosition);
+            }
+        }
     }
 
-    //if (enableEvaluationHashtable) {
-    //    evaluationHashtable.insert(board.pawnHashValue, evaluation.mg, evaluation.eg);
-    //}
+    if (enableEvaluationHashtable) {
+        evaluationHashtable.insert(board.hashValue, evaluation.mg, evaluation.eg);
+    }
 
     //7) Begin Result Calculation
-    const Score result = evaluation(phase);
-    return isWhiteToMove ? result : -result;
+    const Score result = (isWhiteToMove ? evaluation(phase) : -evaluation(phase)) + Tempo(phase);
+
+    return result;
 }
 
 ChessEvaluation ChessEvaluator::evaluateTropism(PieceType pieceType, Square src, Square otherKingPosition) const
@@ -279,61 +286,11 @@ ChessEvaluation ChessEvaluator::evaluateTropism(PieceType pieceType, Square src,
     return TropismParameters[pieceType][tropism];
 }
 
-//ChessEvaluation ChessEvaluator::evaluateRook(const Bitboard* colorPieces, Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src, bool hasPiecePair) const
-//{
-//    EvaluationType result = { ZERO_SCORE, ZERO_SCORE };
-//
-//    if (hasPiecePair) {
-//        const Bitboard sideToMoveRooks = colorPieces[PieceType::ROOK];
-//
-//        if ((sideToMoveRooks & mobilityDstSquares) == EmptyBitboard) {
-//            result += DoubledRooks;
-//        }
-//    }
-//
-//    const File file = GetFile(src);
-//    const Bitboard piecesInSameFile = allPieces & FileBitboard[file];
-//
-//    if (piecesInSameFile == OneShiftedBy(src)) {
-//        result += EmptyFileRook;
-//    }
-//    else if ((piecesInSameFile & passedPawns) != EmptyBitboard) {
-//        const Bitboard possiblePassedPawns = mobilityDstSquares & passedPawns & piecesInSameFile;
-//
-//        for (const Square dst : SquareBitboardIterator(possiblePassedPawns)) {
-//            result += RookBehindPassedPawnPst[dst];
-//        }
-//    }
-//
-//    return result;
-//}
-
-//ChessEvaluation ChessEvaluator::evaluateQueen(Bitboard mobilityDstSquares, Bitboard allPieces, Bitboard passedPawns, Square src) const
-//{
-//    EvaluationType result = { ZERO_SCORE, ZERO_SCORE };
-//
-//    const File file = GetFile(src);
-//    const Bitboard piecesInSameFile = allPieces & FileBitboard[file];
-//
-//    if (piecesInSameFile == OneShiftedBy(src)) {
-//        result += EmptyFileQueen;
-//    }
-//    else if ((piecesInSameFile & passedPawns) != EmptyBitboard) {
-//        const Bitboard possiblePassedPawns = mobilityDstSquares & passedPawns & piecesInSameFile;
-//
-//        for (const Square dst : SquareBitboardIterator(possiblePassedPawns)) {
-//            result += QueenBehindPassedPawnPst[dst];
-//        }
-//    }
-//
-//    return result;
-//}
-
 Score ChessEvaluator::lazyEvaluateImplementation(const BoardType& board)
 {
-    const EvaluationType evaluation = board.materialEvaluation + board.pstEvaluation;
+    const EvaluationType evaluation = board.materialEvaluation + board.pstEvaluation + Tempo;
 
-    const std::uint32_t phase = board.getPhase();
+    const std::int32_t phase = board.getPhase();
     const Score result = evaluation(phase);
 
     const bool isWhiteToMove = board.isWhiteToMove();
@@ -342,7 +299,7 @@ Score ChessEvaluator::lazyEvaluateImplementation(const BoardType& board)
 
 void ChessEvaluator::prefetch(Hash hashValue) const
 {
-    //if (enableEvaluationHashtable) {
-    //    evaluationHashtable.prefetch(hashValue);
-    //}
+    if (enableEvaluationHashtable) {
+        evaluationHashtable.prefetch(hashValue);
+    }
 }

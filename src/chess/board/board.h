@@ -254,6 +254,11 @@ public:
         return pawnsAndKing != piecesToMove[PieceType::ALL];
     }
 
+    constexpr NodeCount getFiftyMoveCount() const
+    {
+        return this->fiftyMoveCount;
+    }
+
     void initFromFen(const std::string& fen);
 
     constexpr bool isWhiteToMove() const
@@ -261,17 +266,22 @@ public:
         return this->sideToMove == Color::WHITE;
     }
 
+    constexpr PieceType pieceAt(Square src) const
+    {
+        return this->pieces[src];
+    }
+
     void resetSpecificPositionImplementation(const std::string& fen);
     void resetStartingPositionImplementation();
 
     std::string saveToFen() const;
 
-    constexpr std::uint32_t getPhase() const
+    constexpr std::int32_t getPhase() const
     {
         return std::popcount(this->allPieces);
     }
 
-    constexpr std::uint32_t getPieceCount() const
+    constexpr std::int32_t getPieceCount() const
     {
         return std::popcount(this->allPieces);
     }

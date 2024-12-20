@@ -23,7 +23,7 @@
 
 #include "../eval/constructor.h"
 
-extern QuadraticConstruct LateMoveReductionsDepthLeft;
+//extern QuadraticConstruct LateMoveReductionsDepthLeft;
 extern QuadraticConstruct LateMoveReductionsSearchedMoves;
 
 extern QuadraticConstruct PruningMarginDepthLeft;
@@ -31,7 +31,7 @@ extern QuadraticConstruct PruningMarginSearchedMoves;
 
 constexpr Depth LateMoveReductions(Depth depthLeft, NodeCount searchedMoves, std::uint32_t phase)
 {
-    const Score result = LateMoveReductionsDepthLeft(depthLeft * 8)(phase) + LateMoveReductionsSearchedMoves(static_cast<std::int32_t>(searchedMoves * 2))(phase);
+    const Score result = LateMoveReductionsSearchedMoves(static_cast<std::int32_t>(searchedMoves * 2))(phase);
 
     if (result < ZERO_SCORE) {
         return Depth::ZERO;
